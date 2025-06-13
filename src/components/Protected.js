@@ -35,6 +35,14 @@ const Protected = ({ Cmp, adminOnly = false }) => {
         const data = await response.json();
         const currentUser = data.user;
 
+        if (
+          !currentUser ||
+          currentUser.id !== user.id ||
+          currentUser.pseudo !== user.pseudo
+        ) {
+          throw new Error("Invalid user data");
+        }
+
         // Vérification adminOnly
         if (adminOnly && currentUser.role !== "super_admin") {
           navigate("/access-denied");

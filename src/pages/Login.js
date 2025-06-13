@@ -1,5 +1,3 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-
 import React, { useState, useEffect } from "react";
 import "../assets/css/Login.css";
 import loginImage from "../assets/img/login.png";

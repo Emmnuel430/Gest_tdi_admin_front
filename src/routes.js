@@ -12,23 +12,9 @@ import UserList from "./pages/users/UserList";
 import UserUpdate from "./pages/users/UserUpdate";
 
 // ----
-import Produits from "./pages/produits/Produits";
-// ----
-import Mot from "./pages/mot/Mot";
-// ----
-import Actus from "./pages/actus/Actus";
-// ----
-import Events from "./pages/events/Events";
-// ----
-import Conseillers from "./pages/conseillers/Conseillers";
-// ----
-import Fondements from "./pages/fondements/Fondements";
-// ----
-import Etudes from "./pages/etudes/Etudes";
-// ----
-import Synagogue from "./pages/synagogue/Synagogue";
-// ----
-import Parachiot from "./pages/parachiot/Parachiot";
+import Pages from "./pages/makePage/Pages";
+import AddPage from "./pages/makePage/AddPage";
+import EditPage from "./pages/makePage/EditPage";
 
 const AppRoutes = () => {
   return (
@@ -56,52 +42,19 @@ const AppRoutes = () => {
           element={<Protected Cmp={UserUpdate} adminOnly />}
         />
         {/* ------------------------ */}
-        {/* Produits */}
-        <Route
-          path="/admin-tdi/produits"
-          element={<Protected Cmp={Produits} />}
-        />
-        {/* ------------------------ */}
-        {/* Mot */}
-        <Route path="/admin-tdi/mot" element={<Protected Cmp={Mot} />} />
-        {/* ------------------------ */}
-        {/* Actus */}
-        <Route
-          path="/admin-tdi/actualites"
-          element={<Protected Cmp={Actus} />}
-        />
-        {/* ------------------------ */}
-        {/* Events */}
-        <Route
-          path="/admin-tdi/evenements"
-          element={<Protected Cmp={Events} />}
-        />
-        {/* ------------------------ */}
-        {/* Conseillers */}
-        <Route
-          path="/admin-tdi/conseillers"
-          element={<Protected Cmp={Conseillers} />}
-        />
-        {/* ------------------------ */}
-        {/* Fondements */}
-        <Route
-          path="/admin-tdi/fondements"
-          element={<Protected Cmp={Fondements} />}
-        />
-        {/* ------------------------ */}
-        {/* Etudes */}
-        <Route path="/admin-tdi/etudes" element={<Protected Cmp={Etudes} />} />
-        {/* Synagogue */}
-        <Route
-          path="/admin-tdi/synagogues"
-          element={<Protected Cmp={Synagogue} />}
-        />
-        {/* Parachiot */}
-        <Route
-          path="/admin-tdi/parachiot"
-          element={<Protected Cmp={Parachiot} />}
-        />
 
+        {/* ------------------------ */}
+
+        {/* Liste des pages */}
+        <Route path="/admin-tdi/pages" element={<Pages />} />
+
+        {/* Ajout d'une nouvelle page */}
+        <Route path="/admin-tdi/pages/add" element={<AddPage />} />
+
+        {/* Modification d'une page existante */}
+        <Route path="/admin-tdi/pages/edit/:id" element={<EditPage />} />
+
+        {/* ------------------------ */}
         {/* ------------------------ */}
 
         {/* Logs */}

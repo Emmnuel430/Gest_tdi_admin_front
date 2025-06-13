@@ -46,109 +46,15 @@ const SidebarLinks = ({ user }) => {
         <h6 className="text-uppercase text-muted ps-3 mt-3">Contenu du site</h6>
 
         <Link
-          to="/admin-tdi/produits"
+          to="/admin-tdi/pages"
           className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/produits")
+            isActive("/admin-tdi/pages")
               ? "active bg-body-secondary fw-bold"
               : ""
           }`}
         >
-          <i className="fa fa-tag me-2"></i>
-
-          <span className="text-body">Produit</span>
-        </Link>
-        <Link
-          to="/admin-tdi/mot"
-          className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/mot") ? "active bg-body-secondary fw-bold" : ""
-          }`}
-        >
-          <i className="fa fa-quote-left me-2"></i>
-          <span className="text-body">Mot</span>
-        </Link>
-
-        <Link
-          to="/admin-tdi/actualites"
-          className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/actualites")
-              ? "active bg-body-secondary fw-bold"
-              : ""
-          }`}
-        >
-          <i className="fa fa-newspaper me-2"></i>
-          <span className="text-body">Actualités</span>
-        </Link>
-
-        <Link
-          to="/admin-tdi/evenements"
-          className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/evenements")
-              ? "active bg-body-secondary fw-bold"
-              : ""
-          }`}
-        >
-          <i className="fa fa-calendar-alt me-2"></i>
-          <span className="text-body">Événements</span>
-        </Link>
-
-        <Link
-          to="/admin-tdi/conseillers"
-          className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/conseillers")
-              ? "active bg-body-secondary fw-bold"
-              : ""
-          }`}
-        >
-          <i className="fa fa-handshake me-2"></i>
-          <span className="text-body">Conseillers</span>
-        </Link>
-
-        <Link
-          to="/admin-tdi/synagogues"
-          className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/synagogues")
-              ? "active bg-body-secondary fw-bold"
-              : ""
-          }`}
-        >
-          <i className="fa fa-church me-2"></i>
-          <span className="text-body">Synagogues</span>
-        </Link>
-
-        <Link
-          to="/admin-tdi/fondements"
-          className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/fondements")
-              ? "active bg-body-secondary fw-bold"
-              : ""
-          }`}
-        >
-          <i className="fa fa-book me-2"></i>
-          <span className="text-body">Fondements</span>
-        </Link>
-
-        <Link
-          to="/admin-tdi/etudes"
-          className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/etudes")
-              ? "active bg-body-secondary fw-bold"
-              : ""
-          }`}
-        >
-          <i className="fa fa-graduation-cap me-2"></i>
-          <span className="text-body">Études</span>
-        </Link>
-
-        <Link
-          to="/admin-tdi/parachiot"
-          className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/parachiot")
-              ? "active bg-body-secondary fw-bold"
-              : ""
-          }`}
-        >
-          <i className="fa fa-scroll me-2"></i>
-          <span className="text-body">Parachiot</span>
+          <i className="fa fa-file-alt me-2"></i>
+          <span className="text-body">Pages</span>
         </Link>
       </>
     </div>
