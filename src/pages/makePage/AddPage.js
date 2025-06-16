@@ -14,6 +14,7 @@ const AddPage = () => {
     subtitle: "",
     main_image: null,
     template: "",
+    order: "",
     sections: [],
   });
 
@@ -92,6 +93,7 @@ const AddPage = () => {
     formData.append("title", page.title);
     formData.append("subtitle", page.subtitle || "");
     formData.append("template", page.template || "");
+    formData.append("order", page.order || "");
 
     if (page.main_image instanceof File) {
       formData.append("main_image", page.main_image);
@@ -193,6 +195,16 @@ const AddPage = () => {
                   name="subtitle"
                   className="form-control"
                   value={page.subtitle}
+                  onChange={handlePageChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Numéro d'ordre</label>
+                <input
+                  type="number"
+                  name="order"
+                  className="form-control"
+                  value={page.order}
                   onChange={handlePageChange}
                 />
               </div>

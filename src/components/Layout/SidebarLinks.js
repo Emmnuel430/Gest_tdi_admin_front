@@ -56,6 +56,15 @@ const SidebarLinks = ({ user }) => {
           <i className="fa fa-file-alt me-2"></i>
           <span className="text-body">Pages</span>
         </Link>
+        <Link
+          to="/admin-tdi/ads"
+          className={`nav-link d-flex align-items-center ${
+            isActive("/admin-tdi/ads") ? "active bg-body-secondary fw-bold" : ""
+          }`}
+        >
+          <i className="fa fa-image me-2"></i>
+          <span className="text-body">Affiches</span>
+        </Link>
       </>
     </div>
   );

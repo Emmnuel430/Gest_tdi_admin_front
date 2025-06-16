@@ -15,6 +15,8 @@ export default function EditPage() {
     title: "",
     subtitle: "",
     main_image: null,
+    template: "",
+    order: "",
     sections: [],
   });
   const [previewMainImage, setPreviewMainImage] = useState("");
@@ -32,6 +34,7 @@ export default function EditPage() {
           subtitle: data.subtitle || "",
           main_image: data.main_image || null,
           template: data.template || "",
+          order: data.order || "",
           sections: data.sections.map((sec) => ({
             ...sec,
             image: sec.image || null,
@@ -120,6 +123,7 @@ export default function EditPage() {
     formData.append("title", page.title);
     formData.append("subtitle", page.subtitle);
     formData.append("template", page.template);
+    formData.append("order", page.order);
 
     // Image principale de la page
     if (page.main_image instanceof File) {
@@ -231,6 +235,16 @@ export default function EditPage() {
                   name="subtitle"
                   className="form-control"
                   value={page.subtitle}
+                  onChange={handlePageChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Numéro d'ordre</label>
+                <input
+                  type="number"
+                  name="order"
+                  className="form-control"
+                  value={page.order}
                   onChange={handlePageChange}
                 />
               </div>

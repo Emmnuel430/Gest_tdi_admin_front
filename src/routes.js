@@ -16,6 +16,11 @@ import Pages from "./pages/makePage/Pages";
 import AddPage from "./pages/makePage/AddPage";
 import EditPage from "./pages/makePage/EditPage";
 
+// ----
+import Ads from "./pages/ads/Ads";
+import AddAds from "./pages/ads/AddAds";
+// import EditPage from "./pages/ads/EditPage";
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -55,6 +60,14 @@ const AppRoutes = () => {
         <Route path="/admin-tdi/pages/edit/:id" element={<EditPage />} />
 
         {/* ------------------------ */}
+        {/* Liste des ads */}
+        <Route path="/admin-tdi/ads" element={<Ads />} />
+
+        {/* Ajout d'une nouvelle page */}
+        <Route path="/admin-tdi/ads/add" element={<AddAds />} />
+
+        {/* Modification d'une page existante */}
+        <Route path="/admin-tdi/ads/edit/:id" element={<EditPage />} />
         {/* ------------------------ */}
 
         {/* Logs */}

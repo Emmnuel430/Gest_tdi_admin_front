@@ -163,51 +163,56 @@ const Pages = () => {
             <div className="row">
               {filteredPage.length > 0 ? (
                 filteredPage
-                  .sort(
-                    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
-                  )
+                  // .sort(
+                  //   (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+                  // )
                   .map((page) => (
                     <div className="col-md-6 col-lg-4 mb-4" key={page.id}>
-                      <Card
-                        className="h-100 shadow-sm border"
-                        style={{ minHeight: "250px" }}
-                      >
-                        {/* {page.main_image && (
-                        <Card.Img
-                          variant="top"
-                          src={`${process.env.REACT_APP_API_URL}/storage/${page.main_image}`}
-                          alt={page.title}
-                          style={{
-                            height: "180px",
-                            objectFit: "contain",
-                            objectPosition: "center",
-                          }}
-                        />
-                      )} */}
-
+                      <Card className="h-100 shadow border">
                         <Card.Body className="d-flex flex-column justify-content-between">
-                          <div className="d-flex justify-content-between align-items-start mb-2">
-                            <Card.Title className="fw-bold mb-0">
-                              {page.title}
-                            </Card.Title>
+                          {/* Titre et Ordre */}
+                          <div className="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                              <Card.Title className="fw-bold text-primary mb-1">
+                                {page.title}
+                              </Card.Title>
+                              <Card.Subtitle className="text-muted small">
+                                {page.subtitle || "Aucun sous-titre"}
+                              </Card.Subtitle>
+                            </div>
+                            {page.order && (
+                              <span className="badge bg-secondary rounded-pill">
+                                P {page.order}
+                              </span>
+                            )}
                           </div>
 
-                          {page.subtitle ? (
-                            <Card.Subtitle className="mb-2 text-muted">
-                              {page.subtitle}
-                            </Card.Subtitle>
-                          ) : (
-                            <Card.Subtitle className="mb-2 text-muted">
-                              Aucun sous-titre
-                            </Card.Subtitle>
-                          )}
+                          {/* Infos sections */}
+                          <div className="mb-3">
+                            <div className="d-flex flex-column small gap-1">
+                              <div>
+                                <i className="bi bi-diagram-3-fill me-2 text-primary"></i>
+                                <strong>Sections :</strong>{" "}
+                                {page.sections?.length || 0}
+                              </div>
+                              <div>
+                                <i className="bi bi-files me-2 text-success"></i>
+                                <strong>Sous-sections :</strong>{" "}
+                                {page.sections?.reduce(
+                                  (acc, sec) =>
+                                    acc + (sec.subsections?.length || 0),
+                                  0
+                                ) || 0}
+                              </div>
+                            </div>
+                          </div>
 
-                          <div>
-                            <div className="small mt-3 text-secondary mt-auto">
+                          {/* Slug & dates */}
+                          <div className="mt-auto pt-2 border-top">
+                            <div className="small text-secondary mt-2">
                               <strong>Slug :</strong> {page.slug}
                             </div>
-
-                            <div className="text-muted w-100 small">
+                            <div className="text-muted small">
                               Création : {formatDateRelative(page.created_at)}
                               <br />
                               Dernière m-à-j :{" "}
@@ -218,10 +223,10 @@ const Pages = () => {
                           </div>
                         </Card.Body>
 
-                        <Card.Footer className="bg-body d-flex justify-content-between align-items-center">
+                        <Card.Footer className="bg-body border-top d-flex justify-content-between align-items-center">
                           <Link
                             to={`/admin-tdi/pages/edit/${page.id}`}
-                            className="btn btn-warning btn-sm"
+                            className="btn btn-sm btn-warning"
                           >
                             Modifier
                           </Link>
