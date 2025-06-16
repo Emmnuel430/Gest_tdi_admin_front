@@ -221,7 +221,8 @@ const AddPage = () => {
                   <option value="">---</option>
                   <option value="accueil">Accueil</option>
                   <option value="classic">Classique</option>
-                  <option value="boutique">boutique</option>
+                  <option value="boutique">Boutique</option>
+                  <option value="dons">Dons</option>
                 </select>
               </div>
 
