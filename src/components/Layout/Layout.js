@@ -121,13 +121,13 @@ const Layout = ({ children }) => {
         <div className="p-2 min-vh-100">{children}</div>
         <div class="footer px-4 pt-4 mt-5">
           <div class="bg-body">
-            <div class="row">
+            <div class="row small">
               <div class="col-12 col-sm-6 text-center text-sm-start">
                 &copy; {new Date().getFullYear()} <Link to="/">Gest</Link>,
                 AsNumeric - J/E. Tous droits réservés.
               </div>
-              <div class="col-12 col-sm-6 text-center text-sm-end">
-                Designed By <Link to="/">Your name</Link>
+              <div class="col-12 col-sm-6 text-center text-sm-end text-muted ">
+                Designed By <Link to="/">Joel E. Daho</Link>
               </div>
             </div>
           </div>
