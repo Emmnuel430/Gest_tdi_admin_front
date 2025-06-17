@@ -76,32 +76,6 @@ const Layout = ({ children }) => {
 
           {/* Section de la barre de navigation avec notifications et messages */}
           <div className="navbar-nav align-items-center ms-auto">
-            {/* Notification d'alertes */}
-            {/* <div className="nav-item dropdown">
-              <button type="button" className="nav-link dropdown-toggle btn">
-                <i className="fa fa-bell me-lg-2"></i>
-                <span className="d-none d-lg-inline-flex items text-body">
-                  Alertes
-                </span>
-              </button>
-              <div className="dropdown-menu dropdown-menu-end bg-body border-0 rounded-bottom m-0">
-                <div className="dropdown-item">
-                  <div className="d-flex align-items-center">
-                    <img
-                      src={loginImage}
-                      alt="Profile"
-                      className="rounded-circle"
-                      width="40"
-                      height="40"
-                    />
-                    <div className="ms-2">
-                      <h6 className="text-body">John sent you a message</h6>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> */}
-
             {/* Changement de thème */}
             <ThemeSwitcher />
 
@@ -144,12 +118,21 @@ const Layout = ({ children }) => {
         </nav>
 
         {/* Contenu dynamique de la page, qui sera fourni par le parent (via 'children') */}
-        <div className="p-2">{children}</div>
-        <br />
-        <br />
+        <div className="p-2 min-vh-100">{children}</div>
+        <div class="footer px-4 pt-4 mt-5">
+          <div class="bg-body">
+            <div class="row">
+              <div class="col-12 col-sm-6 text-center text-sm-start">
+                &copy; {new Date().getFullYear()} <Link to="/">Gest</Link>,
+                AsNumeric - J/E. Tous droits réservés.
+              </div>
+              <div class="col-12 col-sm-6 text-center text-sm-end">
+                Designed By <Link to="/">Your name</Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <br />
-      <br />
 
       {/* Bouton de retour en haut de la page */}
       <button className="btn btn-lg btn-primary btn-lg-square back-to-top hide">
