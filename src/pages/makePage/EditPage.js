@@ -23,6 +23,7 @@ export default function EditPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [deletedSubsectionIds, setDeletedSubsectionIds] = useState([]);
 
   useEffect(() => {
     // Charger les données existantes
@@ -106,6 +107,13 @@ export default function EditPage() {
 
   const removeSubsection = (sectionIndex, subIndex) => {
     const newSections = [...page.sections];
+    const removed = newSections[sectionIndex].subsections[subIndex];
+
+    // Si elle a un id (donc existe déjà en base), on l'ajoute à la liste des suppressions
+    if (removed.id) {
+      setDeletedSubsectionIds((prev) => [...prev, removed.id]);
+    }
+
     newSections[sectionIndex].subsections.splice(subIndex, 1);
     setPage({ ...page, sections: newSections });
   };
@@ -178,6 +186,9 @@ export default function EditPage() {
           );
         }
       });
+    });
+    deletedSubsectionIds.forEach((id) => {
+      formData.append("deleted_subsections[]", id);
     });
 
     // Requête

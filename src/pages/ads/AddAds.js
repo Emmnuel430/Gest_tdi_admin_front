@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
@@ -15,6 +15,21 @@ const AddAds = () => {
   const [showModal, setShowModal] = useState(false);
 
   const navigate = useNavigate();
+
+  const [pages, setPages] = useState([]);
+
+  useEffect(() => {
+    const LINK = process.env.REACT_APP_API_URL;
+
+    fetch(`${LINK}/api/pages`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) setPages(data);
+      })
+      .catch((error) => {
+        console.error("Erreur de chargement des pages :", error);
+      });
+  }, []);
 
   const handleConfirm = () => {
     setShowModal(false);
@@ -87,13 +102,18 @@ const AddAds = () => {
 
         <div className="mb-3">
           <label className="form-label">Lien (slug)</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Ex: accueil, tsedaka, fetes-juives..."
+          <select
+            className="form-select"
             value={afficheLien}
             onChange={(e) => setAfficheLien(e.target.value)}
-          />
+          >
+            <option value="">-- Choisir une page --</option>
+            {pages.map((page) => (
+              <option key={page.id} value={page.slug}>
+                {page.title} ({page.slug})
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-3">
