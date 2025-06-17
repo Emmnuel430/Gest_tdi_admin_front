@@ -19,7 +19,7 @@ import EditPage from "./pages/makePage/EditPage";
 // ----
 import Ads from "./pages/ads/Ads";
 import AddAds from "./pages/ads/AddAds";
-// import EditPage from "./pages/ads/EditPage";
+import EditAds from "./pages/ads/EditAds";
 
 const AppRoutes = () => {
   return (
@@ -67,7 +67,7 @@ const AppRoutes = () => {
         <Route path="/admin-tdi/ads/add" element={<AddAds />} />
 
         {/* Modification d'une page existante */}
-        <Route path="/admin-tdi/ads/edit/:id" element={<EditPage />} />
+        <Route path="/admin-tdi/ads/edit/:id" element={<EditAds />} />
         {/* ------------------------ */}
 
         {/* Logs */}

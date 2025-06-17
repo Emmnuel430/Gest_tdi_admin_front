@@ -182,6 +182,7 @@ const AddPage = () => {
                   type="text"
                   name="title"
                   className="form-control"
+                  placeholder="Ex: Bienvenue, À propos, Nos activités..."
                   value={page.title}
                   onChange={handlePageChange}
                   required
@@ -194,16 +195,19 @@ const AddPage = () => {
                   type="text"
                   name="subtitle"
                   className="form-control"
+                  placeholder="Ex: Introduction, Notre histoire, Détails complémentaires..."
                   value={page.subtitle}
                   onChange={handlePageChange}
                 />
               </div>
+
               <div className="mb-3">
                 <label className="form-label">Numéro d'ordre</label>
                 <input
                   type="number"
                   name="order"
                   className="form-control"
+                  placeholder="Ex: 1, 2, 3 (pour définir l'ordre d'affichage)"
                   value={page.order}
                   onChange={handlePageChange}
                 />
@@ -218,7 +222,7 @@ const AddPage = () => {
                   onChange={handlePageChange}
                   required
                 >
-                  <option value="">---</option>
+                  <option value="">-- Choisir un modèle de page --</option>
                   <option value="accueil">Accueil</option>
                   <option value="classic">Classique</option>
                   <option value="boutique">Boutique</option>
@@ -232,6 +236,7 @@ const AddPage = () => {
                   type="file"
                   name="main_image"
                   className="form-control"
+                  placeholder="Image affichée en haut de la page"
                   onChange={handlePageChange}
                 />
               </div>
@@ -247,6 +252,7 @@ const AddPage = () => {
                       <input
                         type="text"
                         className="form-control"
+                        placeholder="Ex: Nos valeurs, Galerie, Contact..."
                         value={section.title}
                         onChange={(e) =>
                           handleSectionChange(sIndex, "title", e.target.value)
@@ -260,6 +266,7 @@ const AddPage = () => {
                       <input
                         type="text"
                         className="form-control"
+                        placeholder="Complément d'information de la section"
                         value={section.subtitle}
                         onChange={(e) =>
                           handleSectionChange(
@@ -294,6 +301,7 @@ const AddPage = () => {
                           <input
                             type="text"
                             className="form-control"
+                            placeholder="Ex: Activité 1, Article 2, Service 3..."
                             value={sub.title}
                             onChange={(e) =>
                               handleSubsectionChange(
@@ -364,10 +372,10 @@ const AddPage = () => {
                           <input
                             type="number"
                             className="form-control"
+                            placeholder="Ex: 5000 (en FCFA)"
                             value={sub.prix || ""}
                             onChange={(e) => {
                               const value = e.target.value;
-                              // si vide, on envoie null, sinon on convertit en nombre float
                               const prix =
                                 value === "" ? null : parseFloat(value);
                               handleSubsectionChange(
@@ -379,7 +387,6 @@ const AddPage = () => {
                             }}
                           />
                         </div>
-
                         <div className="mb-2">
                           <label className="form-label">Image</label>
                           <input
