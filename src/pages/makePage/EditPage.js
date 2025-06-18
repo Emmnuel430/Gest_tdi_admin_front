@@ -404,19 +404,17 @@ export default function EditPage() {
                           </div>
                         )}
 
-                      {!section.delete_image && (
-                        <input
-                          type="file"
-                          className="form-control"
-                          onChange={(e) =>
-                            handleSectionChange(
-                              sIndex,
-                              "image",
-                              e.target.files[0]
-                            )
-                          }
-                        />
-                      )}
+                      <input
+                        type="file"
+                        className="form-control"
+                        onChange={(e) =>
+                          handleSectionChange(
+                            sIndex,
+                            "image",
+                            e.target.files[0]
+                          )
+                        }
+                      />
                     </div>
 
                     <h6 className="mt-4">Sous-sections</h6>
@@ -542,21 +540,20 @@ export default function EditPage() {
                               </div>
                             )}
 
-                          {/* Si pas supprimée, afficher input file */}
-                          {!sub.delete_image && (
-                            <input
-                              type="file"
-                              className="form-control"
-                              onChange={(e) =>
-                                handleSubsectionChange(
-                                  sIndex,
-                                  subIndex,
-                                  "image",
-                                  e.target.files[0]
-                                )
-                              }
-                            />
-                          )}
+                          {/* Toujours afficher input file */}
+
+                          <input
+                            type="file"
+                            className="form-control"
+                            onChange={(e) =>
+                              handleSubsectionChange(
+                                sIndex,
+                                subIndex,
+                                "image",
+                                e.target.files[0]
+                              )
+                            }
+                          />
                         </div>
 
                         <button
