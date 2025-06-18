@@ -20,6 +20,7 @@ export default function EditPage() {
     sections: [],
   });
   const [previewMainImage, setPreviewMainImage] = useState("");
+  const [deleteMainImage, setDeleteMainImage] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -62,6 +63,10 @@ export default function EditPage() {
     } else {
       setPage((prev) => ({ ...prev, [name]: value }));
     }
+  };
+
+  const setPageField = (field, value) => {
+    setPage((prev) => ({ ...prev, [field]: value }));
   };
 
   const addSection = () => {
@@ -133,6 +138,11 @@ export default function EditPage() {
     formData.append("template", page.template);
     formData.append("order", page.order);
 
+    // Suppression d'image principale si demandée
+    if (deleteMainImage === true) {
+      formData.append("delete_main_image", "1");
+    }
+
     // Image principale de la page
     if (page.main_image instanceof File) {
       formData.append("main_image", page.main_image);
@@ -150,6 +160,10 @@ export default function EditPage() {
 
       if (section.image instanceof File) {
         formData.append(`sections[${si}][image]`, section.image);
+      }
+
+      if (section.delete_image) {
+        formData.append(`sections[${si}][delete_image]`, "1");
       }
 
       // Sous-sections
@@ -183,6 +197,13 @@ export default function EditPage() {
           formData.append(
             `sections[${si}][subsections][${sj}][image]`,
             sub.image
+          );
+        }
+
+        if (sub.delete_image) {
+          formData.append(
+            `sections[${si}][subsections][${sj}][delete_image]`,
+            "1"
           );
         }
       });
@@ -279,12 +300,26 @@ export default function EditPage() {
 
               <div className="mb-4">
                 <label className="form-label">Image principale</label>
-                {page.main_image && !(page.main_image instanceof File) && (
-                  <div className="alert alert-warning">
-                    Une image est déjà associée à cette page. Cliquez ci-dessous
-                    pour en choisir une nouvelle.
-                  </div>
-                )}
+                {page.main_image &&
+                  !(page.main_image instanceof File) &&
+                  !deleteMainImage && (
+                    <div className="alert alert-warning">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-danger mb-2"
+                        onClick={() => {
+                          setDeleteMainImage(true);
+                          setPageField("main_image", null);
+                          setPreviewMainImage(null);
+                        }}
+                      >
+                        Supprimer l'image
+                      </button>{" "}
+                      <br />
+                      Une image est déjà associée à cette page. Cliquez
+                      ci-dessous pour en choisir une nouvelle.
+                    </div>
+                  )}
                 <input
                   name="main_image"
                   type="file"
@@ -345,23 +380,43 @@ export default function EditPage() {
 
                     <div className="mb-3">
                       <label className="form-label">Image</label>
-                      {section.image && !(section.image instanceof File) && (
-                        <div className="alert alert-warning">
-                          Une image est déjà associée à cette section. Cliquez
-                          ci-dessous pour en choisir une nouvelle.
-                        </div>
+
+                      {section.image &&
+                        !(section.image instanceof File) &&
+                        !section.delete_image && (
+                          <div className="alert alert-warning">
+                            <button
+                              type="button"
+                              className="mb-2 px-3 py-1 btn btn-danger text-white rounded"
+                              onClick={() =>
+                                handleSectionChange(
+                                  sIndex,
+                                  "delete_image",
+                                  true
+                                )
+                              }
+                            >
+                              Supprimer l'image
+                            </button>{" "}
+                            <br />
+                            Une image est déjà associée à cette section. Cliquez
+                            ci-dessous pour en choisir une nouvelle.
+                          </div>
+                        )}
+
+                      {!section.delete_image && (
+                        <input
+                          type="file"
+                          className="form-control"
+                          onChange={(e) =>
+                            handleSectionChange(
+                              sIndex,
+                              "image",
+                              e.target.files[0]
+                            )
+                          }
+                        />
                       )}
-                      <input
-                        type="file"
-                        className="form-control"
-                        onChange={(e) =>
-                          handleSectionChange(
-                            sIndex,
-                            "image",
-                            e.target.files[0]
-                          )
-                        }
-                      />
                     </div>
 
                     <h6 className="mt-4">Sous-sections</h6>
@@ -460,24 +515,48 @@ export default function EditPage() {
 
                         <div className="mb-2">
                           <label className="form-label">Image</label>
-                          {sub.image && !(sub.image instanceof File) && (
-                            <div className="alert alert-warning">
-                              Une image est déjà associée à cette sous-section.
-                              Cliquez ci-dessous pour en choisir une nouvelle.
-                            </div>
+
+                          {/* Si une image existe déjà (et pas supprimée), afficher un message */}
+                          {sub.image &&
+                            !(sub.image instanceof File) &&
+                            !sub.delete_image && (
+                              <div className="alert alert-warning">
+                                <button
+                                  type="button"
+                                  className="mb-2 px-3 py-1 btn btn-danger text-white rounded"
+                                  onClick={() =>
+                                    handleSubsectionChange(
+                                      sIndex,
+                                      subIndex,
+                                      "delete_image",
+                                      true
+                                    )
+                                  }
+                                >
+                                  Supprimer l'image
+                                </button>
+                                <br />
+                                Une image est déjà associée à cette
+                                sous-section. Cliquez ci-dessous pour en choisir
+                                une nouvelle.
+                              </div>
+                            )}
+
+                          {/* Si pas supprimée, afficher input file */}
+                          {!sub.delete_image && (
+                            <input
+                              type="file"
+                              className="form-control"
+                              onChange={(e) =>
+                                handleSubsectionChange(
+                                  sIndex,
+                                  subIndex,
+                                  "image",
+                                  e.target.files[0]
+                                )
+                              }
+                            />
                           )}
-                          <input
-                            type="file"
-                            className="form-control"
-                            onChange={(e) =>
-                              handleSubsectionChange(
-                                sIndex,
-                                subIndex,
-                                "image",
-                                e.target.files[0]
-                              )
-                            }
-                          />
                         </div>
 
                         <button
