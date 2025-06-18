@@ -250,6 +250,7 @@ export default function EditPage() {
             )}
 
             <form>
+              {/* Pages */}
               {/* * Titre, sous-titre, image principale avec aperçu */}
               <div className="mb-3">
                 <label className="form-label">* Titre</label>
@@ -343,6 +344,7 @@ export default function EditPage() {
                 )}
               </div>
 
+              {/* Sections */}
               <h4>Sections</h4>
               {page.sections.map((section, sIndex) => (
                 <div key={sIndex} className="card border border-3 mb-4">
@@ -417,6 +419,7 @@ export default function EditPage() {
                       />
                     </div>
 
+                    {/* Sous-sections */}
                     <h6 className="mt-4">Sous-sections</h6>
                     {section.subsections.map((sub, subIndex) => (
                       <div
