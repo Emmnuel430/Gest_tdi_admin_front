@@ -274,7 +274,7 @@ const PrayerList = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="text-center text-muted py-4">
+                    <td colSpan="7" className="text-center text-muted py-4">
                       Aucune demande trouvée.
                     </td>
                   </tr>
