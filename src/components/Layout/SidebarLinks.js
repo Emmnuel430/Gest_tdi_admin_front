@@ -39,6 +39,44 @@ const SidebarLinks = ({ user }) => {
             <i className="fa fa-users me-2"></i>
             <span className="text-body">Utilisateurs</span>
           </Link>
+          <Link
+            to="/admin-tdi/prayer-requests"
+            className={`nav-link d-flex align-items-center ${
+              isActive("/admin-tdi/prayer-requests")
+                ? "active bg-body-secondary fw-bold"
+                : ""
+            }`}
+          >
+            <i className="fas fa-praying-hands me-2"></i>
+
+            <span className="text-body">
+              Demandes de <br /> prières
+            </span>
+          </Link>
+          <Link
+            to="/admin-tdi/adherents"
+            className={`nav-link d-flex align-items-center ${
+              isActive("/admin-tdi/adherents")
+                ? "active bg-body-secondary fw-bold"
+                : ""
+            }`}
+          >
+            <i className="fas fa-user-friends me-2"></i>
+
+            <span className="text-body">Adherents</span>
+          </Link>
+          <Link
+            to="/admin-tdi/contenu"
+            className={`nav-link d-flex align-items-center ${
+              isActive("/admin-tdi/contenu")
+                ? "active bg-body-secondary fw-bold"
+                : ""
+            }`}
+          >
+            <i className="fas fa-file-alt me-2"></i>
+
+            <span className="text-body">Contenu</span>
+          </Link>
         </>
       )}
       <>
@@ -53,7 +91,7 @@ const SidebarLinks = ({ user }) => {
               : ""
           }`}
         >
-          <i className="fa fa-file-alt me-2"></i>
+          <i className="fa fa-file me-2"></i>
           <span className="text-body">Pages</span>
         </Link>
         <Link

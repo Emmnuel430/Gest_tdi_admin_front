@@ -4,6 +4,7 @@ import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
 import ToastMessage from "../../components/Layout/ToastMessage";
+import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
 
 const EditAds = () => {
   const [afficheTitre, setAfficheTitre] = useState("");
@@ -22,14 +23,14 @@ const EditAds = () => {
   useEffect(() => {
     const LINK = process.env.REACT_APP_API_URL;
 
-    fetch(`${LINK}/api/pages`)
+    fetchWithToken(`${LINK}/api/pages`)
       .then((res) => res.json())
       .then((data) => setPages(data))
       .catch((error) =>
         console.error("Erreur de chargement des pages:", error)
       );
 
-    fetch(`${LINK}/api/ads/${id}`)
+    fetchWithToken(`${LINK}/api/ads/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setAfficheTitre(data.affiche_titre || "");
@@ -63,7 +64,7 @@ const EditAds = () => {
     if (mainImage) formData.append("main_image", mainImage);
 
     try {
-      const response = await fetch(
+      const response = await fetchWithToken(
         `${process.env.REACT_APP_API_BASE_URL}/ads/${id}`,
         {
           method: "POST",

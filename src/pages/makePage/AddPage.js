@@ -1,13 +1,26 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactQuill from "react-quill";
+import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Importation du modal de confirmation
 import ToastMessage from "../../components/Layout/ToastMessage";
+import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
 
 const AddPage = () => {
+  const fonts = [
+    "Arial",
+    "Georgia",
+    "Impact",
+    "Tahoma",
+    "Times New Roman",
+    "Verdana",
+  ];
+  const Font = Quill.import("formats/font");
+  Font.whitelist = fonts;
+  Quill.register(Font, true);
+
   const [error, setError] = useState(""); // Message d'erreur en cas de problème
   const [page, setPage] = useState({
     title: "",
@@ -141,7 +154,7 @@ const AddPage = () => {
     });
 
     try {
-      const response = await fetch(
+      const response = await fetchWithToken(
         `${process.env.REACT_APP_API_BASE_URL}/add_page`,
         {
           method: "POST",
@@ -331,6 +344,7 @@ const AddPage = () => {
                             }
                             modules={{
                               toolbar: [
+                                [{ font: fonts }],
                                 [{ header: [1, 2, false] }],
                                 ["bold", "italic", "underline"],
                                 [{ list: "ordered" }, { list: "bullet" }],

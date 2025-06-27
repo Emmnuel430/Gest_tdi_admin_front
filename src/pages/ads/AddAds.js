@@ -4,6 +4,7 @@ import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
 import ToastMessage from "../../components/Layout/ToastMessage";
+import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
 
 const AddAds = () => {
   const [afficheTitre, setAfficheTitre] = useState("");
@@ -21,7 +22,7 @@ const AddAds = () => {
   useEffect(() => {
     const LINK = process.env.REACT_APP_API_URL;
 
-    fetch(`${LINK}/api/pages`)
+    fetchWithToken(`${LINK}/api/pages`)
       .then((res) => res.json())
       .then((data) => {
         if (data) setPages(data);
@@ -56,7 +57,7 @@ const AddAds = () => {
     formData.append("actif", actif ? 1 : 0);
 
     try {
-      const response = await fetch(
+      const response = await fetchWithToken(
         `${process.env.REACT_APP_API_BASE_URL}/ads`,
         {
           method: "POST",

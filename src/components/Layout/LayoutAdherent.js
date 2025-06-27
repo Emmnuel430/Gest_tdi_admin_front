@@ -5,43 +5,48 @@ import React, { useState } from "react";
 import "../../assets/css/Home.css"; // Importation du fichier CSS pour la mise en page
 import HomeScript from "../../assets/js/HomeScript"; // Importation d'un script personnalisé pour la page
 import loginImage from "../../assets/img/user.png"; // Importation d'une image pour le profil utilisateur
-import { useNavigate, Link } from "react-router-dom"; // Importation de 'useNavigate' et 'Link' pour la navigation
+import { Link } from "react-router-dom"; // Importation de 'useNavigate' et 'Link' pour la navigation
 import logo from "../../assets/img/logo.png"; // Importation du logo de l'application.
-import Sidebar from "./Sidebar"; // Importation du composant Sidebar
+import Sidebar from "./SidebarAdherent";
 import ThemeSwitcher from "../others/ThemeSwitcher"; // Importation du composant ThemeSwitcher
-import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { fetchWithToken } from "../../utils/fetchWithToken2"; // Importation d'une fonction utilitaire pour les requêtes avec token
 
 // Définition du composant Layout qui sera utilisé comme un modèle de page (avec du contenu dynamique via 'children')
 const Layout = ({ children }) => {
   // Récupération des informations de l'utilisateur depuis le localStorage (si elles existent)
-  let user = JSON.parse(localStorage.getItem("user-info"));
+  const adherent = JSON.parse(localStorage.getItem("adherent-info"));
   const [load, setLoad] = useState(false);
 
   // Utilisation de 'useNavigate' pour effectuer des redirections dans l'application
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Fonction de déconnexion qui efface les informations de l'utilisateur du localStorage et redirige vers la page de connexion
   async function logOut() {
     try {
       setLoad(true);
-      await fetchWithToken(`${process.env.REACT_APP_API_BASE_URL}/logout`, {
-        method: "POST",
-      });
+      await fetchWithToken(
+        `${process.env.REACT_APP_API_BASE_URL}/adherent/logout`,
+        {
+          method: "POST",
+        }
+      );
     } catch (error) {
       console.error("Erreur de déconnexion :", error);
     } finally {
       setLoad(false);
     }
     // Redirection
-    navigate("/");
+    window.location.href = process.env.REACT_APP_VITRINE_URL;
+
     // Nettoyage du localStorage
-    localStorage.clear();
+    localStorage.removeItem("adherent-token");
+    localStorage.removeItem("adherent-info");
   }
 
   return (
     <div className="container-fluid position-relative bg-body d-flex p-0">
       {/* Sidebar affichée sur le côté gauche */}
-      <Sidebar user={user} />
+      <Sidebar user={adherent} />
 
       {/* Main content - Contenu principal de la page */}
       <div className="content shifted bg-body">
@@ -75,7 +80,7 @@ const Layout = ({ children }) => {
             <ThemeSwitcher />
 
             {/* Section pour afficher l'image de profil et permettre la déconnexion */}
-            {user && (
+            {adherent && (
               <div className="nav-item dropdown">
                 <Link href="#" className="nav-link dropdown-toggle">
                   {/* Affichage de l'image de profil */}
@@ -87,8 +92,8 @@ const Layout = ({ children }) => {
                     height="40"
                   />
                   <span className="d-none d-lg-inline items text-body">
-                    {/* {user && user.first_name}{" "} */}
-                    {/* <strong>{user && user.name}</strong> */}
+                    {/* {adherent && adherent.first_name}{" "} */}
+                    <strong>{adherent && adherent.nom}</strong>
                   </span>
                 </Link>
                 {/* Menu déroulant avec l'option de déconnexion */}

@@ -20,6 +20,18 @@ import EditPage from "./pages/makePage/EditPage";
 import Ads from "./pages/ads/Ads";
 import AddAds from "./pages/ads/AddAds";
 import EditAds from "./pages/ads/EditAds";
+import PrayerList from "./pages/prayerRequest/PrayerList";
+import Adherents from "./pages/adherents/Adherents";
+import ContenuList from "./pages/contenu/ContenuList";
+import AddContent from "./pages/contenu/AddContent";
+import UpdateContent from "./pages/contenu/UpdateContent";
+import UpdateAdherents from "./pages/adherents/UpdateAdherents";
+import LoginAdherent from "./pages/LoginAdherent";
+import HomeAdherent from "./pages/adherents/HomeAdherent";
+import ProtectedAdherent from "./components/ProtectedAdherent";
+import CoursAdherents from "./pages/adherents/CoursAdherents";
+import FormationsAdherents from "./pages/adherents/FormationsAdherents";
+import ProfilAdherent from "./pages/adherents/ProfilAdherent";
 
 const AppRoutes = () => {
   return (
@@ -27,7 +39,28 @@ const AppRoutes = () => {
       <Routes>
         {/* Auth */}
         <Route path="/admin-tdi" element={<Login />} />
+        <Route path="/adherent/login" element={<LoginAdherent />} />
 
+        <Route
+          path="/adherent/home"
+          element={<ProtectedAdherent Cmp={HomeAdherent} />}
+        />
+        {/* Cours */}
+        <Route
+          path="/adherent/cours"
+          element={<ProtectedAdherent Cmp={CoursAdherents} />}
+        />
+        {/* Formations */}
+        <Route
+          path="/adherent/formations"
+          element={<ProtectedAdherent Cmp={FormationsAdherents} />}
+        />
+        {/* Profil */}
+        <Route
+          path="/adherent/profil"
+          element={<ProtectedAdherent Cmp={ProfilAdherent} />}
+        />
+        {/* ------------------------ */}
         <Route
           path="/admin-tdi/home"
           element={<Protected Cmp={Home} adminOnly />}
@@ -45,6 +78,30 @@ const AppRoutes = () => {
         <Route
           path="/admin-tdi/update/user/:id"
           element={<Protected Cmp={UserUpdate} adminOnly />}
+        />
+        <Route
+          path="/admin-tdi/prayer-requests"
+          element={<Protected Cmp={PrayerList} adminOnly />}
+        />
+        <Route
+          path="/admin-tdi/adherents"
+          element={<Protected Cmp={Adherents} adminOnly />}
+        />
+        <Route
+          path="/admin-tdi/update/adherents/:id"
+          element={<Protected Cmp={UpdateAdherents} adminOnly />}
+        />
+        <Route
+          path="/admin-tdi/contenu/add"
+          element={<Protected Cmp={AddContent} adminOnly />}
+        />
+        <Route
+          path="/admin-tdi/update/contenu/:id"
+          element={<Protected Cmp={UpdateContent} adminOnly />}
+        />
+        <Route
+          path="/admin-tdi/contenu"
+          element={<Protected Cmp={ContenuList} adminOnly />}
         />
         {/* ------------------------ */}
 

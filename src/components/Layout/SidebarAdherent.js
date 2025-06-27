@@ -2,17 +2,17 @@ import React from "react"; // Importation de React pour utiliser JSX et les fonc
 import { Link } from "react-router-dom"; // Importation de Link pour la navigation.
 import userImg from "../../assets/img/user.png"; // Importation de l'image de profil par défaut.
 import logo from "../../assets/img/logo.png"; // Importation du logo de l'application.
-import SidebarLinks from "./SidebarLinks"; // Importation du composant SidebarLinks qui contient les liens de la barre latérale.
+import SidebarLinksAdherent from "./SidebarLinksAdherent"; // Importation du composant SidebarLinks qui contient les liens de la barre latérale.
 
 const Sidebar = ({ user }) => {
   // Définition du composant Sidebar qui prend un utilisateur en prop.
-  function formatRole(role) {
+  /* function formatRole(role) {
     if (!role) return "";
     return role
       .split("_") // coupe par "_"
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // met en majuscule la première lettre
       .join(" "); // re-colle avec des espaces
-  }
+  } */
 
   return (
     <div className="sidebar b-bar d-flex pb-3 bg-body">
@@ -51,20 +51,16 @@ const Sidebar = ({ user }) => {
           {user && ( // Vérifie si l'utilisateur est défini (authentifié).
             <div className="ms-3">
               <h6 className="mb-0">
-                <strong>{user.name}</strong>{" "}
+                <strong>{user.nom}</strong>{" "}
                 {/* Affiche le prénom et le nom de l'utilisateur */}
               </h6>
-              <span>
-                {user.role === "super_admin"
-                  ? "Admin"
-                  : `Staff (${formatRole(user.role)})`}
-              </span>{" "}
+              <span>{user.statut === "standard" ? "Externe" : `Premium`}</span>{" "}
               {/* Affiche le rôle de l'utilisateur (Admin ou Staff) */}
             </div>
           )}
         </div>
         {/* Inclure les liens de navigation */}
-        <SidebarLinks user={user} />{" "}
+        <SidebarLinksAdherent />{" "}
         {/* Affichage des liens en fonction de l'utilisateur */}
       </div>
     </div>

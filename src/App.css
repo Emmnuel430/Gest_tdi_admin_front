@@ -49,3 +49,72 @@ td {
 .italic {
   font-style: italic;
 }
+
+.ql-font-arial {
+  font-family: Arial, sans-serif;
+}
+.ql-font-georgia {
+  font-family: Georgia, serif;
+}
+.ql-font-impact {
+  font-family: Impact, sans-serif;
+}
+.ql-font-tahoma {
+  font-family: Tahoma, sans-serif;
+}
+.ql-font-times-new-roman {
+  font-family: "Times New Roman", serif;
+}
+.ql-font-verdana {
+  font-family: Verdana, sans-serif;
+}
+
+.ql-font-arial {
+  font-family: Arial, sans-serif;
+}
+.ql-font-georgia {
+  font-family: Georgia, serif;
+}
+.ql-font-impact {
+  font-family: Impact, sans-serif;
+}
+.ql-font-tahoma {
+  font-family: Tahoma, sans-serif;
+}
+.ql-font-times-new-roman {
+  font-family: "Times New Roman", serif;
+}
+.ql-font-verdana {
+  font-family: Verdana, sans-serif;
+}
+
+/* Affichage lisible dans le menu dropdown */
+.ql-font .ql-picker-item span[data-value="arial"]::before {
+  content: "Arial" !important;
+  font-family: Arial, sans-serif !important;
+}
+.ql-font .ql-picker-item span[data-value="georgia"]::before {
+  content: "Georgia" !important;
+  font-family: Georgia, serif !important;
+}
+.ql-font .ql-picker-item span[data-value="impact"]::before {
+  content: "Impact" !important;
+  font-family: Impact, sans-serif !important;
+}
+.ql-font .ql-picker-item span[data-value="tahoma"]::before {
+  content: "Tahoma" !important;
+  font-family: Tahoma, sans-serif !important;
+}
+.ql-font .ql-picker-item span[data-value="times-new-roman"]::before {
+  content: "Times New Roman" !important;
+  font-family: "Times New Roman", serif !important;
+}
+.ql-font .ql-picker-item span[data-value="verdana"]::before {
+  content: "Verdana" !important;
+  font-family: Verdana, sans-serif !important;
+}
+
+/* Fix pour voir le sélecteur de polices */
+.ql-snow .ql-picker.ql-font {
+  display: inline-block !important;
+}

@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ReactQuill from "react-quill";
+import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
 import ToastMessage from "../../components/Layout/ToastMessage";
 // import SectionForm from "./SectionForm";
+import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
 
 export default function EditPage() {
+  const fonts = ["arial", "georgia", "impact", "tahoma"];
+  const Font = Quill.import("formats/font");
+  Font.whitelist = fonts;
+  Quill.register(Font, true);
+
   const { id } = useParams();
   const navigate = useNavigate();
   const [page, setPage] = useState({
@@ -28,7 +34,7 @@ export default function EditPage() {
 
   useEffect(() => {
     // Charger les données existantes
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/page/${id}`)
+    fetchWithToken(`${process.env.REACT_APP_API_BASE_URL}/page/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setPage({
@@ -214,7 +220,7 @@ export default function EditPage() {
 
     // Requête
     try {
-      const res = await fetch(
+      const res = await fetchWithToken(
         `${process.env.REACT_APP_API_BASE_URL}/update_page/${id}`,
         {
           method: "POST",
@@ -460,6 +466,16 @@ export default function EditPage() {
                             }
                             modules={{
                               toolbar: [
+                                [
+                                  {
+                                    font: [
+                                      "arial",
+                                      "georgia",
+                                      "impact",
+                                      "tahoma",
+                                    ],
+                                  },
+                                ],
                                 [{ header: [1, 2, false] }],
                                 ["bold", "italic", "underline"],
                                 [{ list: "ordered" }, { list: "bullet" }],
@@ -468,6 +484,7 @@ export default function EditPage() {
                               ],
                             }}
                             formats={[
+                              "font",
                               "header",
                               "bold",
                               "italic",

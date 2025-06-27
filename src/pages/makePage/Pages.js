@@ -8,6 +8,7 @@ import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Composant de
 import SearchBar from "../../components/Layout/SearchBar"; // Composant pour la barre de recherche
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
 
 const Pages = () => {
   // États locaux pour gérer les pages, l'état de chargement, les erreurs et les modals
@@ -30,7 +31,7 @@ const Pages = () => {
 
       try {
         // Requête pour récupérer la liste des pages
-        const response = await fetch(
+        const response = await fetchWithToken(
           `${process.env.REACT_APP_API_BASE_URL}/pages`
         );
         if (!response.ok) {
@@ -66,11 +67,10 @@ const Pages = () => {
 
     try {
       // Requête DELETE pour supprimer l'page
-      const response = await fetch(
+      const response = await fetchWithToken(
         `${process.env.REACT_APP_API_BASE_URL}/delete_page/${selectedPages.id}`,
         {
           method: "DELETE", // Méthode de suppression
-          headers: { "Content-Type": "application/json" }, // Headers
         }
       );
 

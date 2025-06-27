@@ -5,6 +5,7 @@ import Layout from "../../components/Layout/Layout"; // Composant Layout qui con
 import HeaderWithFilter from "../../components/Layout/HeaderWithFilter"; // Composant Layout qui contient la structure générale de la affiche
 import Loader from "../../components/Layout/Loader"; // Composant pour le loader
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Composant de modal de confirmation pour la suppression d'affiche
+import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
 
 const Ads = () => {
   // États locaux pour gérer les ads, l'état de chargement, les erreurs et les modals
@@ -26,7 +27,7 @@ const Ads = () => {
 
       try {
         // Requête pour récupérer la liste des ads
-        const response = await fetch(
+        const response = await fetchWithToken(
           `${process.env.REACT_APP_API_BASE_URL}/ads`
         );
         if (!response.ok) {
@@ -62,11 +63,10 @@ const Ads = () => {
 
     try {
       // Requête DELETE pour supprimer l'affiche
-      const response = await fetch(
+      const response = await fetchWithToken(
         `${process.env.REACT_APP_API_BASE_URL}/ads/${selectedAds.id}`,
         {
           method: "DELETE", // Méthode de suppression
-          headers: { "Content-Type": "application/json" }, // Headers
         }
       );
 
