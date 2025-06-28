@@ -18,7 +18,7 @@ const HomeAdherent = () => {
               <p className="card-text">
                 En tant qu’adhérent{" "}
                 <span className="badge bg-success text-uppercase">
-                  {adherent.statut}
+                  {adherent.statut === "standard" ? "Externe" : `Premium`}
                 </span>
                 , vous avez accès à :
               </p>
@@ -26,11 +26,14 @@ const HomeAdherent = () => {
               <ul className="list-group list-group-flush mb-3">
                 <li className="list-group-item">
                   🎓 <strong>Formations & Cours :</strong> suivez les contenus
-                  selon votre abonnement (<em>{adherent.abonnement_type}</em>,
-                  dans votre cas) : vidéos, documents, modules guidés, etc.
+                  selon votre abonnement (
+                  <span className="badge bg-primary text-uppercase">
+                    {adherent.abonnement_type}
+                  </span>
+                  , dans votre cas) : vidéos, documents, modules guidés, etc.
                 </li>
                 <li className="list-group-item">
-                  🧾 <strong>Abonnement :</strong> visualisez la durée de votre
+                  🧾 <strong>Profil :</strong> visualisez la durée de votre
                   accès et recevez des rappels avant expiration.
                 </li>
               </ul>
