@@ -141,12 +141,30 @@ const ContenuList = () => {
                     <tr key={contenu.id || index}>
                       <td className="fw-bold">{index + 1}</td>
                       <td>{contenu.title}</td>
-                      <td className="text-capitalize">{contenu.type}</td>
                       <td>
-                        {contenu.access_level === "standard"
-                          ? "Tous"
-                          : "Premium"}
+                        <span
+                          className={`badge text-bg-${
+                            contenu.type === "cours" ? "primary" : "info"
+                          } text-capitalize`}
+                        >
+                          {contenu.type}
+                        </span>
                       </td>
+
+                      <td>
+                        <span
+                          className={`badge ${
+                            contenu.access_level === "premium"
+                              ? "text-bg-success"
+                              : ""
+                          }`}
+                        >
+                          {contenu.access_level === "standard"
+                            ? "Tous"
+                            : "Premium"}
+                        </span>
+                      </td>
+
                       <td>
                         {contenu.lien ? (
                           <a

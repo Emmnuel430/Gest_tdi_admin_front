@@ -156,16 +156,16 @@ const Pages = () => {
               setSortOption={setSortOption}
               dataList={pages}
               setSortedList={setSortedPages}
-              alphaField="title"
+              // alphaField="title"
               dateField="created_at"
             />
             {/* Affichage de la liste des pages dans un tableau */}
             <div className="row">
               {filteredPage.length > 0 ? (
                 filteredPage
-                  .sort(
-                    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
-                  )
+                  // .sort(
+                  //   (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+                  // )
                   .map((page) => (
                     <div className="col-md-6 col-lg-4 mb-4" key={page.id}>
                       <Card className="h-100 shadow border">

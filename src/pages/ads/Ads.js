@@ -117,10 +117,13 @@ const Ads = () => {
             />
             {/* Affichage de la liste des ads dans un tableau */}
             <div className="row">
+              <h6 className="text-center mb-4 text-muted">
+                Seules les 2 derniers actifs seront affichées
+              </h6>
               {sortedAds.length > 0 ? (
                 sortedAds
                   .sort(
-                    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+                    (a, b) => new Date(b.created_at) - new Date(a.created_at)
                   )
                   .map((ad) => (
                     <div className="col-md-6 col-lg-4 mb-4" key={ad.id}>
