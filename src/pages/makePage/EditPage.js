@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ReactQuill, { Quill } from "react-quill";
+import TiptapEditor from "./TiptapEditor";
 import "react-quill/dist/quill.snow.css";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
@@ -10,11 +10,6 @@ import ToastMessage from "../../components/Layout/ToastMessage";
 import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
 
 export default function EditPage() {
-  const fonts = ["arial", "georgia", "impact", "tahoma"];
-  const Font = Quill.import("formats/font");
-  Font.whitelist = fonts;
-  Quill.register(Font, true);
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [page, setPage] = useState({
@@ -426,12 +421,15 @@ export default function EditPage() {
                     </div>
 
                     {/* Sous-sections */}
-                    <h6 className="mt-4">Sous-sections</h6>
                     {section.subsections.map((sub, subIndex) => (
                       <div
                         key={subIndex}
                         className="border border-3 rounded p-3 mb-3"
                       >
+                        <h5 className="mb-2">
+                          Sous-section {sIndex + 1}-{subIndex + 1}
+                        </h5>
+                        <hr />
                         <div className="mb-2">
                           <label className="form-label">* Titre</label>
                           <input
@@ -452,9 +450,7 @@ export default function EditPage() {
 
                         <div className="mb-2">
                           <label className="form-label">Contenu</label>
-                          <ReactQuill
-                            key={`section-${sIndex}-sub-${subIndex}`}
-                            theme="snow"
+                          <TiptapEditor
                             value={sub.content}
                             onChange={(value) =>
                               handleSubsectionChange(
@@ -464,35 +460,6 @@ export default function EditPage() {
                                 value
                               )
                             }
-                            modules={{
-                              toolbar: [
-                                [
-                                  {
-                                    font: [
-                                      "arial",
-                                      "georgia",
-                                      "impact",
-                                      "tahoma",
-                                    ],
-                                  },
-                                ],
-                                [{ header: [1, 2, false] }],
-                                ["bold", "italic", "underline"],
-                                [{ list: "ordered" }, { list: "bullet" }],
-                                ["link"],
-                                ["clean"],
-                              ],
-                            }}
-                            formats={[
-                              "font",
-                              "header",
-                              "bold",
-                              "italic",
-                              "underline",
-                              "list",
-                              "bullet",
-                              "link",
-                            ]}
                           />
                         </div>
 

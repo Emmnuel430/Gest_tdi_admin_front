@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactQuill, { Quill } from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import TiptapEditor from "./TiptapEditor";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Importation du modal de confirmation
@@ -9,18 +8,6 @@ import ToastMessage from "../../components/Layout/ToastMessage";
 import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
 
 const AddPage = () => {
-  const fonts = [
-    "Arial",
-    "Georgia",
-    "Impact",
-    "Tahoma",
-    "Times New Roman",
-    "Verdana",
-  ];
-  const Font = Quill.import("formats/font");
-  Font.whitelist = fonts;
-  Quill.register(Font, true);
-
   const [error, setError] = useState(""); // Message d'erreur en cas de problème
   const [page, setPage] = useState({
     title: "",
@@ -307,9 +294,13 @@ const AddPage = () => {
                       />
                     </div>
 
-                    <h6 className="mt-4">Sous-sections</h6>
                     {section.subsections.map((sub, subIndex) => (
                       <div key={subIndex} className="border rounded p-3 mb-3">
+                        <h5 className="mb-2">
+                          Sous-section {sIndex + 1}-{subIndex + 1}
+                        </h5>
+                        <hr />
+
                         <div className="mb-2">
                           <label className="form-label">* Titre</label>
                           <input
@@ -331,8 +322,7 @@ const AddPage = () => {
 
                         <div className="mb-2">
                           <label className="form-label">Contenu</label>
-                          <ReactQuill
-                            theme="snow"
+                          <TiptapEditor
                             value={sub.content}
                             onChange={(value) =>
                               handleSubsectionChange(
@@ -342,25 +332,6 @@ const AddPage = () => {
                                 value
                               )
                             }
-                            modules={{
-                              toolbar: [
-                                [{ font: fonts }],
-                                [{ header: [1, 2, false] }],
-                                ["bold", "italic", "underline"],
-                                [{ list: "ordered" }, { list: "bullet" }],
-                                ["link"],
-                                ["clean"],
-                              ],
-                            }}
-                            formats={[
-                              "header",
-                              "bold",
-                              "italic",
-                              "underline",
-                              "list",
-                              "bullet",
-                              "link",
-                            ]}
                           />
                         </div>
 
