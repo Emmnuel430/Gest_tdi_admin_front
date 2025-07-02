@@ -15,7 +15,7 @@ const ProfilAdherent = () => {
     const fetchAdherent = async () => {
       try {
         const response = await fetchWithToken(
-          `${process.env.REACT_APP_API_BASE_URL}/adherents/${id}`,
+          `${process.env.REACT_APP_API_BASE_URL}/adherents-public/${id}`,
           { method: "GET" }
         );
         if (!response.ok) throw new Error("Échec de la récupération");
