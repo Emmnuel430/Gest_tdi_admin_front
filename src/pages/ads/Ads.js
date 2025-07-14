@@ -45,6 +45,12 @@ const Ads = () => {
     fetchAds(); // Appel de la fonction pour récupérer les ads
   }, []); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
 
+  useEffect(() => {
+    if (ads.length > 0) {
+      setSortedAds(ads);
+    }
+  }, [ads]);
+
   // Ouvrir le modal de confirmation de suppression avec l'affiche sélectionné
   const handleOpenModal = (affiche) => {
     setSelectedAds(affiche); // On définit l'affiche sélectionné
@@ -112,19 +118,19 @@ const Ads = () => {
               setSortOption={setSortOption}
               dataList={ads}
               setSortedList={setSortedAds}
-              alphaField="title"
+              alphaField="affiche_titre"
               dateField="created_at"
             />
             {/* Affichage de la liste des ads dans un tableau */}
             <div className="row">
               <h6 className="text-center mb-4 text-muted">
-                Seules les 2 derniers actifs seront affichées
+                Seules les 3 dernières actives seront affichées
               </h6>
               {sortedAds.length > 0 ? (
                 sortedAds
-                  .sort(
-                    (a, b) => new Date(b.created_at) - new Date(a.created_at)
-                  )
+                  .sort
+                  // (a, b) => new Date(b.created_at) - new Date(a.created_at)
+                  ()
                   .map((ad) => (
                     <div className="col-md-6 col-lg-4 mb-4" key={ad.id}>
                       <Card className="h-100 shadow border">

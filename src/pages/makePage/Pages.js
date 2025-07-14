@@ -49,6 +49,12 @@ const Pages = () => {
     fetchPages(); // Appel de la fonction pour récupérer les pages
   }, []); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
 
+  useEffect(() => {
+    if (pages.length > 0) {
+      setSortedPages(pages);
+    }
+  }, [pages]);
+
   // Ouvrir le modal de confirmation de suppression avec l'page sélectionné
   const handleOpenModal = (page) => {
     setSelectedPages(page); // On définit l'page sélectionné
@@ -156,7 +162,7 @@ const Pages = () => {
               setSortOption={setSortOption}
               dataList={pages}
               setSortedList={setSortedPages}
-              // alphaField="title"
+              alphaField="title"
               dateField="created_at"
             />
             {/* Affichage de la liste des pages dans un tableau */}

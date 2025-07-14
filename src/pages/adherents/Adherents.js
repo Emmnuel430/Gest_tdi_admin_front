@@ -56,6 +56,12 @@ const Adherents = () => {
     fetchAdherents();
   }, []);
 
+  useEffect(() => {
+    if (adherents.length > 0) {
+      setSortedAdherents(adherents);
+    }
+  }, [adherents]);
+
   // === Validation d’un adhérent ===
   const handleOpenValidationModal = (adherent) => {
     setAdherentToValidate(adherent);
@@ -182,13 +188,12 @@ const Adherents = () => {
             />
             <HeaderWithFilter
               title="Adhérents"
-              //   link="/admin-tdi/adherents/add"
-              //   linkText="Ajouter"
               main={adherents.length || null}
               sortOption={sortOption}
               setSortOption={setSortOption}
               dataList={adherents}
               setSortedList={setSortedAdherents}
+              alphaField="nom"
               dateField="created_at"
             />
             <Table

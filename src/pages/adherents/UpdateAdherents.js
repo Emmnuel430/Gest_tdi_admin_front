@@ -5,6 +5,7 @@ import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
 import ToastMessage from "../../components/Layout/ToastMessage";
 import { fetchWithToken } from "../../utils/fetchWithToken";
+import { addDays, addMonths, addYears, format } from "date-fns";
 
 const UpdateAdherents = () => {
   const { id } = useParams();
@@ -20,6 +21,11 @@ const UpdateAdherents = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
+
+  const [initialAbonnementType, setInitialAbonnementType] = useState("");
+  const [initialIsValidated, setInitialIsValidated] = useState(false);
+  const [initialAbonnementExpiresAt, setInitialAbonnementExpiresAt] =
+    useState("");
 
   const navigate = useNavigate();
 
@@ -40,6 +46,13 @@ const UpdateAdherents = () => {
           setAbonnementType(result.data.abonnement_type || "");
           setAbonnementExpiresAt(result.data.abonnement_expires_at || "");
           setIsValidated(!!result.data.is_validated);
+
+          // On stocke les valeurs initiales pour la logique du useEffect
+          setInitialAbonnementType(result.data.abonnement_type || "");
+          setInitialIsValidated(!!result.data.is_validated);
+          setInitialAbonnementExpiresAt(
+            result.data.abonnement_expires_at || ""
+          );
         } else {
           setError(result.message || "Erreur lors du chargement.");
         }
@@ -49,6 +62,42 @@ const UpdateAdherents = () => {
     };
     fetchAdherent();
   }, [id]);
+
+  useEffect(() => {
+    // Si on n'a pas encore chargé les données, on ne fait rien
+    if (initialAbonnementType === "") return;
+
+    // Si l'utilisateur n'a rien changé, on garde la date initiale
+    if (
+      abonnementType === initialAbonnementType &&
+      isValidated === initialIsValidated
+    ) {
+      setAbonnementExpiresAt(initialAbonnementExpiresAt || "");
+      return;
+    }
+
+    // Sinon, on recalcule
+    if (!abonnementType || !isValidated) {
+      setAbonnementExpiresAt("");
+      return;
+    }
+    let expirationDate = "";
+    const today = new Date();
+    if (abonnementType === "hebdomadaire") {
+      expirationDate = addDays(today, 7);
+    } else if (abonnementType === "mensuel") {
+      expirationDate = addMonths(today, 1);
+    } else if (abonnementType === "annuel") {
+      expirationDate = addYears(today, 1);
+    }
+    setAbonnementExpiresAt(format(expirationDate, "yyyy-MM-dd"));
+  }, [
+    abonnementType,
+    isValidated,
+    initialAbonnementType,
+    initialIsValidated,
+    initialAbonnementExpiresAt,
+  ]);
 
   const handleConfirm = () => {
     setShowModal(false);
@@ -233,10 +282,8 @@ const UpdateAdherents = () => {
           <input
             type="date"
             className="form-control"
-            value={
-              abonnementExpiresAt ? abonnementExpiresAt.substring(0, 10) : ""
-            }
-            onChange={(e) => setAbonnementExpiresAt(e.target.value)}
+            value={abonnementExpiresAt ? abonnementExpiresAt : ""}
+            readOnly
           />
         </div>
 

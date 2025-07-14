@@ -68,7 +68,8 @@ const SidebarLinks = ({ user }) => {
           <Link
             to="/admin-tdi/contenu"
             className={`nav-link d-flex align-items-center ${
-              isActive("/admin-tdi/contenu")
+              isActive("/admin-tdi/contenu") ||
+              isActive("/admin-tdi/contenu/add")
                 ? "active bg-body-secondary fw-bold"
                 : ""
             }`}
