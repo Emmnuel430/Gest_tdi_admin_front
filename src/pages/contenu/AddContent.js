@@ -12,6 +12,7 @@ const AddContent = () => {
   const [accessLevel, setAccessLevel] = useState("");
   const [content, setContent] = useState("");
   const [lien, setLien] = useState("");
+  const [publishAt, setPublishAt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -33,6 +34,17 @@ const AddContent = () => {
       return;
     }
 
+    if (publishAt) {
+      const chosenDate = new Date(publishAt);
+      const minDate = new Date(Date.now() + 5 * 60 * 1000);
+      if (chosenDate < minDate) {
+        setError(
+          "La date de publication doit être au moins 5 minutes après maintenant."
+        );
+        return;
+      }
+    }
+
     setError("");
     setLoading(true);
 
@@ -47,6 +59,7 @@ const AddContent = () => {
             access_level: accessLevel,
             content,
             lien,
+            publish_at: publishAt,
           }),
         }
       );
@@ -70,88 +83,107 @@ const AddContent = () => {
   return (
     <Layout>
       <Back>admin-tdi/contenu</Back>
-      <div className="col-sm-6 offset-sm-3 mt-5">
-        <h1>Ajouter un contenu</h1>
-        <br />
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-lg-8 mt-5">
+            <h1>Ajouter un contenu</h1>
+            <br />
 
-        {error && <ToastMessage message={error} onClose={() => setError("")} />}
+            {error && (
+              <ToastMessage message={error} onClose={() => setError("")} />
+            )}
 
-        <div className="mb-3">
-          <label className="form-label">Titre *</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Titre du contenu"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
+            <div className="mb-3">
+              <label className="form-label">Titre *</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Titre du contenu"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Type *</label>
+              <select
+                className="form-select"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                required
+              >
+                <option value="">-- Choisir un type --</option>
+                <option value="formation">Formation</option>
+                <option value="cours">Cours</option>
+                {/* <option value="evenement">Événement</option> */}
+              </select>
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Niveau d'accès *</label>
+              <select
+                className="form-select"
+                value={accessLevel}
+                onChange={(e) => setAccessLevel(e.target.value)}
+                required
+              >
+                <option value="">-- Choisir un niveau --</option>
+                <option value="standard">Tous</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Contenu (texte)</label>
+              <textarea
+                className="form-control"
+                rows={8}
+                placeholder="Contenu détaillé (optionnel)"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Lien (URL)</label>
+              <input
+                type="url"
+                className="form-control"
+                placeholder="https://exemple.com (optionnel)"
+                value={lien}
+                onChange={(e) => setLien(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Date de publication</label>
+              <input
+                type="datetime-local"
+                min={new Date(Date.now() + 5 * 60 * 1000)
+                  .toISOString()
+                  .slice(0, 16)}
+                className="form-control"
+                value={publishAt}
+                onChange={(e) => setPublishAt(e.target.value)}
+              />
+            </div>
+
+            <button
+              className="btn btn-primary w-100"
+              onClick={() => setShowModal(true)}
+              disabled={loading}
+            >
+              {loading ? (
+                <span>
+                  <i className="fas fa-spinner fa-spin"></i> Chargement...
+                </span>
+              ) : (
+                <span>Ajouter le contenu</span>
+              )}
+            </button>
+          </div>
         </div>
-
-        <div className="mb-3">
-          <label className="form-label">Type *</label>
-          <select
-            className="form-select"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            required
-          >
-            <option value="">-- Choisir un type --</option>
-            <option value="formation">Formation</option>
-            <option value="cours">Cours</option>
-            {/* <option value="evenement">Événement</option> */}
-          </select>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Niveau d'accès *</label>
-          <select
-            className="form-select"
-            value={accessLevel}
-            onChange={(e) => setAccessLevel(e.target.value)}
-            required
-          >
-            <option value="">-- Choisir un niveau --</option>
-            <option value="standard">Tous</option>
-            <option value="premium">Premium</option>
-          </select>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Contenu (texte)</label>
-          <textarea
-            className="form-control"
-            rows={4}
-            placeholder="Contenu détaillé (optionnel)"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Lien (URL)</label>
-          <input
-            type="url"
-            className="form-control"
-            placeholder="https://exemple.com (optionnel)"
-            value={lien}
-            onChange={(e) => setLien(e.target.value)}
-          />
-        </div>
-
-        <button
-          className="btn btn-primary w-100"
-          onClick={() => setShowModal(true)}
-          disabled={loading}
-        >
-          {loading ? (
-            <span>
-              <i className="fas fa-spinner fa-spin"></i> Chargement...
-            </span>
-          ) : (
-            <span>Ajouter le contenu</span>
-          )}
-        </button>
       </div>
 
       <ConfirmPopup

@@ -21,8 +21,6 @@ const Pages = () => {
   const [sortedPages, setSortedPages] = useState([]); // Liste des pages triés
   const [searchQuery, setSearchQuery] = useState(""); // Requête de recherche pour filtrer les pages
 
-  // Récupérer l'ID de l'page connecté à partir du localStorage
-
   // Récupérer la liste des pages lors du premier rendu
   useEffect(() => {
     const fetchPages = async () => {

@@ -7,6 +7,7 @@ import Loader from "../../components/Layout/Loader";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
 import SearchBar from "../../components/Layout/SearchBar";
 import { fetchWithToken } from "../../utils/fetchWithToken";
+import { formatDateRelative } from "../../utils/formatDateRelative";
 
 const ContenuList = () => {
   const [contenus, setContenus] = useState([]);
@@ -18,6 +19,7 @@ const ContenuList = () => {
   const [sortedContenus, setSortedContenus] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+  const [, setTimeState] = useState(Date.now()); // État pour forcer le re-rendu basé sur le temps
 
   useEffect(() => {
     const fetchContenus = async () => {
@@ -39,6 +41,11 @@ const ContenuList = () => {
       }
     };
     fetchContenus();
+    const interval = setInterval(() => {
+      setTimeState(Date.now()); // Met à jour l'état pour forcer un re-rendu
+    }, 59000); // Intervalle de 59 secondes
+
+    return () => clearInterval(interval); // Nettoie l'intervalle lors du démontage
   }, []);
 
   const handleShowDetails = (contenu) => {
@@ -130,8 +137,9 @@ const ContenuList = () => {
                   <th>#</th>
                   <th>Titre</th>
                   <th>Type</th>
-                  <th>Niveau d'accès</th>
+                  <th>Niv. d'accès</th>
                   <th>Lien</th>
+                  <th>Date de Pub.</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -140,7 +148,11 @@ const ContenuList = () => {
                   filteredContenus.map((contenu, index) => (
                     <tr key={contenu.id || index}>
                       <td className="fw-bold">{index + 1}</td>
-                      <td>{contenu.title}</td>
+                      <td>
+                        {contenu.title.split(" ").slice(0, 3).join(" ")}
+                        {contenu.title.split(" ").length > 3 && " ..."}
+                      </td>
+
                       <td>
                         <span
                           className={`badge text-bg-${
@@ -179,6 +191,7 @@ const ContenuList = () => {
                           <span className="text-muted">Aucun</span>
                         )}
                       </td>
+                      <td>{formatDateRelative(contenu.publish_at) || "---"}</td>
                       <td>
                         <div className="d-flex justify-content-center gap-2">
                           <button
@@ -229,11 +242,20 @@ const ContenuList = () => {
               </div>
               <div className="row mb-2">
                 <div className="col-6 fw-bold">Type :</div>
-                <div className="col-6">{selectedContenu.type}</div>
+
+                <div
+                  className={`col-6 ms-2 fs-6 w-auto badge text-bg-${
+                    selectedContenu.type === "cours" ? "primary" : "info"
+                  } text-capitalize`}
+                >
+                  {selectedContenu.type}
+                </div>
               </div>
               <div className="row mb-2">
                 <div className="col-6 fw-bold">Niveau d'accès :</div>
-                <div className="col-6">{selectedContenu.access_level}</div>
+                <div className="col-6 text-capitalize">
+                  -- {selectedContenu.access_level} --
+                </div>
               </div>
               <div className="row mb-2">
                 <div className="col-6 fw-bold">Lien :</div>
@@ -254,7 +276,7 @@ const ContenuList = () => {
               </div>
               <div className="row mb-2">
                 <div className="col-6 fw-bold">Contenu :</div>
-                <div className="col-6">{selectedContenu.content}</div>
+                <div className="text-justify">{selectedContenu.content}</div>
               </div>
             </div>
           )}

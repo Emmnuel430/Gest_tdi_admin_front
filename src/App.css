@@ -118,3 +118,16 @@ td {
 .ql-snow .ql-picker.ql-font {
   display: inline-block !important;
 }
+
+.text-justify {
+  text-align: justify;
+}
+
+.hover-effect {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-effect:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0.5rem 1rem rgba(0, 128, 0, 0.3); /* vert léger */
+}
