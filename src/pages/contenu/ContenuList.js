@@ -168,7 +168,7 @@ const ContenuList = () => {
                           className={`badge ${
                             contenu.access_level === "premium"
                               ? "text-bg-success"
-                              : ""
+                              : "text-bg-secondary"
                           }`}
                         >
                           {contenu.access_level === "standard"
