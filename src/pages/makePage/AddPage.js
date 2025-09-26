@@ -21,6 +21,26 @@ const AddPage = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
+  const [invalidPublishAt, setInvalidPublishAt] = useState({});
+
+  // Vérifie que les champs obligatoires sont remplis
+  const isFormValid = () => {
+    if (!page.title || !page.template) return false;
+    if (!Array.isArray(page.sections) || page.sections.length === 0)
+      return false;
+    for (const section of page.sections) {
+      if (!section.title || section.title.toString().trim() === "")
+        return false;
+      if (Array.isArray(section.subsections)) {
+        for (const sub of section.subsections) {
+          if (!sub.title || sub.title.toString().trim() === "") return false;
+        }
+      }
+    }
+    // si une publish_at est marquée invalide, bloquer aussi
+    if (Object.keys(invalidPublishAt).length > 0) return false;
+    return true;
+  };
 
   const handleCancel = () => {
     setShowModal(false);
@@ -71,6 +91,7 @@ const AddPage = () => {
       prix: "",
       image: null,
       order: newSections[sectionIndex].subsections.length + 1,
+      publish_at: null,
     });
     setPage({ ...page, sections: newSections });
   };
@@ -89,6 +110,36 @@ const AddPage = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
+
+    // reset erreurs visuelles
+    setInvalidPublishAt({});
+    setError("");
+
+    // Validation préalable : s'assurer que toutes les dates publish_at sont >= now + 5min
+    for (let sIndex = 0; sIndex < page.sections.length; sIndex++) {
+      const section = page.sections[sIndex];
+      for (
+        let subIndex = 0;
+        subIndex < (section.subsections?.length || 0);
+        subIndex++
+      ) {
+        const sub = section.subsections[subIndex];
+        if (sub.publish_at) {
+          const chosenDate = new Date(sub.publish_at);
+          const minDate = new Date(Date.now() + 5 * 60 * 1000);
+          if (chosenDate < minDate) {
+            setError(
+              "La date de publication doit être au moins 5 minutes après maintenant."
+            );
+            setInvalidPublishAt({ [`${sIndex}-${subIndex}`]: true });
+            setShowModal(false);
+            setLoading(false);
+            return; // stoppe l'envoi
+          }
+        }
+      }
+    }
+
     const formData = new FormData();
     formData.append("title", page.title);
     formData.append("subtitle", page.subtitle || "");
@@ -130,6 +181,13 @@ const AddPage = () => {
           `sections[${sIndex}][subsections][${subIndex}][order]`,
           sub.order || 1
         );
+
+        if (sub.publish_at) {
+          formData.append(
+            `sections[${sIndex}][subsections][${subIndex}][publish_at]`,
+            sub.publish_at
+          );
+        }
 
         if (sub.image instanceof File) {
           formData.append(
@@ -296,7 +354,14 @@ const AddPage = () => {
                     </div>
 
                     {section.subsections.map((sub, subIndex) => (
-                      <div key={subIndex} className="border rounded p-3 mb-3">
+                      <div
+                        key={subIndex}
+                        className={`border rounded p-3 mb-3 ${
+                          invalidPublishAt[`${sIndex}-${subIndex}`]
+                            ? "border-danger border-5"
+                            : ""
+                        }`}
+                      >
                         <h5 className="mb-2">
                           Sous-section {sIndex + 1}-{subIndex + 1}
                         </h5>
@@ -390,6 +455,38 @@ const AddPage = () => {
                           />
                         </div>
 
+                        <div className="mb-2">
+                          <label className="form-label">
+                            Date de publication différée
+                          </label>
+                          <input
+                            type="datetime-local"
+                            className={`form-control ${
+                              invalidPublishAt[`${sIndex}-${subIndex}`]
+                                ? "is-invalid"
+                                : ""
+                            }`}
+                            min={new Date(Date.now() + 5 * 60 * 1000)
+                              .toISOString()
+                              .slice(0, 16)}
+                            value={sub.publish_at || ""}
+                            onChange={(e) =>
+                              handleSubsectionChange(
+                                sIndex,
+                                subIndex,
+                                "publish_at",
+                                e.target.value
+                              )
+                            }
+                          />
+                          {invalidPublishAt[`${sIndex}-${subIndex}`] && (
+                            <div className="invalid-feedback">
+                              Date de publication invalide (doit être ≥
+                              maintenant + 5min)
+                            </div>
+                          )}
+                        </div>
+
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-danger mt-2"
@@ -434,7 +531,7 @@ const AddPage = () => {
                   type="button"
                   className="btn btn-primary"
                   onClick={() => setShowModal(true)}
-                  disabled={loading || !page.title || !page.template}
+                  disabled={loading || !isFormValid()}
                 >
                   {loading ? (
                     <>
