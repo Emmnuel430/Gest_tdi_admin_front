@@ -20,22 +20,32 @@ import EditPage from "./pages/makePage/EditPage";
 import Ads from "./pages/ads/Ads";
 import AddAds from "./pages/ads/AddAds";
 import EditAds from "./pages/ads/EditAds";
+// ----
 import PrayerList from "./pages/prayerRequest/PrayerList";
-import Adherents from "./pages/adherents/Adherents";
-import ContenuList from "./pages/contenu/ContenuList";
-import AddContent from "./pages/contenu/AddContent";
-import UpdateContent from "./pages/contenu/UpdateContent";
-import UpdateAdherents from "./pages/adherents/UpdateAdherents";
+// ----
 import LoginAdherent from "./pages/LoginAdherent";
-import HomeAdherent from "./pages/adherents/HomeAdherent";
+import Adherents from "./pages/adherents/Adherents";
 import ProtectedAdherent from "./components/ProtectedAdherent";
+import HomeAdherent from "./pages/adherents/HomeAdherent";
+import UpdateAdherents from "./pages/adherents/UpdateAdherents";
 import CoursAdherents from "./pages/adherents/CoursAdherents";
 import FormationsAdherents from "./pages/adherents/FormationsAdherents";
 import ProfilAdherent from "./pages/adherents/ProfilAdherent";
+// ----
+import ContenuList from "./pages/contenu/ContenuList";
+import AddContent from "./pages/contenu/AddContent";
+import UpdateContent from "./pages/contenu/UpdateContent";
+// ----
+import GalerieDossiersList from "./pages/galeries/GalerieDossiersList";
+import AddDossier from "./pages/galeries/AddDossier";
+import EditDossier from "./pages/galeries/EditDossier";
+import ScrollToTop from "./components/ScrollToTop";
+import GalerieDossierShow from "./pages/galeries/GalerieDossierShow";
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Auth */}
         <Route path="/admin-tdi" element={<Login />} />
@@ -104,7 +114,35 @@ const AppRoutes = () => {
           element={<Protected Cmp={ContenuList} adminOnly />}
         />
         {/* ------------------------ */}
+        <Route
+          path="/admin-tdi/galerie/dossiers"
+          element={<Protected Cmp={GalerieDossiersList} adminOnly />}
+        />
 
+        <Route
+          path="/admin-tdi/galerie/dossiers/create"
+          element={<Protected Cmp={AddDossier} adminOnly />}
+        />
+
+        <Route
+          path="/admin-tdi/galerie/dossiers/:id/edit"
+          element={<Protected Cmp={EditDossier} adminOnly />}
+        />
+
+        <Route
+          path="/admin-tdi/galerie/dossiers/:id"
+          element={<Protected Cmp={GalerieDossierShow} adminOnly />}
+        />
+        {/*
+        <Route
+          path="/admin-tdi/galerie/dossiers/:dossierId/images/create"
+          element={<Protected Cmp={GalerieImageForm} adminOnly />}
+        />
+
+        <Route
+          path="/admin-tdi/galerie/images/:id/edit"
+          element={<Protected Cmp={GalerieImageForm} adminOnly />}
+        /> */}
         {/* ------------------------ */}
 
         {/* Liste des pages */}

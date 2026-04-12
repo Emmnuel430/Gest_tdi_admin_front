@@ -6,6 +6,7 @@ const ConfirmPopup = ({
   onConfirm,
   title,
   body,
+  btnClass = "info",
   confirmText = "Confirmer",
   cancelText = "Annuler",
 }) => {
@@ -53,7 +54,7 @@ const ConfirmPopup = ({
             </button>
             <button
               type="button"
-              className="btn btn-danger"
+              className={`btn btn-${btnClass}`}
               onClick={handleConfirm}
               disabled={loading} // Désactive le bouton "Confirmer" pendant le chargement
             >

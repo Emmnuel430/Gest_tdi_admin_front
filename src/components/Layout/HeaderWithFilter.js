@@ -38,11 +38,11 @@ const HeaderWithFilter = ({
 
       if (sortOption === "alpha" && alphaField) {
         sorted.sort((a, b) =>
-          (a[alphaField] || "").localeCompare(b[alphaField] || "")
+          (a[alphaField] || "").localeCompare(b[alphaField] || ""),
         );
       } else if (
         ["date_auj", "date_semaine", "date_mois", "date_annee"].includes(
-          sortOption
+          sortOption,
         )
       ) {
         const today = new Date();
@@ -90,23 +90,26 @@ const HeaderWithFilter = ({
           </div>
         )}
         <div>
-          {linkText && (
-            <Link to={link} className="btn btn-primary me-2">
-              <span className="d-none d-sm-inline">{linkText}</span>
-              <span className="d-inline d-sm-none">+</span>
-            </Link>
-          )}
-          {onLinkClick && (
+          {onLinkClick ? (
             <button
-              className="btn btn-primary"
+              className="btn btn-primary me-2"
               onClick={(e) => {
                 e.preventDefault();
-                if (onLinkClick) onLinkClick();
+                onLinkClick();
               }}
             >
-              <span className="d-none d-sm-inline">{linkText2}</span>
+              <span className="d-none d-sm-inline">
+                {linkText2 || linkText}
+              </span>
               <span className="d-inline d-sm-none">+</span>
             </button>
+          ) : (
+            linkText && (
+              <Link to={link} className="btn btn-primary me-2">
+                <span className="d-none d-sm-inline">{linkText}</span>
+                <span className="d-inline d-sm-none">+</span>
+              </Link>
+            )
           )}
         </div>
       </div>

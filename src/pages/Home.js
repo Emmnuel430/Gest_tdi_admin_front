@@ -1,7 +1,7 @@
 import React from "react";
 
 import Layout from "../components/Layout/Layout";
-import AnalyticsIframe from "../components/others/AnalyticsIframe";
+import VisitsChart from "../components/others/VisitsChart";
 // Récupérer l'ID de l'utilisateur connecté à partir du localStorage
 const userInfo = JSON.parse(localStorage.getItem("user-info"));
 
@@ -15,9 +15,9 @@ const Home = () => {
             Bienvenue, <strong>{userInfo ? userInfo.name : "Invité"}</strong> !
           </h2>
 
-          <AnalyticsIframe />
+          <VisitsChart />
 
-          <div className="card mt-4">
+          <div className="card mt-5">
             <div className="card-body">
               <p className="card-text">
                 Bienvenue sur <strong>Gest</strong>, votre interface

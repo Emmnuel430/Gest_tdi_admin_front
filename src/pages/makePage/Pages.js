@@ -6,11 +6,13 @@ import HeaderWithFilter from "../../components/Layout/HeaderWithFilter"; // Comp
 import Loader from "../../components/Layout/Loader"; // Composant pour le loader
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Composant de modal de confirmation pour la suppression d'page
 import SearchBar from "../../components/Layout/SearchBar"; // Composant pour la barre de recherche
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
 import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { formatDateRelative } from "../../utils/formatDateRelative";
+import { useToast } from "../../context/ToastContext";
 
 const Pages = () => {
+  const { showToast } = useToast();
+
   // États locaux pour gérer les pages, l'état de chargement, les erreurs et les modals
   const [pages, setPages] = useState([]); // Liste des pages
   const [loading, setLoading] = useState(false); // État de chargement
@@ -30,7 +32,7 @@ const Pages = () => {
       try {
         // Requête pour récupérer la liste des pages
         const response = await fetchWithToken(
-          `${process.env.REACT_APP_API_BASE_URL}/pages`
+          `${process.env.REACT_APP_API_BASE_URL}/pages`,
         );
         if (!response.ok) {
           throw new Error("Erreur lors de la récupération des pages.");
@@ -75,17 +77,17 @@ const Pages = () => {
         `${process.env.REACT_APP_API_BASE_URL}/delete_page/${selectedPages.id}`,
         {
           method: "DELETE", // Méthode de suppression
-        }
+        },
       );
 
       const result = await response.json(); // Convertir la réponse en JSON
 
       // Si l'page a été supprimé
       if (result.status === "deleted") {
-        alert("Page supprimé !"); // Afficher un message de succès
+        showToast("Page supprimé !", "success"); // Afficher un message de succès
         setPages(pages.filter((page) => page.id !== selectedPages.id)); // Mettre à jour la liste des pages
       } else {
-        alert("Échec de la suppression."); // Si l'échec
+        showToast("Échec de la suppression.", "danger"); // Si l'échec
       }
     } catch (err) {
       setError("Une erreur est survenue lors de la suppression."); // En cas d'erreur
@@ -94,38 +96,8 @@ const Pages = () => {
     }
   };
 
-  const formatDateRelative = (date) => {
-    const formatted = formatDistanceToNow(new Date(date), {
-      addSuffix: false, // Pas de suffixe (ex. "il y a")
-      locale: fr, // Locale française
-    });
-
-    if (/moins d.?une minute/i.test(formatted)) {
-      return "À l'instant"; // Cas particulier pour "moins d'une minute"
-    }
-
-    // Remplacements pour abréger les unités de temps
-    const abbreviations = [
-      { regex: /environ /i, replacement: "≈" },
-      { regex: / heures?/i, replacement: "h" },
-      { regex: / minutes?/i, replacement: "min" },
-      { regex: / secondes?/i, replacement: "s" },
-      { regex: / jours?/i, replacement: "j" },
-      { regex: / semaines?/i, replacement: "sem" },
-      { regex: / mois?/i, replacement: "mois" },
-      { regex: / ans?/i, replacement: "an" },
-    ];
-
-    let shortened = formatted;
-    abbreviations.forEach(({ regex, replacement }) => {
-      shortened = shortened.replace(regex, replacement); // Applique les remplacements
-    });
-
-    return shortened; // Retourne la version abrégée
-  };
-
   const filteredPage = sortedPages.filter((page) =>
-    page.title.toLowerCase().includes(searchQuery.toLowerCase())
+    page.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -205,7 +177,7 @@ const Pages = () => {
                                 {page.sections?.reduce(
                                   (acc, sec) =>
                                     acc + (sec.subsections?.length || 0),
-                                  0
+                                  0,
                                 ) || 0}
                               </div>
                             </div>
@@ -257,6 +229,7 @@ const Pages = () => {
 
       {/* Modal de confirmation pour la suppression d'un page */}
       <ConfirmPopup
+        btnClass="primary"
         show={showModal}
         onClose={handleCloseModal}
         onConfirm={handleDelete}

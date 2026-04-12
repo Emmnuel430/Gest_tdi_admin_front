@@ -8,7 +8,7 @@ const Back = ({ children }) => {
     navigate(`/${children}`);
   }
   return (
-    <div>
+    <div className="mb-3">
       <button onClick={back} className="btn btn-primary">
         {" "}
         <span className="d-none d-sm-inline">⬅ Retour</span>

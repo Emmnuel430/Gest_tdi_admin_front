@@ -2,12 +2,7 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
 export const formatDateRelative = (dateS) => {
-  const date = new Date(dateS); // ⚠ convertir en Date
-  const now = new Date();
-
-  if (date < now) {
-    return "✅"; // date passée
-  }
+  const date = new Date(dateS);
   const formatted = formatDistanceToNow(new Date(date), {
     addSuffix: false, // Pas de suffixe (ex. "il y a")
     locale: fr, // Locale française
@@ -34,5 +29,5 @@ export const formatDateRelative = (dateS) => {
     shortened = shortened.replace(regex, replacement); // Applique les remplacements
   });
 
-  return "⏳ " + shortened; // Retourne la version abrégée
+  return shortened; // Retourne la version abrégée
 };

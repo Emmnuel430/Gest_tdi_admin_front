@@ -5,106 +5,114 @@ const SidebarLinks = ({ user }) => {
   const location = useLocation();
   if (!user) return null;
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (link) => {
+    if (link.match) {
+      return link.match.includes(location.pathname);
+    }
+    return location.pathname === link.to;
+  };
 
-  const hasRole = (allowedRoles) => allowedRoles.includes(user?.role);
+  const hasRole = (roles) => {
+    if (!roles) return true;
+    return roles.includes(user?.role);
+  };
+
+  const privateLinks = [
+    {
+      label: "Dashboard",
+      to: "/admin-tdi/home",
+      icon: "fa fa-home",
+      roles: ["super_admin"],
+    },
+    {
+      label: "Utilisateurs",
+      to: "/admin-tdi/utilisateurs",
+      icon: "fa fa-users",
+      roles: ["super_admin"],
+    },
+    {
+      label: "Demandes de prières",
+      to: "/admin-tdi/prayer-requests",
+      icon: "fas fa-praying-hands",
+      roles: ["super_admin"],
+    },
+    {
+      label: "Adherents",
+      to: "/admin-tdi/adherents",
+      icon: "fas fa-user-friends",
+      roles: ["super_admin"],
+    },
+    {
+      label: "Contenu",
+      to: "/admin-tdi/contenu",
+      icon: "fas fa-file-alt",
+      roles: ["super_admin"],
+      match: ["/admin-tdi/contenu", "/admin-tdi/contenu/add"],
+    },
+    {
+      label: "Galerie",
+      to: "/admin-tdi/galerie/dossiers",
+      icon: "fa fa-images",
+      new: true,
+    },
+  ];
+
+  const publicLinks = [
+    {
+      label: "Pages",
+      to: "/admin-tdi/pages",
+      icon: "fa fa-file",
+    },
+    {
+      label: "Affiches",
+      to: "/admin-tdi/ads",
+      icon: "fa fa-image",
+    },
+  ];
 
   return (
     <div className="navbar-nav w-100">
-      {/* Dashboard - accessible à tous */}
-      {hasRole(["super_admin"]) && (
-        <>
-          <Link
-            to="/admin-tdi/home"
-            className={`nav-item nav-link ${
-              isActive("/admin-tdi/home")
-                ? "active bg-body-secondary fw-bold"
-                : ""
-            }`}
-          >
-            <div>
-              <i className="fa fa-home me-2"></i>
-              <span className="text-body">Dashboard</span>
-            </div>
-          </Link>
+      {/* 🔥 ADMIN LINKS */}
+      {privateLinks.map((link, index) => {
+        if (!hasRole(link.roles)) return null;
 
+        return (
           <Link
-            to="/admin-tdi/utilisateurs"
+            key={index}
+            to={link.to}
             className={`nav-link d-flex align-items-center ${
-              isActive("/admin-tdi/utilisateurs")
-                ? "active bg-body-secondary fw-bold"
-                : ""
+              isActive(link) ? "active bg-body-secondary fw-bold" : ""
             }`}
           >
-            <i className="fa fa-users me-2"></i>
-            <span className="text-body">Utilisateurs</span>
+            <i className={`${link.icon} me-2`}></i>
+            <span className="text-body">{link.label}</span>
+            {link.new && (
+              <span className="badge text-bg-success ms-2">New</span>
+            )}
           </Link>
-          <Link
-            to="/admin-tdi/prayer-requests"
-            className={`nav-link d-flex align-items-center ${
-              isActive("/admin-tdi/prayer-requests")
-                ? "active bg-body-secondary fw-bold"
-                : ""
-            }`}
-          >
-            <i className="fas fa-praying-hands me-2"></i>
+        );
+      })}
 
-            <span className="text-body">
-              Demandes de <br /> prières
-            </span>
-          </Link>
-          <Link
-            to="/admin-tdi/adherents"
-            className={`nav-link d-flex align-items-center ${
-              isActive("/admin-tdi/adherents")
-                ? "active bg-body-secondary fw-bold"
-                : ""
-            }`}
-          >
-            <i className="fas fa-user-friends me-2"></i>
+      {/* 🔽 SECTION */}
+      <hr />
+      <h6 className="text-uppercase text-muted ps-3 mt-3">Contenu du site</h6>
 
-            <span className="text-body">Adherents</span>
-          </Link>
-          <Link
-            to="/admin-tdi/contenu"
-            className={`nav-link d-flex align-items-center ${
-              isActive("/admin-tdi/contenu") ||
-              isActive("/admin-tdi/contenu/add")
-                ? "active bg-body-secondary fw-bold"
-                : ""
-            }`}
-          >
-            <i className="fas fa-file-alt me-2"></i>
-
-            <span className="text-body">Contenu</span>
-          </Link>
-        </>
-      )}
-      <>
-        <hr />
-        <h6 className="text-uppercase text-muted ps-3 mt-3">Contenu du site</h6>
-
+      {/* 🔥 CONTENT LINKS */}
+      {publicLinks.map((link, index) => (
         <Link
-          to="/admin-tdi/pages"
+          key={index}
+          to={link.to}
           className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/pages")
+            location.pathname === link.to
               ? "active bg-body-secondary fw-bold"
               : ""
           }`}
         >
-          <i className="fa fa-file me-2"></i>
-          <span className="text-body">Pages</span>
+          <i className={`${link.icon} me-2`}></i>
+          <span className="text-body">{link.label}</span>
+          {link.new && <span className="badge text-bg-success ms-2">New</span>}
         </Link>
-        <Link
-          to="/admin-tdi/ads"
-          className={`nav-link d-flex align-items-center ${
-            isActive("/admin-tdi/ads") ? "active bg-body-secondary fw-bold" : ""
-          }`}
-        >
-          <i className="fa fa-image me-2"></i>
-          <span className="text-body">Affiches</span>
-        </Link>
-      </>
+      ))}
     </div>
   );
 };

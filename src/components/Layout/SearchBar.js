@@ -18,7 +18,7 @@ const SearchBar = ({ placeholder = "Recherche...", onSearch, delay = 300 }) => {
   };
 
   return (
-    <form className="d-flex my-4">
+    <form className="d-flex my-3">
       <input
         type="search"
         className="form-control border"
