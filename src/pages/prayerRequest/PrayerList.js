@@ -6,56 +6,52 @@ import Loader from "../../components/Layout/Loader";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
 import SearchBar from "../../components/Layout/SearchBar";
 import { fetchWithToken } from "../../utils/fetchWithToken";
-import ToastMessage from "../../components/Layout/ToastMessage";
 import { format } from "date-fns";
+import { useToast } from "../../context/ToastContext";
 
 const PrayerList = () => {
+  const { showToast } = useToast();
   // États
   const [prayers, setPrayers] = useState([]);
   const [sortedPrayers, setSortedPrayers] = useState([]);
   const [selectedPrayer, setSelectedPrayer] = useState(null);
-  const [prayerToValidate, setPrayerToValidate] = useState(null);
   const [sortOption, setSortOption] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [showPrayerDetails, setShowPrayerDetails] = useState(false);
-  const [showValidationModal, setShowValidationModal] = useState(false);
-
-  const [success, setSuccess] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
 
   // 🎯 Récupération des prières
-  const fetchPrayers = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const response = await fetchWithToken(
-        `${process.env.REACT_APP_API_BASE_URL}/prayer-requests`
-      );
-      if (!response.ok)
-        throw new Error("Erreur lors de la récupération des demandes.");
-      const data = await response.json();
-      setPrayers(data);
-      setSortedPrayers(data);
-    } catch (err) {
-      setError("Impossible de charger les données : " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchPrayers = async () => {
+      setLoading(true);
+      try {
+        const response = await fetchWithToken(
+          `${process.env.REACT_APP_API_BASE_URL}/prayer-requests`,
+        );
+        if (!response.ok)
+          throw new Error("Erreur lors de la récupération des demandes.");
+        const data = await response.json();
+        setPrayers(data);
+        setSortedPrayers(data);
+      } catch (err) {
+        showToast(
+          "Impossible de charger les données : " + err.message,
+          "error",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPrayers();
-  }, []);
+  }, [showToast]);
 
   // 🔍 Recherche
   const filteredPrayers = sortedPrayers.filter((prayer) =>
-    prayer.objet.toLowerCase().includes(searchQuery.toLowerCase())
+    prayer.objet.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // 📌 Détails
@@ -85,81 +81,27 @@ const PrayerList = () => {
     try {
       const response = await fetchWithToken(
         `${process.env.REACT_APP_API_BASE_URL}/prayer-requests/${selectedPrayer.id}`,
-        { method: "DELETE" }
+        { method: "DELETE" },
       );
       const result = await response.json();
       if (result.status === "deleted") {
-        alert("Demande supprimée !");
+        showToast("Demande supprimée !", "success");
         const updated = prayers.filter((p) => p.id !== selectedPrayer.id);
         setPrayers(updated);
         setSortedPrayers(updated);
       } else {
-        alert("Échec de la suppression.");
+        showToast("Échec de la suppression.", "error");
       }
     } catch (err) {
-      setError("Une erreur est survenue lors de la suppression.");
+      showToast("Une erreur est survenue lors de la suppression.", "error");
     } finally {
       handleCloseModal();
-    }
-  };
-
-  // ✅ Validation
-  const handleOpenValidationModal = (prayer) => {
-    setPrayerToValidate(prayer);
-    setShowValidationModal(true);
-  };
-
-  const handleCloseValidationModal = () => {
-    setPrayerToValidate(null);
-    setShowValidationModal(false);
-  };
-
-  const handleValidatePrayer = async () => {
-    if (!prayerToValidate) return;
-
-    setLoading(true);
-    setSuccessMsg("");
-    setErrorMsg("");
-
-    try {
-      const response = await fetchWithToken(
-        `${process.env.REACT_APP_API_BASE_URL}/prayer-requests/${prayerToValidate.id}/validate`,
-        { method: "POST" }
-      );
-
-      const resData = await response.json();
-
-      if (response.ok) {
-        setSuccess(true);
-        setSuccessMsg(resData.message || "Demande de prière validée !");
-        handleCloseValidationModal();
-        fetchPrayers();
-      } else {
-        setErrorMsg(resData.message || "Erreur lors de la validation");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Erreur inattendue lors de la validation");
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <Layout>
       <div className="container mt-2">
-        {error && <div className="alert alert-danger">{error}</div>}
-        {errorMsg && (
-          <ToastMessage message={errorMsg} onClose={() => setErrorMsg("")} />
-        )}
-
-        {success && (
-          <ToastMessage
-            message={successMsg}
-            onClose={() => setSuccess(false)}
-            success={true}
-          />
-        )}
         {loading ? (
           <div
             className="d-flex justify-content-center align-items-center"
@@ -193,14 +135,8 @@ const PrayerList = () => {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Titre</th>
                   <th>Demandeur</th>
-                  <th>
-                    Moyen de <br /> Paiement
-                  </th>
-                  <th>
-                    Preuve de <br /> Paiement
-                  </th>
+                  <th>Objet</th>
                   <th>Statut</th>
                   <th>Actions</th>
                 </tr>
@@ -210,30 +146,13 @@ const PrayerList = () => {
                   filteredPrayers.map((prayer, index) => (
                     <tr key={prayer.id || index}>
                       <td className="fw-bold">{index + 1}</td>
-                      <td>{prayer.objet}</td>
                       <td>
                         <div className="fw-semibold">
                           {prayer.nom} {prayer.prenom}
                         </div>
-                        {/* <div className="text-muted small">{prayer.email}</div> */}
+                        <div className="text-muted small">{prayer.email}</div>
                       </td>
-                      <td className="text-capitalize">
-                        {prayer.moyen_paiement.replace("_", " ")}
-                      </td>
-                      <td>
-                        {prayer.preuve_paiement ? (
-                          <a
-                            href={`${process.env.REACT_APP_API_BASE_URL_STORAGE}/${prayer.preuve_paiement}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-outline-success btn-sm"
-                          >
-                            Voir
-                          </a>
-                        ) : (
-                          <span className="text-muted">Aucune</span>
-                        )}
-                      </td>
+                      <td>{prayer.objet}</td>
                       <td>
                         {prayer.is_validated ? (
                           <span className="badge bg-success ms-2">Validée</span>
@@ -246,14 +165,6 @@ const PrayerList = () => {
                       <td>
                         <div className="d-flex justify-content-center gap-2">
                           {/* Valider l'inscription */}
-                          {!prayer.is_validated && (
-                            <button
-                              onClick={() => handleOpenValidationModal(prayer)}
-                              className="btn btn-success btn-sm me-2"
-                            >
-                              <i className="fas fa-check"></i>
-                            </button>
-                          )}
                           <button
                             onClick={() => handleShowPrayerDetails(prayer)}
                             className="btn btn-info btn-sm me-2"
@@ -317,29 +228,7 @@ const PrayerList = () => {
                 <div className="fw-bold text-secondary">Message</div>
                 <div>{selectedPrayer.message}</div>
               </div>
-              <div className="mb-3">
-                <div className="fw-bold text-secondary">Moyen de Paiement</div>
-                <div className="text-capitalize">
-                  {selectedPrayer.moyen_paiement.replace("_", " ")}
-                </div>
-              </div>
-              <div className="mb-3">
-                <div className="fw-bold text-secondary">Preuve</div>
-                <div>
-                  {selectedPrayer.preuve_paiement ? (
-                    <a
-                      href={`${process.env.REACT_APP_API_BASE_URL_STORAGE}/${selectedPrayer.preuve_paiement}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-outline-success btn-sm"
-                    >
-                      Voir la preuve
-                    </a>
-                  ) : (
-                    <span className="text-muted">Aucune</span>
-                  )}
-                </div>
-              </div>
+
               <div className="mb-3">
                 <div className="fw-bold text-secondary">Validation</div>
                 <div>
@@ -357,7 +246,7 @@ const PrayerList = () => {
                 <div>
                   {format(
                     new Date(selectedPrayer.created_at),
-                    "dd/MM/yyyy HH:mm:ss"
+                    "dd/MM/yyyy HH:mm:ss",
                   )}
                 </div>
               </div>
@@ -371,37 +260,6 @@ const PrayerList = () => {
         </Modal.Footer>
       </Modal>
       {/*  */}
-      <Modal
-        centered
-        show={showValidationModal}
-        onHide={handleCloseValidationModal}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmer la validation</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Êtes-vous sûr de vouloir valider cette demande de prière ?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseValidationModal}>
-            Annuler
-          </Button>
-          <Button
-            variant="success"
-            onClick={handleValidatePrayer}
-            disabled={loading}
-          >
-            {loading ? (
-              <span>
-                <i className="fas fa-spinner fa-spin"></i> Chargement...
-              </span>
-            ) : (
-              <span>Valider</span>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
       <ConfirmPopup
         show={showModal}
         onClose={handleCloseModal}

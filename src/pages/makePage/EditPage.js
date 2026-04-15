@@ -128,6 +128,8 @@ export default function EditPage() {
           `sections[${si}][subsections][${sj}][title]`,
           sub.title,
         );
+        formData.append(`sections[${si}][subsections][${sj}][type]`, sub.type);
+        formData.append(`sections[${si}][subsections][${sj}][link]`, sub.link);
         formData.append(
           `sections[${si}][subsections][${sj}][content]`,
           sub.content ?? "",

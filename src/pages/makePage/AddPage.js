@@ -63,6 +63,14 @@ const AddPage = () => {
           sub.title,
         );
         formData.append(
+          `sections[${sIndex}][subsections][${subIndex}][type]`,
+          sub.type,
+        );
+        formData.append(
+          `sections[${sIndex}][subsections][${subIndex}][link]`,
+          sub.link,
+        );
+        formData.append(
           `sections[${sIndex}][subsections][${subIndex}][content]`,
           sub.content || "",
         );

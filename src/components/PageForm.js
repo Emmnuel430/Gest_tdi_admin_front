@@ -175,7 +175,10 @@ const PageForm = ({
                     <h5 className="card-title mb-0">Section {sIndex + 1}</h5>
 
                     <div className="d-flex flex-row align-items-center gap-2">
-                      <label htmlFor="order">N° : </label>
+                      <label htmlFor="order">
+                        <span className="badge text-bg-success me-1">New</span>
+                        N° :{" "}
+                      </label>
                       <select
                         className="form-select form-select-sm w-auto"
                         value={section.order || sIndex + 1}
@@ -276,7 +279,12 @@ const PageForm = ({
                         </h5>
 
                         <div className="d-flex flex-row align-items-center gap-2">
-                          <label htmlFor="order">N° : </label>
+                          <label htmlFor="order">
+                            <span className="badge text-bg-success me-1">
+                              New
+                            </span>
+                            N° :{" "}
+                          </label>
                           <select
                             className="form-select form-select-sm w-auto"
                             value={sub.order || subIndex + 1}
@@ -321,6 +329,64 @@ const PageForm = ({
                           required
                         />
                       </div>
+                      <div className="mb-2">
+                        <label className="form-label">
+                          Type{" "}
+                          <span className="badge text-bg-success">New</span>
+                        </label>
+
+                        <select
+                          className="form-control"
+                          value={sub.type || "classique"}
+                          onChange={(e) =>
+                            handleSubsectionChange(
+                              sIndex,
+                              subIndex,
+                              "type",
+                              e.target.value,
+                            )
+                          }
+                        >
+                          <option value="classique">Classique</option>
+                          <option value="produit">Produit</option>
+                          <option value="ressource">Ressource</option>
+                        </select>
+                      </div>
+
+                      {sub.type === "ressource" && (
+                        <div className="mb-2">
+                          <label className="form-label">
+                            Lien de la ressource{" "}
+                            <span className="badge text-bg-success">New</span>
+                          </label>
+
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Ex : https://drive.google.com/..."
+                            value={sub.link || ""}
+                            onChange={(e) => {
+                              const value = e.target.value;
+
+                              handleSubsectionChange(
+                                sIndex,
+                                subIndex,
+                                "link",
+                                value,
+                              );
+
+                              if (sub.type !== "ressource") {
+                                handleSubsectionChange(
+                                  sIndex,
+                                  subIndex,
+                                  "link",
+                                  "",
+                                );
+                              }
+                            }}
+                          />
+                        </div>
+                      )}
 
                       <div className="mb-2">
                         <label className="form-label">Contenu</label>

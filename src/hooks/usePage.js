@@ -2,10 +2,12 @@ import { useState } from "react";
 
 const getEmptySubsection = (order = 1) => ({
   title: "",
+  type: "classique",
   content: "",
   date: "",
   prix: "",
   image: null,
+  link: "",
   order,
   publish_at: null,
 });
