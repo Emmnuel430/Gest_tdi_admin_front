@@ -38,15 +38,11 @@ const GalerieDossierShow = () => {
     setSelectedIds,
     resetSelection,
     toggleSelect,
-    modal,
-    openSingleDelete,
-    openMultipleDelete,
-    closeModal,
-    toggleModal,
-    selectedToggle,
+    ui,
+    close,
+    openDelete,
+    openBulkDelete,
     openToggle,
-    closeToggle,
-    confirmToggle,
   } = useCrudUI();
 
   // ==================== STATES - FILTRAGE & TRI ====================
@@ -67,13 +63,13 @@ const GalerieDossierShow = () => {
    * Supprime une ou plusieurs images après confirmation
    */
   const handleDelete = async () => {
-    await deleteImage(modal.type === "single" ? modal.data.id : modal.data);
+    await deleteImage(ui.variant === "single" ? ui.data.id : ui.data);
     resetSelection();
     showToast(
-      modal.type === "single" ? "Image supprimée" : "Image(s) supprimée(s)",
+      ui.variant === "single" ? "Image supprimée" : "Image(s) supprimée(s)",
       "danger",
     );
-    closeModal();
+    close();
   };
 
   /**
@@ -171,40 +167,42 @@ const GalerieDossierShow = () => {
             />
 
             {/* SECTION ACTIONS - Barre de sélection multiple */}
-            <div className="d-flex justify-content-between align-items-center mb-3 p-2 border rounded bg-body">
-              <div className="d-flex align-items-center gap-2">
-                <Button
-                  size="sm"
-                  variant={
-                    selectedIds.length === allIds.length
-                      ? "primary"
-                      : "outline-primary"
-                  }
-                  onClick={handleSelectAll}
-                >
-                  <i className="far fa-square-check me-1"></i>
-                  {selectedIds.length === allIds.length ? "Aucun" : "Tout"}
-                </Button>
+            {selectedIds.length > 0 && (
+              <div className="d-flex justify-content-between align-items-center mb-3 p-2 border rounded bg-body">
+                <div className="d-flex align-items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant={
+                      selectedIds.length === allIds.length
+                        ? "primary"
+                        : "outline-primary"
+                    }
+                    onClick={handleSelectAll}
+                  >
+                    <i className="far fa-square-check me-1"></i>
+                    {selectedIds.length === allIds.length ? "Aucun" : "Tout"}
+                  </Button>
 
-                <span>
-                  {selectedIds.length} image
-                  {selectedIds.length > 1 ? "s" : ""} sélectionnée
-                  {selectedIds.length > 1 ? "s" : ""}
-                </span>
+                  <span>
+                    {selectedIds.length} image
+                    {selectedIds.length > 1 ? "s" : ""} sélectionnée
+                    {selectedIds.length > 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                {selectedIds.length > 0 && (
+                  <Button
+                    variant="danger"
+                    onClick={openBulkDelete}
+                    className="d-flex align-items-center"
+                  >
+                    <i className="fas fa-trash me-1"></i>{" "}
+                    <span className="d-none d-md-block">Suppr.</span> (
+                    {selectedIds.length})
+                  </Button>
+                )}
               </div>
-
-              {selectedIds.length > 0 && (
-                <Button
-                  variant="danger"
-                  onClick={openMultipleDelete}
-                  className="d-flex align-items-center"
-                >
-                  <i className="fas fa-trash me-1"></i>{" "}
-                  <span className="d-none d-md-block">Suppr.</span> (
-                  {selectedIds.length})
-                </Button>
-              )}
-            </div>
+            )}
 
             {/* SECTION GALERIE - Affichage des images ou message vide */}
             <div
@@ -234,21 +232,21 @@ const GalerieDossierShow = () => {
                       },
                       {
                         label:
-                          loader && selectedToggle?.id === img.id
+                          loader && ui.data?.id === img.id
                             ? "Chargement..."
                             : img.is_visible
                               ? "Masquer"
                               : "Afficher",
                         icon:
-                          loader && selectedToggle?.id === img.id
+                          loader && ui.data?.id === img.id
                             ? "fas fa-spinner fa-spin"
                             : `fas fa-eye${!img.is_visible ? "" : "-slash text-secondary"}`,
-                        onClick: openToggle,
+                        onClick: () => openToggle(img),
                       },
                       {
                         label: "Supprimer",
                         icon: "fas fa-trash text-danger",
-                        onClick: openSingleDelete,
+                        onClick: () => openDelete(img),
                       },
                     ]}
                   >
@@ -272,18 +270,17 @@ const GalerieDossierShow = () => {
 
       {/* Modal de confirmation - Suppression d'une image */}
       <ConfirmPopup
-        show={modal.show}
-        onClose={closeModal}
+        show={ui.mode === "delete"}
+        onClose={close}
         onConfirm={handleDelete}
         title="Confirmer la suppression"
         btnClass="danger"
         body={
-          modal.type === "single" ? (
+          ui.variant === "single" ? (
             <p>Supprimer cette image du dossier ?</p>
           ) : (
             <p>
-              Supprimer <strong>{modal.data?.length}</strong> image(s) du
-              dossier ?
+              Supprimer <strong>{ui.data?.length}</strong> image(s) du dossier ?
             </p>
           )
         }
@@ -291,17 +288,18 @@ const GalerieDossierShow = () => {
 
       {/* Modal de confirmation - Visibilité de l'image */}
       <ConfirmPopup
-        show={toggleModal}
-        onClose={closeToggle}
-        onConfirm={() => confirmToggle(handleToggle)}
+        show={ui.mode === "toggle"}
+        onClose={close}
+        onConfirm={() => {
+          if (ui.data) handleToggle(ui.data);
+          close();
+        }}
         title="Confirmer l'action"
         btnClass="primary"
         body={
           <p>
             Voulez-vous{" "}
-            <strong>
-              {selectedToggle?.is_visible ? "masquer" : "afficher"}
-            </strong>{" "}
+            <strong>{ui.data?.is_visible ? "masquer" : "afficher"}</strong>{" "}
             cette image ?
           </p>
         }
@@ -329,6 +327,7 @@ const GalerieDossierShow = () => {
           <MediaPicker
             dossierId={dossier?.id}
             onSuccess={handleMediaModalClose}
+            onDelete={() => fetchImages(id)}
           />
         </Modal.Body>
 

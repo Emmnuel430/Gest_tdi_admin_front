@@ -3,21 +3,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
-import ToastMessage from "../../components/Layout/ToastMessage";
-import { fetchWithToken } from "../../utils/fetchWithToken";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import { useToast } from "../../context/ToastContext";
+import { useCrudUI } from "../../hooks/useCrudUI";
 
 const EditDossier = () => {
+  const { fetchWithToken } = useFetchWithToken();
   const { id } = useParams();
   const maxLength = 200;
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { ui, close, openConfirm } = useCrudUI();
 
   const [nom, setNom] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
 
   // Si dossier pas dans state → on peut récupérer depuis API (optionnel)
   useEffect(() => {
@@ -30,26 +30,23 @@ const EditDossier = () => {
         setNom(data.nom);
         setDescription(data.description || "");
       } catch (e) {
-        setError("Impossible de récupérer le dossier");
+        showToast("Impossible de récupérer le dossier", "danger");
       }
     };
     fetchDossier();
-  }, [id]);
+  }, [id, showToast, fetchWithToken]);
 
-  const handleConfirm = () => {
-    setShowModal(false);
-    updateDossier();
+  const handleConfirm = async () => {
+    close();
+    await updateDossier();
   };
-
-  const handleCancel = () => setShowModal(false);
 
   const updateDossier = async () => {
     if (!nom) {
-      setError("Le nom du dossier est requis.");
+      showToast("Le nom du dossier est requis.", "warning");
       return;
     }
 
-    setError("");
     setLoading(true);
 
     try {
@@ -64,7 +61,7 @@ const EditDossier = () => {
       const data = await res.json();
 
       if (data.error) {
-        setError(data.error);
+        showToast(data.error, "danger");
         setLoading(false);
         return;
       }
@@ -73,7 +70,7 @@ const EditDossier = () => {
       showToast("Dossier mis à jour avec succès !", "success");
       navigate("/admin-tdi/galerie/dossiers");
     } catch (e) {
-      setError("Une erreur inattendue s'est produite.");
+      showToast("Une erreur inattendue s'est produite.", "danger");
       setLoading(false);
     }
   };
@@ -84,8 +81,6 @@ const EditDossier = () => {
 
       <div className="col-sm-6 offset-sm-3 mt-5">
         <h2>Modifier le dossier</h2>
-
-        {error && <ToastMessage message={error} onClose={() => setError("")} />}
 
         {/* NOM */}
         <label className="form-label">Nom du dossier *</label>
@@ -134,7 +129,7 @@ const EditDossier = () => {
         <br />
 
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => openConfirm()}
           className="btn btn-warning w-100"
           disabled={!nom || loading || description.length >= maxLength}
         >
@@ -150,8 +145,8 @@ const EditDossier = () => {
       </div>
 
       <ConfirmPopup
-        show={showModal}
-        onClose={handleCancel}
+        show={ui.mode === "confirm"}
+        onClose={close}
         onConfirm={handleConfirm}
         title="Confirmer la mise à jour"
         btnClass="warning"

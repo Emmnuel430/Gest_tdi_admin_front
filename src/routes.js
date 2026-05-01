@@ -20,6 +20,9 @@ import EditPage from "./pages/makePage/EditPage";
 import Ads from "./pages/ads/Ads";
 import AddAds from "./pages/ads/AddAds";
 import EditAds from "./pages/ads/EditAds";
+import PlanList from "./pages/abonnement/PlanList";
+import AddPlan from "./pages/abonnement/AddPlan";
+import EditPlan from "./pages/abonnement/EditPlan";
 // ----
 import PrayerList from "./pages/prayerRequest/PrayerList";
 // ----
@@ -30,6 +33,7 @@ import HomeAdherent from "./pages/adherents/HomeAdherent";
 import UpdateAdherents from "./pages/adherents/UpdateAdherents";
 import CoursAdherents from "./pages/adherents/CoursAdherents";
 import FormationsAdherents from "./pages/adherents/FormationsAdherents";
+import AdherentValidate from "./pages/adherents/AdherentValidate";
 import ProfilAdherent from "./pages/adherents/ProfilAdherent";
 // ----
 import ContenuList from "./pages/contenu/ContenuList";
@@ -41,6 +45,9 @@ import AddDossier from "./pages/galeries/AddDossier";
 import EditDossier from "./pages/galeries/EditDossier";
 import ScrollToTop from "./components/ScrollToTop";
 import GalerieDossierShow from "./pages/galeries/GalerieDossierShow";
+import TransactionList from "./pages/transactions/TransactionList";
+import OrderList from "./pages/orders/OrderList";
+import TsedakaList from "./pages/tsdakas/TsedakaList";
 
 const AppRoutes = () => {
   return (
@@ -64,6 +71,11 @@ const AppRoutes = () => {
         <Route
           path="/adherent/formations"
           element={<ProtectedAdherent Cmp={FormationsAdherents} />}
+        />
+        {/* Compléter le profil */}
+        <Route
+          path="/adherent/validate"
+          element={<ProtectedAdherent Cmp={AdherentValidate} />}
         />
         {/* Profil */}
         <Route
@@ -164,6 +176,34 @@ const AppRoutes = () => {
         {/* Modification d'une page existante */}
         <Route path="/admin-tdi/ads/edit/:id" element={<EditAds />} />
         {/* ------------------------ */}
+        {/* Liste des subscription-plans */}
+        <Route
+          path="/admin-tdi/subscription-plans"
+          element={<PlanList />}
+          adminOnly
+        />
+
+        {/* Ajout d'un nouveau plan */}
+        <Route
+          path="/admin-tdi/subscription-plans/add"
+          element={<AddPlan />}
+          adminOnly
+        />
+
+        {/* Modification d'un plan existant */}
+        <Route
+          path="/admin-tdi/subscription-plans/edit/:id"
+          element={<EditPlan />}
+        />
+        {/* ------------------------ */}
+        <Route
+          path="/admin-tdi/transactions"
+          element={<TransactionList />}
+          adminOnly
+        />
+        {/* ------------------------ */}
+        <Route path="/admin-tdi/orders" element={<OrderList />} adminOnly />
+        <Route path="/admin-tdi/tsedakas" element={<TsedakaList />} adminOnly />
 
         {/* Logs */}
         {/* <Route path="/logs" element={<Protected Cmp={Logs} adminOnly />} /> */}

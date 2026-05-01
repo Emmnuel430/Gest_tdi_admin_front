@@ -4,9 +4,12 @@ import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Importation du modal de confirmation
 import ToastMessage from "../../components/Layout/ToastMessage"; // Importation du composant de message toast
-import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
+import { useCrudUI } from "../../hooks/useCrudUI";
+import { useAuth } from "../../context/AuthContext";
 
 const Register = () => {
+  const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   // États pour stocker les données du formulaire et d'autres informations d'état
   const [nom, setNom] = useState(""); // Nom de l'utilisateur
   const [pseudo, setPseudo] = useState(""); // Pseudo de l'utilisateur
@@ -15,11 +18,12 @@ const Register = () => {
   const [role, setRole] = useState(""); // Rôle de l'utilisateur
   const [loading, setLoading] = useState(false); // Indicateur de chargement lors de la soumission
   const [error, setError] = useState(""); // Message d'erreur en cas de problème
-  const [showModal, setShowModal] = useState(false); // Contrôle l'affichage du modal de confirmation
+  const { ui, close, openConfirm } = useCrudUI();
   const navigate = useNavigate(); // Hook pour la navigation
 
-  // Récupération de l'utilisateur actuellement connecté depuis le localStorage
-  const userInfo = JSON.parse(localStorage.getItem("user-info"));
+  // Récupération de l'utilisateur actuellement connecté depuis le sessionStorage
+  const { admin } = useAuth();
+  const userInfo = admin;
   const userId = userInfo ? userInfo.id : null;
 
   // Si aucun utilisateur n'est authentifié, on redirige vers la page de connexion
@@ -35,14 +39,9 @@ const Register = () => {
   ];
 
   // Fonction pour confirmer l'inscription
-  const handleConfirm = () => {
-    setShowModal(false); // Ferme le modal
-    signUp(); // Lance la fonction d'inscription
-  };
-
-  // Fonction pour annuler l'inscription et fermer le modal
-  const handleCancel = () => {
-    setShowModal(false);
+  const handleConfirm = async () => {
+    close();
+    await signUp();
   };
 
   // Fonction pour envoyer les données du formulaire au backend
@@ -66,7 +65,7 @@ const Register = () => {
         {
           method: "POST",
           body: JSON.stringify(item),
-        }
+        },
       );
 
       result = await result.json();
@@ -179,7 +178,7 @@ const Register = () => {
 
         {/* Bouton pour soumettre le formulaire avec un modal de confirmation */}
         <button
-          onClick={() => setShowModal(true)} // Ouvre le modal de confirmation
+          onClick={() => openConfirm()} // Ouvre le modal de confirmation
           className="btn btn-primary w-100"
           disabled={!nom || !role || !pseudo || !password || loading}
         >
@@ -195,9 +194,9 @@ const Register = () => {
 
       {/* Modal de confirmation avant de soumettre l'inscription */}
       <ConfirmPopup
-        show={showModal}
-        onClose={handleCancel} // Annule et ferme le modal
-        onConfirm={handleConfirm} // Confirme l'inscription et ferme le modal
+        show={ui.mode === "confirm"}
+        onClose={close}
+        onConfirm={handleConfirm}
         title="Confirmer l'inscription"
         body={<p>Voulez-vous vraiment ajouter cet utilisateur ?</p>}
       />

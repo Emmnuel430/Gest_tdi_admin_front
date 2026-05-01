@@ -4,9 +4,10 @@ import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
 import ToastMessage from "../../components/Layout/ToastMessage";
-import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 
 const EditAds = () => {
+  const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   const [afficheTitre, setAfficheTitre] = useState("");
   const [afficheLien, setAfficheLien] = useState("");
   const [mainImage, setMainImage] = useState(null);
@@ -27,7 +28,7 @@ const EditAds = () => {
       .then((res) => res.json())
       .then((data) => setPages(data))
       .catch((error) =>
-        console.error("Erreur de chargement des pages:", error)
+        console.error("Erreur de chargement des pages:", error),
       );
 
     fetchWithToken(`${LINK}/api/ads/${id}`)
@@ -42,7 +43,7 @@ const EditAds = () => {
         console.error("Erreur de chargement de l'affiche:", error);
         setError("Impossible de charger l'affiche.");
       });
-  }, [id]);
+  }, [id, fetchWithToken]);
 
   const handleConfirm = () => {
     setShowModal(false);
@@ -69,7 +70,7 @@ const EditAds = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const result = await response.json();

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
-import { fetchWithToken } from "../../utils/fetchWithToken2";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import Layout from "../../components/Layout/LayoutAdherent";
 import Loader from "../../components/Layout/Loader";
 
 const CoursAdherents = () => {
+  const { fetchWithToken } = useFetchWithToken();
   const [cours, setCours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -15,7 +16,7 @@ const CoursAdherents = () => {
     const fetchCours = async () => {
       try {
         const response = await fetchWithToken(
-          `${process.env.REACT_APP_API_BASE_URL}/adherent/contents?type=cours`
+          `${process.env.REACT_APP_API_BASE_URL}/adherent/contents?type=cours`,
         );
 
         if (!response.ok)
@@ -31,7 +32,7 @@ const CoursAdherents = () => {
     };
 
     fetchCours();
-  }, []);
+  }, [fetchWithToken]);
 
   const handleShowDetails = (contenu) => {
     setSelectedContenu(contenu);

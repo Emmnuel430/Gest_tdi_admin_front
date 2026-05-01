@@ -1,10 +1,10 @@
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
-export const formatDateRelative = (dateS) => {
+export const formatDateRelative = (dateS, addSuffix = false) => {
   const date = new Date(dateS);
   const formatted = formatDistanceToNow(new Date(date), {
-    addSuffix: false, // Pas de suffixe (ex. "il y a")
+    addSuffix: addSuffix, // Pas de suffixe (ex. "il y a")
     locale: fr, // Locale française
   });
 

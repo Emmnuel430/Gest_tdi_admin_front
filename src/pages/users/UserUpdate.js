@@ -3,9 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Importation du popup de confirmation
-import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
+import { useCrudUI } from "../../hooks/useCrudUI";
+import { useAuth } from "../../context/AuthContext";
 
 const UserUpdate = () => {
+  const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   // Récupération de l'ID de l'utilisateur à partir des paramètres d'URL
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,10 +20,11 @@ const UserUpdate = () => {
     newPassword: "",
   }); // État pour stocker les données de l'utilisateur
   const [loading, setLoading] = useState(false); // État pour gérer l'état de chargement
-  const [showModal, setShowModal] = useState(false); // État pour afficher ou non le modal de confirmation
+  const { ui, close, openConfirm } = useCrudUI();
   const [showPasswordInput, setShowPasswordInput] = useState(false); // État pour afficher ou masquer le champ de mot de passe
 
-  const userInfo = JSON.parse(localStorage.getItem("user-info")); // Récupérer les informations de l'utilisateur connecté
+  const { admin } = useAuth();
+  const userInfo = admin;
   const userId = userInfo ? userInfo.id : null; // Récupérer l'ID de l'utilisateur connecté
 
   // Hook useEffect qui se déclenche une fois au montage du composant
@@ -30,11 +34,11 @@ const UserUpdate = () => {
       setError(""); // Réinitialisation de l'erreur avant chaque appel
       try {
         const response = await fetchWithToken(
-          `${process.env.REACT_APP_API_BASE_URL}/user/${id}`
+          `${process.env.REACT_APP_API_BASE_URL}/user/${id}`,
         ); // Requête pour récupérer l'utilisateur
         if (!response.ok) {
           throw new Error(
-            "Erreur lors de la récupération des données utilisateur."
+            "Erreur lors de la récupération des données utilisateur.",
           );
         }
         const data = await response.json(); // Parse de la réponse JSON
@@ -45,7 +49,7 @@ const UserUpdate = () => {
     };
 
     fetchUser(); // Appel de la fonction pour récupérer les données de l'utilisateur
-  }, [id]);
+  }, [id, fetchWithToken]);
 
   // Fonction pour gérer les changements dans les champs du formulaire
   const handleChange = (e) => {
@@ -54,14 +58,9 @@ const UserUpdate = () => {
   };
 
   // Fonction pour confirmer la modification de l'utilisateur
-  const handleConfirm = () => {
-    setShowModal(false); // Ferme le modal
-    updateUser(); // Appel de la fonction de mise à jour
-  };
-
-  // Fonction pour annuler la modification et fermer le modal
-  const handleCancel = () => {
-    setShowModal(false); // Ferme le modal
+  const handleConfirm = async () => {
+    close();
+    await updateUser();
   };
 
   // Fonction pour mettre à jour les données de l'utilisateur via l'API
@@ -95,7 +94,7 @@ const UserUpdate = () => {
             ...body,
             user_id: userId,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -210,7 +209,7 @@ const UserUpdate = () => {
         <br />
         {/* Bouton pour valider la modification */}
         <button
-          onClick={() => setShowModal(true)} // Ouvre le modal de confirmation
+          onClick={() => openConfirm()} // Ouvre le modal de confirmation
           className="btn btn-primary w-100"
           disabled={loading} // Désactive le bouton pendant le chargement
         >
@@ -226,8 +225,8 @@ const UserUpdate = () => {
 
       {/* Modal de confirmation */}
       <ConfirmPopup
-        show={showModal}
-        onClose={handleCancel}
+        show={ui.mode === "confirm"}
+        onClose={close}
         onConfirm={handleConfirm}
         title="Confirmer la modification"
         body={<p>Voulez-vous vraiment modifier cet utilisateur ?</p>}

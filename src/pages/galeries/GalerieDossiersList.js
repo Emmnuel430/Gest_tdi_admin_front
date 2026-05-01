@@ -28,15 +28,11 @@ const GalerieDossiersList = () => {
     setSelectedIds,
     resetSelection,
     toggleSelect,
-    modal,
-    openSingleDelete,
-    openMultipleDelete,
-    closeModal,
-    toggleModal,
-    selectedToggle,
+    ui,
+    close,
+    openDelete,
+    openBulkDelete,
     openToggle,
-    closeToggle,
-    confirmToggle,
   } = useCrudUI();
 
   // ==================== STATES - FILTRAGE & TRI ====================
@@ -54,13 +50,13 @@ const GalerieDossiersList = () => {
    * Supprime un ou plusieurs dossiers après confirmation
    */
   const handleDelete = async () => {
-    await deleteDossier(modal.type === "single" ? modal.data.id : modal.data);
+    await deleteDossier(ui.variant === "single" ? ui.data.id : ui.data);
     resetSelection();
     showToast(
-      modal.type === "single" ? "Dossier supprimé" : "Dossier(s) supprimé(s)",
+      ui.variant === "single" ? "Dossier supprimé" : "Dossier(s) supprimé(s)",
       "danger",
     );
-    closeModal();
+    close();
   };
 
   /**
@@ -68,6 +64,7 @@ const GalerieDossiersList = () => {
    */
   const handleToggle = async (dossier) => {
     await toggleDossier(dossier.id);
+    close();
   };
 
   // ==================== DATA PROCESSING - FILTRAGE ====================
@@ -131,43 +128,45 @@ const GalerieDossiersList = () => {
             />
 
             {/* SECTION ACTIONS - Barre de sélection multiple */}
-            <div className="d-flex justify-content-between align-items-center mb-3 p-2 border rounded bg-body">
-              <div className="d-flex align-items-center gap-2">
-                {/* BTN TOUT */}
-                <Button
-                  size="sm"
-                  variant={
-                    selectedIds.length === allIds.length
-                      ? "primary"
-                      : "outline-primary"
-                  }
-                  onClick={handleSelectAll}
-                >
-                  <i className="far fa-square-check me-1"></i>
-                  {selectedIds.length === allIds.length ? "Aucun" : "Tout"}
-                </Button>
+            {selectedIds.length >= 1 && (
+              <div className="d-flex justify-content-between align-items-center mb-3 p-2 border rounded bg-body">
+                <div className="d-flex align-items-center gap-2">
+                  {/* BTN TOUT */}
+                  <Button
+                    size="sm"
+                    variant={
+                      selectedIds.length === allIds.length
+                        ? "primary"
+                        : "outline-primary"
+                    }
+                    onClick={handleSelectAll}
+                  >
+                    <i className="far fa-square-check me-1"></i>
+                    {selectedIds.length === allIds.length ? "Aucun" : "Tout"}
+                  </Button>
 
-                {/* TEXTE */}
-                <span>
-                  {selectedIds.length} dossier
-                  {selectedIds.length > 1 ? "s" : ""} sélectionné
-                  {selectedIds.length > 1 ? "s" : ""}
-                </span>
+                  {/* TEXTE */}
+                  <span>
+                    {selectedIds.length} dossier
+                    {selectedIds.length > 1 ? "s" : ""} sélectionné
+                    {selectedIds.length > 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                {/* DELETE */}
+                {selectedIds.length > 0 && (
+                  <Button
+                    variant="danger"
+                    onClick={openBulkDelete}
+                    className="d-flex align-items-center"
+                  >
+                    <i className="fas fa-trash me-1"></i>{" "}
+                    <span className="d-none d-md-block">Suppr.</span> (
+                    {selectedIds.length})
+                  </Button>
+                )}
               </div>
-
-              {/* DELETE */}
-              {selectedIds.length > 0 && (
-                <Button
-                  variant="danger"
-                  onClick={openMultipleDelete}
-                  className="d-flex align-items-center"
-                >
-                  <i className="fas fa-trash me-1"></i>{" "}
-                  <span className="d-none d-md-block">Suppr.</span> (
-                  {selectedIds.length})
-                </Button>
-              )}
-            </div>
+            )}
 
             {/* SECTION GALERIE - Affichage des dossiers ou message vide */}
             <div
@@ -208,12 +207,12 @@ const GalerieDossiersList = () => {
                       {
                         label: d.is_visible ? "Masquer" : "Afficher",
                         icon: `fa fa-eye${!d.is_visible ? "" : "-slash text-secondary"}`,
-                        onClick: openToggle,
+                        onClick: () => openToggle(d),
                       },
                       {
                         label: "Supprimer",
                         icon: "fa fa-trash text-danger",
-                        onClick: openSingleDelete,
+                        onClick: () => openDelete(d),
                       },
                     ]}
                   >
@@ -250,19 +249,19 @@ const GalerieDossiersList = () => {
 
       {/* Modal de confirmation - Suppression d'un dossier */}
       <ConfirmPopup
-        show={modal.show}
-        onClose={closeModal}
+        show={ui.mode === "delete"}
+        onClose={close}
         onConfirm={handleDelete}
         title="Confirmer la suppression"
         btnClass="danger"
         body={
-          modal.type === "single" ? (
+          ui.variant === "single" ? (
             <p>
-              Supprimer le dossier <strong>{modal.data?.nom}</strong> ?
+              Supprimer le dossier <strong>{ui.data?.nom}</strong> ?
             </p>
           ) : (
             <p>
-              Supprimer <strong>{modal.data?.length}</strong> dossier(s) ?
+              Supprimer <strong>{ui.data?.length}</strong> dossier(s) ?
             </p>
           )
         }
@@ -270,18 +269,18 @@ const GalerieDossiersList = () => {
 
       {/* Modal de confirmation - Visibilité du dossier */}
       <ConfirmPopup
-        show={toggleModal}
-        onClose={closeToggle}
-        onConfirm={() => confirmToggle(handleToggle)}
+        show={ui.mode === "toggle"}
+        onClose={close}
+        onConfirm={() => {
+          if (ui.data) handleToggle(ui.data);
+        }}
         title="Confirmer l'action"
         btnClass="primary"
         body={
           <p>
             Voulez-vous{" "}
-            <strong>
-              {selectedToggle?.is_visible ? "masquer" : "afficher"}
-            </strong>{" "}
-            le dossier <strong>{selectedToggle?.nom}</strong> ?
+            <strong>{ui.data?.is_visible ? "masquer" : "afficher"}</strong> le
+            dossier <strong>{ui.data?.nom}</strong> ?
           </p>
         }
       />

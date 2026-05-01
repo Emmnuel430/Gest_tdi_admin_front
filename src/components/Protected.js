@@ -9,13 +9,13 @@ const Protected = ({ Cmp, adminOnly = false }) => {
     const excludedPaths = ["/", "/logout"];
     if (excludedPaths.includes(window.location.pathname)) return;
 
-    const token = localStorage.getItem("token");
-    const userInfo = localStorage.getItem("user-info");
+    const token = sessionStorage.getItem("token");
+    const userInfo = sessionStorage.getItem("user-info");
     const user = userInfo ? JSON.parse(userInfo) : null;
 
     if (!token || !user) {
-      localStorage.removeItem("user-info");
-      localStorage.removeItem("token");
+      sessionStorage.removeItem("user-info");
+      sessionStorage.removeItem("token");
       navigate("/");
       return;
     }
@@ -31,7 +31,7 @@ const Protected = ({ Cmp, adminOnly = false }) => {
               Accept: "application/json",
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -59,8 +59,8 @@ const Protected = ({ Cmp, adminOnly = false }) => {
         setIsAuthorized(true);
       } catch (error) {
         // Token invalide, utilisateur supprimé, etc.
-        localStorage.removeItem("user-info");
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("user-info");
+        sessionStorage.removeItem("token");
         navigate("/");
       }
     };

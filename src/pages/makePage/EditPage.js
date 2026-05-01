@@ -5,11 +5,12 @@ import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
 import ToastMessage from "../../components/Layout/ToastMessage";
 // import SectionForm from "./SectionForm";
-import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import { usePage } from "../../hooks/usePage";
 import PageForm from "../../components/PageForm";
 
 export default function EditPage() {
+  const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   const { id } = useParams();
   const navigate = useNavigate();
   const {
@@ -69,7 +70,7 @@ export default function EditPage() {
         );
       })
       .catch(() => setError("Erreur lors du chargement de la page"));
-  }, [id, setError, setPage, setPreviewMainImage]);
+  }, [id, setError, setPage, setPreviewMainImage, fetchWithToken]);
 
   const removeSubsectionWithId = (sectionIndex, subIndex) => {
     removeSubsection(sectionIndex, subIndex, {

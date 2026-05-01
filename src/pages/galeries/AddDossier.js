@@ -3,36 +3,33 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
-import ToastMessage from "../../components/Layout/ToastMessage";
-import { fetchWithToken } from "../../utils/fetchWithToken";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import { useToast } from "../../context/ToastContext";
+import { useCrudUI } from "../../hooks/useCrudUI";
 
 const AddDossier = () => {
+  const { fetchWithToken } = useFetchWithToken();
   const maxLength = 200;
   const [nom, setNom] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
 
   const { showToast } = useToast();
+  const { ui, close, openConfirm } = useCrudUI();
 
   const navigate = useNavigate();
 
-  const handleConfirm = () => {
-    setShowModal(false);
-    addDossier();
+  const handleConfirm = async () => {
+    close();
+    await addDossier();
   };
-
-  const handleCancel = () => setShowModal(false);
 
   const addDossier = async () => {
     if (!nom) {
-      setError("Le nom du dossier est requis.");
+      showToast("Le nom du dossier est requis.", "warning");
       return;
     }
 
-    setError("");
     setLoading(true);
 
     try {
@@ -50,7 +47,7 @@ const AddDossier = () => {
       result = await result.json();
 
       if (result.error) {
-        setError(result.error);
+        showToast(result.error, "danger");
         setLoading(false);
         return;
       }
@@ -65,7 +62,7 @@ const AddDossier = () => {
       navigate("/admin-tdi/galerie/dossiers");
       // navigate(`/admin-tdi/galerie/dossiers/${result.data.id}`);
     } catch (e) {
-      setError("Une erreur inattendue s'est produite.");
+      showToast("Une erreur inattendue s'est produite.", "danger");
       setLoading(false);
     }
   };
@@ -77,11 +74,10 @@ const AddDossier = () => {
       <div className="col-sm-6 offset-sm-3 mt-5">
         <h2>Créer un dossier</h2>
 
-        {error && <ToastMessage message={error} onClose={() => setError("")} />}
-
         {/* NOM */}
         <label className="form-label">Nom du dossier *</label>
         <input
+          disabled={loading}
           type="text"
           className="form-control"
           placeholder="Ex: Mariage, Voyage..."
@@ -108,6 +104,7 @@ const AddDossier = () => {
         </label>
 
         <textarea
+          disabled={loading}
           className={`form-control ${
             description.length > maxLength ? "is-invalid" : ""
           }`}
@@ -126,7 +123,7 @@ const AddDossier = () => {
         <br />
 
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => openConfirm()}
           className="btn btn-primary w-100"
           disabled={!nom || loading || description.length >= maxLength}
         >
@@ -142,8 +139,8 @@ const AddDossier = () => {
       </div>
 
       <ConfirmPopup
-        show={showModal}
-        onClose={handleCancel}
+        show={ui.mode === "confirm"}
+        onClose={close}
         onConfirm={handleConfirm}
         title="Confirmer la création"
         btnClass="primary"

@@ -1,74 +1,49 @@
 import { useState } from "react";
 
 export const useCrudUI = () => {
-  // 🔹 SELECTION
+  // 1. État pour la sélection (indépendant des modals)
   const [selectedIds, setSelectedIds] = useState([]);
 
+  // 2. État unique pour TOUTES les modals
+  // mode: 'delete' | 'toggle' | 'details' | null
+  const [ui, setUi] = useState({ mode: null, data: null, variant: null });
+
+  // --- LOGIQUE SÉLECTION ---
   const toggleSelect = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
-  const resetSelection = () => setSelectedIds([]);
-
-  // 🔹 DELETE MODAL
-  const [modal, setModal] = useState({
-    show: false,
-    type: null, // "single" | "multiple"
-    data: null,
-  });
-
-  const openSingleDelete = (item) => {
-    setModal({ show: true, type: "single", data: item });
+  // --- GESTION DES MODALS (FUSIONNÉE) ---
+  const open = (mode, data = null, variant = null) => {
+    setUi({ mode, data, variant });
   };
-
-  const openMultipleDelete = () => {
-    setModal({ show: true, type: "multiple", data: selectedIds });
-  };
-
-  const closeModal = () => {
-    setModal({ show: false, type: null, data: null });
-  };
-
-  // 🔹 TOGGLE
-  const [toggleModal, setToggleModal] = useState(false);
-  const [selectedToggle, setSelectedToggle] = useState(null);
-
-  const openToggle = (item) => {
-    setSelectedToggle(item);
-    setToggleModal(true);
-  };
-
-  const closeToggle = () => {
-    setSelectedToggle(null);
-    setToggleModal(false);
-  };
-
-  const confirmToggle = (callback) => {
-    if (!selectedToggle) return;
-    callback(selectedToggle);
-    closeToggle();
-  };
+  const close = () => setUi({ mode: null, data: null, variant: null });
 
   return {
-    // selection
+    // Sélection
     selectedIds,
     setSelectedIds,
     toggleSelect,
-    resetSelection,
+    resetSelection: () => setSelectedIds([]),
 
-    // delete modal
-    modal,
-    openSingleDelete,
-    openMultipleDelete,
-    closeModal,
+    // État UI unique
+    ui,
+    close,
 
-    // toggle
-    toggleModal,
-    selectedToggle,
-    openToggle,
-    closeToggle,
-    confirmToggle,
+    // Actions spécifiques (plus lisibles dans le composant)
+    openDelete: (item) => open("delete", item, "single"),
+    openBulkDelete: () => open("delete", selectedIds, "multiple"),
+    openToggle: (item) => open("toggle", item),
+    openDetails: (item) => open("details", item),
+    openStatus: (item, status) => open("status", { order: item, status }),
+    openConfirm: (data = null) => open("confirm", data),
+
+    // Utilitaire pour le toggle
+    confirmToggle: (callback) => {
+      if (ui.data) callback(ui.data);
+      close();
+    },
   };
 };

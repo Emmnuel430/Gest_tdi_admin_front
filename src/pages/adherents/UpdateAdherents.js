@@ -3,118 +3,71 @@ import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
-import ToastMessage from "../../components/Layout/ToastMessage";
-import { fetchWithToken } from "../../utils/fetchWithToken";
-import { addDays, addMonths, addYears, format } from "date-fns";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
+import { useCrudUI } from "../../hooks/useCrudUI";
+import { useToast } from "../../context/ToastContext";
 
 const UpdateAdherents = () => {
   const { id } = useParams();
-  const [nom, setNom] = useState("");
-  const [prenom, setPrenom] = useState("");
-  const [contact, setContact] = useState("");
-  const [pseudo, setPseudo] = useState("");
-  const [password] = useState("");
-  const [statut, setStatut] = useState("");
-  const [abonnementType, setAbonnementType] = useState("");
-  const [abonnementExpiresAt, setAbonnementExpiresAt] = useState("");
-  const [isValidated, setIsValidated] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
-
-  const [initialAbonnementType, setInitialAbonnementType] = useState("");
-  const [initialIsValidated, setInitialIsValidated] = useState(false);
-  const [initialAbonnementExpiresAt, setInitialAbonnementExpiresAt] =
-    useState("");
-
+  const { fetchWithToken } = useFetchWithToken();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
+  const [form, setForm] = useState({
+    nom: "",
+    prenom: "",
+    email: "",
+    contact: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const { ui, close, openConfirm } = useCrudUI();
+
+  // Handler générique (clé du truc)
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Fetch adherent
   useEffect(() => {
     const fetchAdherent = async () => {
       try {
         const response = await fetchWithToken(
           `${process.env.REACT_APP_API_BASE_URL}/adherents/${id}`,
-          { method: "GET" }
         );
-        const result = await response.json();
-        if (response.ok && result.data) {
-          setNom(result.data.nom || "");
-          setPrenom(result.data.prenom || "");
-          setContact(result.data.contact || "");
-          setPseudo(result.data.pseudo || "");
-          setStatut(result.data.statut || "");
-          setAbonnementType(result.data.abonnement_type || "");
-          setAbonnementExpiresAt(result.data.abonnement_expires_at || "");
-          setIsValidated(!!result.data.is_validated);
 
-          // On stocke les valeurs initiales pour la logique du useEffect
-          setInitialAbonnementType(result.data.abonnement_type || "");
-          setInitialIsValidated(!!result.data.is_validated);
-          setInitialAbonnementExpiresAt(
-            result.data.abonnement_expires_at || ""
-          );
+        const result = await response.json();
+
+        if (response.ok && result.data) {
+          setForm({
+            nom: result.data.nom || "",
+            prenom: result.data.prenom || "",
+            email: result.data.email || "",
+            contact: result.data.contact || "",
+          });
         } else {
-          setError(result.message || "Erreur lors du chargement.");
+          showToast(result.message || "Erreur chargement", "danger");
         }
       } catch (err) {
-        setError("Erreur lors du chargement de l'adhérent.");
+        showToast("Erreur serveur", "danger");
       }
     };
+
     fetchAdherent();
-  }, [id]);
+  }, [id, showToast, fetchWithToken]);
 
-  useEffect(() => {
-    // Si on n'a pas encore chargé les données, on ne fait rien
-    if (initialAbonnementType === "") return;
-
-    // Si l'utilisateur n'a rien changé, on garde la date initiale
-    if (
-      abonnementType === initialAbonnementType &&
-      isValidated === initialIsValidated
-    ) {
-      setAbonnementExpiresAt(initialAbonnementExpiresAt || "");
-      return;
-    }
-
-    // Sinon, on recalcule
-    if (!abonnementType || !isValidated) {
-      setAbonnementExpiresAt("");
-      return;
-    }
-    let expirationDate = "";
-    const today = new Date();
-    if (abonnementType === "hebdomadaire") {
-      expirationDate = addDays(today, 7);
-    } else if (abonnementType === "mensuel") {
-      expirationDate = addMonths(today, 1);
-    } else if (abonnementType === "annuel") {
-      expirationDate = addYears(today, 1);
-    }
-    setAbonnementExpiresAt(format(expirationDate, "yyyy-MM-dd"));
-  }, [
-    abonnementType,
-    isValidated,
-    initialAbonnementType,
-    initialIsValidated,
-    initialAbonnementExpiresAt,
-  ]);
-
-  const handleConfirm = () => {
-    setShowModal(false);
-    handleSubmit();
-  };
-
-  const handleCancel = () => {
-    setShowModal(false);
-  };
-
+  // Submit
   const handleSubmit = async () => {
-    if (!nom || !prenom || !statut) {
-      setError("Veuillez remplir tous les champs obligatoires.");
+    if (!form.nom || !form.prenom || !form.email) {
+      showToast("Champs obligatoires manquants", "warning");
       return;
     }
 
-    setError("");
     setLoading(true);
 
     try {
@@ -122,203 +75,99 @@ const UpdateAdherents = () => {
         `${process.env.REACT_APP_API_BASE_URL}/adherents/${id}`,
         {
           method: "PUT",
-          body: JSON.stringify({
-            nom,
-            prenom,
-            contact,
-            pseudo: pseudo || undefined,
-            password: password || undefined,
-            statut,
-            abonnement_type: abonnementType || undefined,
-            abonnement_expires_at: abonnementExpiresAt || undefined,
-            is_validated: isValidated,
-          }),
-        }
+          body: JSON.stringify(form),
+        },
       );
 
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.message || "Erreur lors de la mise à jour.");
-        setLoading(false);
+        showToast(result.message || "Erreur update", "danger");
         return;
       }
 
-      alert("Adhérent mis à jour !");
+      showToast("Adhérent mis à jour", "success");
       navigate("/admin-tdi/adherents");
     } catch (err) {
-      setError("Une erreur s'est produite.");
+      showToast("Erreur réseau", "danger");
+    } finally {
       setLoading(false);
     }
   };
 
-  // const generatePseudo = () => {
-  //   const randomString = Math.random().toString(36).substring(2, 6); // 4 caractères aléatoires
-  //   const slugifiedPrenom = prenom
-  //     ? prenom
-  //         .trim()
-  //         .toLowerCase()
-  //         .replace(/[^a-z0-9]+/g, "-")
-  //     : "user";
-  //   setPseudo(`${slugifiedPrenom}-${randomString}`);
-  // };
-
-  // const generatePassword = () => {
-  //   const random = Math.random().toString(36).slice(-8); // 8 caractères
-  // setPassword(random);
-  // };
-
   return (
     <Layout>
       <Back>admin-tdi/adherents</Back>
-      <div className="col-sm-6 offset-sm-3 mt-5">
-        <h1>Modifier un adhérent</h1>
-        <br />
 
-        {error && <ToastMessage message={error} onClose={() => setError("")} />}
+      <div className="col-md-6 offset-md-3 mt-5">
+        <h2 className="fw-bold mb-4">Modifier un adhérent</h2>
 
+        {/* NOM */}
         <div className="mb-3">
           <label className="form-label">Nom *</label>
           <input
             type="text"
+            name="nom"
             className="form-control"
-            value={nom}
-            onChange={(e) => setNom(e.target.value)}
-            required
+            value={form.nom}
+            onChange={handleChange}
           />
         </div>
 
+        {/* PRENOM */}
         <div className="mb-3">
           <label className="form-label">Prénom *</label>
           <input
             type="text"
+            name="prenom"
             className="form-control"
-            value={prenom}
-            onChange={(e) => setPrenom(e.target.value)}
-            required
+            value={form.prenom}
+            onChange={handleChange}
           />
         </div>
 
+        {/* EMAIL */}
+        <div className="mb-3">
+          <label className="form-label">Email *</label>
+          <input
+            type="email"
+            name="email"
+            className="form-control"
+            value={form.email}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* CONTACT */}
         <div className="mb-3">
           <label className="form-label">Contact</label>
           <input
             type="text"
+            name="contact"
             className="form-control"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
+            value={form.contact}
+            onChange={handleChange}
           />
         </div>
 
-        {/* <div className="mb-3">
-          <label className="form-label">Pseudo</label>
-          <div className="input-group">
-            <input
-              type="text"
-              className="form-control"
-              value={pseudo}
-              placeholder="Généré automatiquement"
-              readOnly
-            />
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={generatePseudo}
-            >
-              Générer
-            </button>
-          </div>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Mot de passe</label>
-          <div className="input-group">
-            <input
-              type="text"
-              className="form-control"
-              value={password}
-              placeholder="Généré automatiquement"
-              readOnly
-            />
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={generatePassword}
-            >
-              Générer
-            </button>
-          </div>
-        </div> */}
-
-        <div className="mb-3">
-          <label className="form-label">Statut *</label>
-          <select
-            className="form-select"
-            value={statut}
-            onChange={(e) => setStatut(e.target.value)}
-            required
-          >
-            <option value="">-- Choisir un statut --</option>
-            <option value="standard">Standard</option>
-            <option value="premium">Premium</option>
-          </select>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Type d'abonnement</label>
-          <select
-            className="form-select"
-            value={abonnementType}
-            onChange={(e) => setAbonnementType(e.target.value)}
-          >
-            <option value="">-- Choisir un type --</option>
-            <option value="hebdomadaire">Hebdomadaire</option>
-            <option value="mensuel">Mensuel</option>
-            <option value="annuel">Annuel</option>
-          </select>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Expiration abonnement</label>
-          <input
-            type="date"
-            className="form-control"
-            value={abonnementExpiresAt ? abonnementExpiresAt : ""}
-            readOnly
-          />
-        </div>
-
-        <div className="form-check mb-3">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            checked={isValidated}
-            onChange={(e) => setIsValidated(e.target.checked)}
-            id="isValidated"
-          />
-          <label className="form-check-label" htmlFor="isValidated">
-            Adhérent validé
-          </label>
-        </div>
-
+        {/* BTN */}
         <button
           className="btn btn-primary w-100"
-          onClick={() => setShowModal(true)}
+          onClick={() => openConfirm()}
           disabled={loading}
         >
-          {loading ? (
-            <span>
-              <i className="fas fa-spinner fa-spin"></i> Chargement...
-            </span>
-          ) : (
-            <span>Mettre à jour l'adhérent</span>
-          )}
+          {loading ? "Chargement..." : "Mettre à jour"}
         </button>
       </div>
 
+      {/* CONFIRM */}
       <ConfirmPopup
-        show={showModal}
-        onClose={handleCancel}
-        onConfirm={handleConfirm}
+        show={ui.mode === "confirm"}
+        onClose={close}
+        onConfirm={() => {
+          close();
+          handleSubmit();
+        }}
         title="Confirmer la modification"
         body={<p>Voulez-vous vraiment modifier cet adhérent ?</p>}
       />

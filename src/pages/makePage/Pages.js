@@ -6,11 +6,12 @@ import HeaderWithFilter from "../../components/Layout/HeaderWithFilter"; // Comp
 import Loader from "../../components/Layout/Loader"; // Composant pour le loader
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Composant de modal de confirmation pour la suppression d'page
 import SearchBar from "../../components/Layout/SearchBar"; // Composant pour la barre de recherche
-import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import { formatDateRelative } from "../../utils/formatDateRelative";
 import { useToast } from "../../context/ToastContext";
 
 const Pages = () => {
+  const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   const { showToast } = useToast();
 
   // États locaux pour gérer les pages, l'état de chargement, les erreurs et les modals
@@ -47,7 +48,7 @@ const Pages = () => {
     };
 
     fetchPages(); // Appel de la fonction pour récupérer les pages
-  }, []); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
+  }, [fetchWithToken]); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
 
   useEffect(() => {
     if (pages.length > 0) {

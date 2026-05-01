@@ -5,9 +5,10 @@ import Layout from "../../components/Layout/Layout"; // Composant Layout qui con
 import HeaderWithFilter from "../../components/Layout/HeaderWithFilter"; // Composant Layout qui contient la structure générale de la affiche
 import Loader from "../../components/Layout/Loader"; // Composant pour le loader
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Composant de modal de confirmation pour la suppression d'affiche
-import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 
 const Ads = () => {
+  const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   // États locaux pour gérer les ads, l'état de chargement, les erreurs et les modals
   const [ads, setAds] = useState([]); // Liste des ads
   const [loading, setLoading] = useState(false); // État de chargement
@@ -16,8 +17,6 @@ const Ads = () => {
   const [selectedAds, setSelectedAds] = useState(null); // Page sélectionné pour suppression
   const [sortOption, setSortOption] = useState(""); // État pour l'option de tri
   const [sortedAds, setSortedAds] = useState([]); // Liste des ads triés
-
-  // Récupérer l'ID de l'affiche connecté à partir du localStorage
 
   // Récupérer la liste des ads lors du premier rendu
   useEffect(() => {
@@ -28,7 +27,7 @@ const Ads = () => {
       try {
         // Requête pour récupérer la liste des ads
         const response = await fetchWithToken(
-          `${process.env.REACT_APP_API_BASE_URL}/ads`
+          `${process.env.REACT_APP_API_BASE_URL}/ads`,
         );
         if (!response.ok) {
           throw new Error("Erreur lors de la récupération des ads.");
@@ -43,7 +42,7 @@ const Ads = () => {
     };
 
     fetchAds(); // Appel de la fonction pour récupérer les ads
-  }, []); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
+  }, [fetchWithToken]); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
 
   useEffect(() => {
     if (ads.length > 0) {
@@ -73,7 +72,7 @@ const Ads = () => {
         `${process.env.REACT_APP_API_BASE_URL}/ads/${selectedAds.id}`,
         {
           method: "DELETE", // Méthode de suppression
-        }
+        },
       );
 
       const result = await response.json(); // Convertir la réponse en JSON

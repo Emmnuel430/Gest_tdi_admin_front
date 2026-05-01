@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { fetchWithToken } from "../utils/fetchWithToken";
+import { useFetchWithToken } from "./useFetchWithToken";
 import { useToast } from "../context/ToastContext";
 
 export const useDossiers = () => {
+  const { fetchWithToken } = useFetchWithToken();
   const [dossiers, setDossiers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,7 +28,7 @@ export const useDossiers = () => {
     };
 
     fetchDossiers();
-  }, []);
+  }, [fetchWithToken]);
 
   const deleteDossier = async (ids) => {
     try {

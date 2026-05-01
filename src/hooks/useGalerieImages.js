@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import { fetchWithToken } from "../utils/fetchWithToken";
+import { useState, useEffect, useCallback } from "react";
+import { useFetchWithToken } from "./useFetchWithToken";
 import { useToast } from "../context/ToastContext";
 
 export const useGalerieImages = (dossierId) => {
+  const { fetchWithToken } = useFetchWithToken();
   const [dossier, setDossier] = useState(null);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -11,26 +12,29 @@ export const useGalerieImages = (dossierId) => {
 
   const { showToast } = useToast();
 
-  const fetchImages = async (dossierId) => {
-    setLoading(true);
-    try {
-      const res = await fetchWithToken(
-        `${process.env.REACT_APP_API_BASE_URL}/galerie/images/dossier/${dossierId}`,
-      );
-      const data = await res.json();
-      setImages(data.images);
-      setDossier(data.dossier);
-    } catch {
-      setError("Erreur chargement images");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchImages = useCallback(
+    async (dossierId) => {
+      setLoading(true);
+      try {
+        const res = await fetchWithToken(
+          `${process.env.REACT_APP_API_BASE_URL}/galerie/images/dossier/${dossierId}`,
+        );
+        const data = await res.json();
+        setImages(data.images);
+        setDossier(data.dossier);
+      } catch {
+        setError("Erreur chargement images");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchWithToken],
+  );
   useEffect(() => {
     if (!dossierId) return;
 
     fetchImages(dossierId);
-  }, [dossierId]);
+  }, [dossierId, fetchImages]);
 
   const deleteImage = async (ids) => {
     try {

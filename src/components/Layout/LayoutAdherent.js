@@ -9,18 +9,21 @@ import { Link } from "react-router-dom"; // Importation de 'useNavigate' et 'Lin
 import logo from "../../assets/img/logo.png"; // Importation du logo de l'application.
 import Sidebar from "./SidebarAdherent";
 import ThemeSwitcher from "../others/ThemeSwitcher"; // Importation du composant ThemeSwitcher
-import { fetchWithToken } from "../../utils/fetchWithToken2"; // Importation d'une fonction utilitaire pour les requêtes avec token
-
+import useIdleLogout from "../../hooks/useIdleLogout";
+import { useAuth } from "../../context/AuthContext";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 // Définition du composant Layout qui sera utilisé comme un modèle de page (avec du contenu dynamique via 'children')
 const Layout = ({ children }) => {
-  // Récupération des informations de l'utilisateur depuis le localStorage (si elles existent)
-  const adherent = JSON.parse(localStorage.getItem("adherent-info"));
+  const { fetchWithToken } = useFetchWithToken();
+  const { logoutAdherent, adherent } = useAuth();
+  useIdleLogout();
+  // Récupération des informations de l'utilisateur depuis le sessionStorage (si elles existent)
   const [load, setLoad] = useState(false);
 
   // Utilisation de 'useNavigate' pour effectuer des redirections dans l'application
   // const navigate = useNavigate();
 
-  // Fonction de déconnexion qui efface les informations de l'utilisateur du localStorage et redirige vers la page de connexion
+  // Fonction de déconnexion qui efface les informations de l'utilisateur du sessionStorage et redirige vers la page de connexion
   async function logOut() {
     try {
       setLoad(true);
@@ -28,7 +31,7 @@ const Layout = ({ children }) => {
         `${process.env.REACT_APP_API_BASE_URL}/adherent/logout`,
         {
           method: "POST",
-        }
+        },
       );
     } catch (error) {
       console.error("Erreur de déconnexion :", error);
@@ -37,10 +40,7 @@ const Layout = ({ children }) => {
     }
     // Redirection
     window.location.href = process.env.REACT_APP_VITRINE_URL;
-
-    // Nettoyage du localStorage
-    localStorage.removeItem("adherent-token");
-    localStorage.removeItem("adherent-info");
+    logoutAdherent();
   }
 
   return (
@@ -123,7 +123,7 @@ const Layout = ({ children }) => {
           <div className="bg-body">
             <div className="row small">
               <div className="col-12 col-sm-6 text-center text-sm-start">
-                &copy; {new Date().getFullYear()} <Link to="/">Gest</Link>,
+                &copy; {new Date().getFullYear()} <Link to="/">Gest v2</Link>,
                 AsNumeric - J/E. Tous droits réservés.
               </div>
               <div className="col-12 col-sm-6 text-center text-sm-end text-muted ">

@@ -1,22 +1,31 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fetchWithToken } from "../../utils/fetchWithToken";
-import { uploadWithToken } from "../../utils/uploadWithToken";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import Loader from "../../components/Layout/Loader";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
+import { useCrudUI } from "../../hooks/useCrudUI";
+import { useToast } from "../../context/ToastContext";
+import { useMedia } from "../../hooks/useMedia";
 
-export default function MediaPicker({ dossierId, onSuccess }) {
+export default function MediaPicker({ dossierId, onSuccess, onDelete }) {
+  const { fetchWithToken } = useFetchWithToken();
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(null);
-  const [medias, setMedias] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploading, setUploading] = useState(false);
-
   const [isDragging, setIsDragging] = useState(false);
 
   const observerRef = useRef();
+
+  const { showToast } = useToast();
+  const { ui, close, openConfirm, openDelete } = useCrudUI();
+  const {
+    medias,
+    loading,
+    uploading,
+    uploadProgress,
+    loadMedias,
+    uploadMedias,
+    deleteMedias,
+  } = useMedia();
 
   // =========================
   // LOAD MORE (pagination)
@@ -25,19 +34,12 @@ export default function MediaPicker({ dossierId, onSuccess }) {
     if (loading) return;
     if (lastPage && page > lastPage) return;
 
-    setLoading(true);
+    const result = await loadMedias(page);
+    if (!result) return;
 
-    const res = await fetchWithToken(
-      `${process.env.REACT_APP_API_BASE_URL}/media?page=${page}`,
-    );
-    const data = await res.json();
-
-    setMedias((prev) => [...prev, ...data.data]);
-    setLastPage(data.last_page);
+    setLastPage(result.lastPage);
     setPage((prev) => prev + 1);
-
-    setLoading(false);
-  }, [page, lastPage, loading]);
+  }, [page, lastPage, loading, loadMedias]);
 
   useEffect(() => {
     loadMore();
@@ -73,38 +75,19 @@ export default function MediaPicker({ dossierId, onSuccess }) {
   // UPLOAD (drag & drop)
   // =========================
 
-  const handleUpload = (files) => {
-    const formData = new FormData();
-
-    [...files].forEach((file) => {
-      formData.append("images[]", file);
-    });
-
-    setUploading(true);
-    setUploadProgress(0);
-
-    uploadWithToken(`${process.env.REACT_APP_API_BASE_URL}/media`, formData, {
-      onProgress: (percent) => {
-        setUploadProgress(percent);
-      },
-      onSuccess: (data) => {
-        setMedias((prev) => [...data, ...prev]); // 🔥 UX
-        setUploading(false);
-      },
-      onError: (err) => {
-        console.error(err);
-        setUploading(false);
-      },
-    });
+  const handleUpload = async (files) => {
+    try {
+      await uploadMedias(files);
+      showToast("Images téléchargées avec succès", "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Erreur lors du téléchargement", "danger");
+    }
   };
 
   // =========================
   // ATTACH
   // =========================
-  const [confirmModal, setConfirmModal] = useState(false);
-
-  const openConfirm = () => setConfirmModal(true);
-  const closeConfirm = () => setConfirmModal(false);
 
   const handleAttach = async () => {
     if (selected.length === 0) return;
@@ -119,8 +102,26 @@ export default function MediaPicker({ dossierId, onSuccess }) {
         }),
       },
     );
-    closeConfirm();
+    close();
     onSuccess();
+  };
+
+  // =========================
+  // DELETE
+  // =========================
+
+  const handleDelete = async () => {
+    if (selected.length === 0) return;
+
+    const result = await deleteMedias(selected);
+    if (result.success) {
+      showToast(`${selected.length} image(s) supprimée(s)`, "danger");
+      setSelected([]);
+      onDelete();
+      close();
+    } else {
+      showToast(result.error, "danger");
+    }
   };
 
   // =========================
@@ -181,7 +182,7 @@ export default function MediaPicker({ dossierId, onSuccess }) {
         </div>
       ) : (
         <div
-          className="d-flex flex-wrap gap-2 my-2 overflow-auto justify-content-start justify-content-lg-between"
+          className="d-flex flex-wrap gap-2 my-2 overflow-auto justify-content-start border p-2"
           style={{ maxHeight: "400px" }}
         >
           {medias.length ? (
@@ -233,14 +234,23 @@ export default function MediaPicker({ dossierId, onSuccess }) {
       {/* FOOTER */}
       {medias.length > 0 && (
         <div className="d-flex justify-content-between align-items-center mt-2">
-          <p className="text-muted mb-0">{selected?.length} sélectionné(s)</p>
+          <div className="d-flex gap-2">
+            <p className="text-muted mb-0">{selected?.length} sélectionné(s)</p>
+            {selected.length > 0 && (
+              <button
+                onClick={() => openDelete()}
+                className="btn btn-danger btn-sm"
+              >
+                Suppr ({selected.length})
+              </button>
+            )}
+          </div>
 
           <button
-            onClick={openConfirm}
+            onClick={() => openConfirm()}
             className="btn btn-primary"
             disabled={selected?.length === 0}
           >
-            {" "}
             Ajouter au dossier
           </button>
         </div>
@@ -248,8 +258,8 @@ export default function MediaPicker({ dossierId, onSuccess }) {
 
       {/* ConfirmPopup */}
       <ConfirmPopup
-        show={confirmModal}
-        onClose={closeConfirm}
+        show={ui.mode === "confirm"}
+        onClose={close}
         onConfirm={handleAttach}
         title="Confirmer l'ajout"
         btnClass="primary"
@@ -257,6 +267,21 @@ export default function MediaPicker({ dossierId, onSuccess }) {
           <p>
             Vous êtes sur le point d'ajouter <strong>{selected?.length}</strong>{" "}
             image(s) au dossier.
+          </p>
+        }
+      />
+
+      <ConfirmPopup
+        show={ui.mode === "delete"}
+        onClose={close}
+        onConfirm={handleDelete}
+        title="Confirmer la suppression"
+        btnClass="danger"
+        body={
+          <p>
+            Vous êtes sur le point de supprimer définitivement{" "}
+            <strong>{selected?.length} image(s)</strong>. <br />* Cette action
+            est irréversible.
           </p>
         }
       />

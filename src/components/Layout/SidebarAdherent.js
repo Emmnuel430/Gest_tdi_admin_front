@@ -5,15 +5,6 @@ import logo from "../../assets/img/logo.png"; // Importation du logo de l'applic
 import SidebarLinksAdherent from "./SidebarLinksAdherent"; // Importation du composant SidebarLinks qui contient les liens de la barre latérale.
 
 const Sidebar = ({ user }) => {
-  // Définition du composant Sidebar qui prend un utilisateur en prop.
-  /* function formatRole(role) {
-    if (!role) return "";
-    return role
-      .split("_") // coupe par "_"
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // met en majuscule la première lettre
-      .join(" "); // re-colle avec des espaces
-  } */
-
   return (
     <div className="sidebar b-bar d-flex pb-3 bg-body">
       <div className="navbar bg-body navbar-body">
@@ -32,30 +23,45 @@ const Sidebar = ({ user }) => {
           <h3 className="m-0 ps-2 text-primary">
             {" "}
             {/* Affichage du titre "Gest v1.2" */}
-            <strong>Gest v1.2</strong>
+            <strong>Gest v2</strong>
           </h3>
         </Link>
         {/* Section profil utilisateur */}
-        <div className="d-flex align-items-center ms-4 mb-4">
+        <div className="d-flex align-items-center gap-3 px-3 py-2 rounded">
+          {/* Avatar */}
           <div className="position-relative">
             <img
-              src={userImg} // Affichage de l'image de profil par défaut
+              src={userImg}
               alt="Profile"
-              className="rounded-circle"
-              width="40"
-              height="40"
+              className="rounded-circle border"
+              width="45"
+              height="45"
             />
-            {/* Indicateur de statut en ligne */}
-            <div className="bg-success rounded-circle border border-2 border-body position-absolute end-0 bottom-0 p-1"></div>
+
+            {/* Online status */}
+            <span className="position-absolute bottom-0 end-0 translate-middle p-1 bg-success border border-2 border-white rounded-circle"></span>
           </div>
-          {user && ( // Vérifie si l'utilisateur est défini (authentifié).
-            <div className="ms-3">
-              <h6 className="mb-0">
-                <strong>{user.nom}</strong>{" "}
-                {/* Affiche le prénom et le nom de l'utilisateur */}
-              </h6>
-              <span>{user.statut === "standard" ? "Externe" : `Premium`}</span>{" "}
-              {/* Affiche le rôle de l'utilisateur (Admin ou Staff) */}
+
+          {/* Infos utilisateur */}
+          {user && (
+            <div className="d-flex flex-column">
+              {/* Nom */}
+              <span className="fw-semibold lh-sm">
+                {user.prenom} <strong>{user.nom}</strong>
+              </span>
+
+              {/* Plan */}
+              <span className="text-muted small">
+                {user?.subscription?.plan?.name || "Abonné"}
+              </span>
+
+              {/* Type abonnement */}
+              <div className="mt-1">
+                <span className="badge bg-outline-info text-body border text-uppercase small">
+                  {user?.subscription?.plan?.billing_type?.replace("_", " ") ||
+                    "N/A"}
+                </span>
+              </div>
             </div>
           )}
         </div>

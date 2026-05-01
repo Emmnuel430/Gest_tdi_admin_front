@@ -1,5 +1,7 @@
 import { Line } from "react-chartjs-2";
 import { useEffect, useState } from "react";
+import CountUp from "react-countup";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +13,8 @@ import {
   Legend,
 } from "chart.js";
 import Loader from "../Layout/Loader";
-import { fetchWithToken } from "../../utils/fetchWithToken";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
+import { useTheme } from "../../context/ThemeContext";
 
 ChartJS.register(
   CategoryScale,
@@ -24,33 +27,11 @@ ChartJS.register(
 );
 
 export default function VisitsChart() {
+  const { fetchWithToken } = useFetchWithToken();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("week"); // day / week / month
-  const [isDarkMode, setIsDarkMode] = useState(
-    document.body.getAttribute("data-bs-theme") === "dark",
-  );
-
-  useEffect(() => {
-    // 1. Fonction de mise à jour réutilisable
-    const updateTheme = () => {
-      const currentTheme = document.body.getAttribute("data-bs-theme");
-      setIsDarkMode(currentTheme === "dark");
-    };
-
-    // 2. On synchronise tout de suite au montage (au cas où le body a changé avant)
-    updateTheme();
-
-    // 3. On observe les futurs changements
-    const observer = new MutationObserver(updateTheme);
-
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ["data-bs-theme"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  const { isDarkMode } = useTheme();
 
   // Fetch visits
   useEffect(() => {
@@ -69,7 +50,7 @@ export default function VisitsChart() {
       }
     };
     fetchData();
-  }, [period]);
+  }, [period, fetchWithToken]);
 
   if (loading || !data)
     return (
@@ -125,17 +106,30 @@ export default function VisitsChart() {
     <div className="row g-3">
       {/* Cards visites aujourd'hui et total */}
       <div className="col-md-4 d-flex flex-column gap-3 justify-content-evenly">
-        {" "}
         <div className="card text-center p-3 bg-body rounded shadow-sm h-100 d-flex align-items-center justify-content-center">
-          {" "}
-          <h6>Visites aujourd'hui</h6>{" "}
-          <span className="fs-2 fw-bold">{data.today}</span>{" "}
-        </div>{" "}
+          <h6>Visites aujourd'hui</h6>
+          <span className="fs-2 fw-bold">
+            <CountUp
+              end={data.today}
+              duration={2}
+              separator=" "
+              // suffix={""}
+            />
+            {/* {data.today} */}
+          </span>
+        </div>
         <div className="card text-center p-3 bg-body rounded shadow-sm h-100 d-flex align-items-center justify-content-center">
-          {" "}
-          <h6>Total visites</h6>{" "}
-          <span className="fs-2 fw-bold">{data.total}</span>{" "}
-        </div>{" "}
+          <h6>Total visites</h6>
+          <span className="fs-2 fw-bold">
+            <CountUp
+              end={data.total}
+              duration={2}
+              separator=" "
+              // suffix={""}
+            />
+            {/* {data.total} */}
+          </span>
+        </div>
       </div>
 
       {/* Graph et dropdown */}

@@ -1,0 +1,203 @@
+export const AUTH_KEYS = {
+  ADMIN: { INFO: "user-info", TOKEN: "token", REDIRECT: "/admin-tdi/home" },
+  ADHERENT: {
+    INFO: "adherent-info",
+    TOKEN: "adherent-token",
+    REDIRECT: "/adherent/home",
+  },
+};
+
+export const STEPS = [
+  // ================= INFOS PERSO =================
+  {
+    id: 0,
+    title: "Infos Personnelles",
+    icon: <i className="fas fa-user-pen"></i>,
+    fields: [
+      {
+        name: "date_naissance",
+        label: "Date de naissance",
+        type: "date",
+      },
+      {
+        name: "adresse",
+        label: "Adresse",
+        type: "text",
+        placeholder: "Ex: 123 Rue de la Paix",
+      },
+      {
+        name: "situation_matrimoniale",
+        label: "Situation matrimoniale",
+        type: "select",
+        options: [
+          { value: "", label: "-- Sélectionner --" },
+          { value: "celibataire", label: "Célibataire" },
+          { value: "marie", label: "Marié(e)" },
+          { value: "divorce", label: "Divorcé(e)" },
+          { value: "veuf", label: "Veuf(ve)" },
+        ],
+      },
+      {
+        name: "nombre_enfants",
+        label: "Nombre d'enfants",
+        type: "number",
+        placeholder: "0",
+      },
+      {
+        name: "profession",
+        label: "Profession",
+        type: "text",
+        placeholder: "Ex: Ingénieur",
+      },
+    ],
+  },
+  // ================= CONTACT =================
+  {
+    id: 1,
+    title: "Contact",
+    icon: <i className="fas fa-phone"></i>,
+    fields: [
+      {
+        name: "telephone_whatsapp",
+        label: "Téléphone WhatsApp",
+        type: "tel",
+        placeholder: "+225 07 12 30 45 67",
+      },
+      {
+        name: "telephone_secondaire",
+        label: "Téléphone secondaire",
+        type: "tel",
+        placeholder: "+225 07 12 30 45 68",
+      },
+    ],
+  },
+  // ================= URGENCE =================
+  {
+    id: 2,
+    title: "En cas d'urgence",
+    icon: <i className="fas fa-heart-circle-exclamation"></i>,
+    fields: [
+      {
+        name: "urgence_nom",
+        label: "Nom du contact d'urgence",
+        type: "text",
+        placeholder: "Ex: Marie Dupont",
+      },
+      {
+        name: "urgence_numero",
+        label: "Téléphone du contact d'urgence",
+        type: "tel",
+        placeholder: "+221 77 123 45 67",
+      },
+      {
+        name: "urgence_lien",
+        label: "Lien de parenté",
+        type: "text",
+        placeholder: "Ex: Mère, Frère, Ami",
+      },
+    ],
+  },
+  // ================= EDUCATION-RELIGIEUX-LANGUES =================
+  {
+    id: 3,
+    title: "Éducation",
+    icon: <i className="fas fa-user-graduate"></i>,
+    fields: [
+      {
+        name: "niveau_etudes",
+        label: "Niveau d'études",
+        type: "select",
+        options: [
+          { value: "", label: "-- Sélectionner --" },
+          { value: "primaire", label: "Primaire" },
+          { value: "secondaire", label: "Secondaire" },
+          { value: "baccalaureat", label: "Baccalauréat" },
+          { value: "bac+2", label: "Bac + 2" },
+          { value: "licence", label: "Licence" },
+          { value: "master", label: "Master" },
+          { value: "doctorat", label: "Doctorat" },
+        ],
+      },
+      {
+        name: "dernier_diplome",
+        label: "Dernier diplôme obtenu",
+        type: "text",
+        placeholder: "Ex: Licence en Informatique",
+      },
+      {
+        name: "etude_religieuse",
+        label: "Étude religieuse",
+        type: "checkbox",
+      },
+      {
+        name: "institution_religieuse",
+        label: "Institution religieuse",
+        type: "text",
+        placeholder: "Ex: Yeshiva...",
+      },
+      {
+        name: "niveau_juif",
+        label: "Niveau d'étude juive",
+        type: "select",
+        options: [
+          { value: "", label: "-- Sélectionner --" },
+          { value: "debutant", label: "Débutant" },
+          { value: "intermediaire", label: "Intermédiaire" },
+          { value: "avance", label: "Avancé" },
+        ],
+      },
+      {
+        name: "niveau_francais",
+        label: "Niveau de français",
+        type: "select",
+        options: [
+          { value: "", label: "-- Sélectionner --" },
+          { value: "debutant", label: "Débutant" },
+          { value: "intermediaire", label: "Intermédiaire" },
+          { value: "avance", label: "Avancé" },
+          { value: "courant", label: "Courant" },
+        ],
+      },
+      {
+        name: "niveau_hebreu",
+        label: "Niveau d'hébreu",
+        type: "select",
+        options: [
+          { value: "", label: "-- Sélectionner --" },
+          { value: "aucun", label: "Aucun" },
+          { value: "debutant", label: "Débutant" },
+          { value: "intermediaire", label: "Intermédiaire" },
+          { value: "avance", label: "Avancé" },
+        ],
+      },
+      {
+        name: "autres_langues",
+        label: "Autres langues",
+        type: "text",
+        placeholder: "Ex: Anglais, Espagnol, Arabe",
+      },
+    ],
+  },
+  // ================= OBJECTIFS =================
+  {
+    id: 4,
+    title: "Objectifs",
+    icon: "🎯",
+    fields: [
+      {
+        name: "motivation",
+        label: "Motivation pour rejoindre",
+        type: "textarea",
+        placeholder: "Décrivez votre motivation...",
+        rows: 4,
+      },
+      {
+        name: "objectifs",
+        label: "Vos objectifs",
+        type: "textarea",
+        placeholder: "Décrivez vos objectifs...",
+        rows: 4,
+      },
+    ],
+  },
+];

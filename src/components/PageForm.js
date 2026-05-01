@@ -111,6 +111,7 @@ const PageForm = ({
                   <option value="membres">Membres</option>
                   <option value="parachiot">Parachiot</option>
                   <option value="dons">Dons</option>
+                  <option value="galerie">Galerie</option>
                 </select>
               </div>
             </div>
@@ -426,7 +427,7 @@ const PageForm = ({
                         <input
                           type="number"
                           className="form-control"
-                          placeholder={isEdit ? "" : "Ex: 5000 (en FCFA)"}
+                          placeholder={isEdit ? "" : "Ex: 5000 (en XOF)"}
                           value={sub.prix || ""}
                           onChange={(e) => {
                             const value = e.target.value;

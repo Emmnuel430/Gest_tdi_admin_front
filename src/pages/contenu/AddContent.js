@@ -1,51 +1,89 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
-import ToastMessage from "../../components/Layout/ToastMessage";
-import { fetchWithToken } from "../../utils/fetchWithToken";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
+import { useCrudUI } from "../../hooks/useCrudUI";
+import { useToast } from "../../context/ToastContext";
+import ContentForm from "../../components/contents/ContentForm";
 
 const AddContent = () => {
-  const [title, setTitle] = useState("");
-  const [type, setType] = useState("");
-  const [accessLevel, setAccessLevel] = useState("");
-  const [content, setContent] = useState("");
-  const [lien, setLien] = useState("");
-  const [publishAt, setPublishAt] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
-
+  const { fetchWithToken } = useFetchWithToken();
+  const { showToast } = useToast();
+  const { ui, close } = useCrudUI();
   const navigate = useNavigate();
 
-  const handleConfirm = () => {
-    setShowModal(false);
-    handleSubmit();
+  const [form, setForm] = useState({
+    title: "",
+    type: "",
+    content: "",
+    lien: "",
+    publish_at: "",
+    visibility: null,
+    plan_ids: [],
+  });
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch plans
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await fetchWithToken(
+          `${process.env.REACT_APP_API_BASE_URL}/subscription-plans`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setPlans(data.data);
+        }
+      } catch (err) {
+        showToast("Erreur lors du chargement des plans", "danger");
+      }
+    };
+    fetchPlans();
+  }, [showToast, fetchWithToken]);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  const handleCancel = () => {
-    setShowModal(false);
+  const handlePlanChange = (planId) => {
+    setForm((prev) => ({
+      ...prev,
+      plan_ids: prev.plan_ids.includes(planId)
+        ? prev.plan_ids.filter((id) => id !== planId)
+        : [...prev.plan_ids, planId],
+    }));
+  };
+
+  const handleConfirm = async () => {
+    await handleSubmit();
+    close();
   };
 
   const handleSubmit = async () => {
-    if (!title || !type || !accessLevel) {
-      setError("Veuillez remplir tous les champs obligatoires.");
+    if (!form.title || !form.type) {
+      showToast("Veuillez remplir tous les champs obligatoires.", "info");
       return;
     }
 
-    if (publishAt) {
-      const chosenDate = new Date(publishAt);
+    if (form.publish_at) {
+      const chosenDate = new Date(form.publish_at);
       const minDate = new Date(Date.now() + 5 * 60 * 1000);
       if (chosenDate < minDate) {
-        setError(
-          "La date de publication doit être au moins 5 minutes après maintenant."
+        showToast(
+          "La date de publication doit être au moins 5 minutes après maintenant.",
+          "info",
         );
         return;
       }
     }
 
-    setError("");
     setLoading(true);
 
     try {
@@ -53,29 +91,22 @@ const AddContent = () => {
         `${process.env.REACT_APP_API_BASE_URL}/contents`,
         {
           method: "POST",
-          body: JSON.stringify({
-            title,
-            type,
-            access_level: accessLevel,
-            content,
-            lien,
-            publish_at: publishAt,
-          }),
-        }
+          body: JSON.stringify(form),
+        },
       );
 
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.message || "Erreur lors de l'ajout.");
-        setLoading(false);
+        showToast(result.message || "Erreur lors de l'ajout.", "danger");
         return;
       }
 
-      alert("Contenu ajouté !");
+      showToast("Contenu ajouté !", "success");
       navigate("/admin-tdi/contenu");
     } catch (err) {
-      setError("Une erreur s'est produite.");
+      showToast("Une erreur s'est produite.", "danger");
+    } finally {
       setLoading(false);
     }
   };
@@ -83,112 +114,23 @@ const AddContent = () => {
   return (
     <Layout>
       <Back>admin-tdi/contenu</Back>
-      <div className="container">
-        <div className="row justify-content-center">
-          <div className="col-lg-8 mt-5">
-            <h1>Ajouter un contenu</h1>
-            <br />
-
-            {error && (
-              <ToastMessage message={error} onClose={() => setError("")} />
-            )}
-
-            <div className="mb-3">
-              <label className="form-label">Titre *</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Titre du contenu"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">Type *</label>
-              <select
-                className="form-select"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                required
-              >
-                <option value="">-- Choisir un type --</option>
-                <option value="formation">Formation</option>
-                <option value="cours">Cours</option>
-                {/* <option value="evenement">Événement</option> */}
-              </select>
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">Niveau d'accès *</label>
-              <select
-                className="form-select"
-                value={accessLevel}
-                onChange={(e) => setAccessLevel(e.target.value)}
-                required
-              >
-                <option value="">-- Choisir un niveau --</option>
-                <option value="standard">Tous</option>
-                <option value="premium">Premium</option>
-              </select>
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">Contenu (texte)</label>
-              <textarea
-                className="form-control"
-                rows={8}
-                placeholder="Contenu détaillé (optionnel)"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">Lien (URL)</label>
-              <input
-                type="url"
-                className="form-control"
-                placeholder="https://exemple.com (optionnel)"
-                value={lien}
-                onChange={(e) => setLien(e.target.value)}
-              />
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">Date de publication</label>
-              <input
-                type="datetime-local"
-                min={new Date(Date.now() + 5 * 60 * 1000)
-                  .toISOString()
-                  .slice(0, 16)}
-                className="form-control"
-                value={publishAt}
-                onChange={(e) => setPublishAt(e.target.value)}
-              />
-            </div>
-
-            <button
-              className="btn btn-primary w-100"
-              onClick={() => setShowModal(true)}
-              disabled={loading}
-            >
-              {loading ? (
-                <span>
-                  <i className="fas fa-spinner fa-spin"></i> Chargement...
-                </span>
-              ) : (
-                <span>Ajouter le contenu</span>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
+      <>
+        <ContentForm
+          text={"Ajouter un contenu"}
+          form={form}
+          setForm={setForm}
+          plans={plans}
+          loading={loading}
+          handleChange={handleChange}
+          handlePlanChange={handlePlanChange}
+          onSubmit={handleSubmit}
+          buttonText="Créer"
+        />
+      </>
 
       <ConfirmPopup
-        show={showModal}
-        onClose={handleCancel}
+        show={ui.mode === "confirm"}
+        onClose={close}
         onConfirm={handleConfirm}
         title="Confirmer l'ajout"
         body={<p>Voulez-vous vraiment ajouter ce contenu ?</p>}

@@ -4,16 +4,20 @@ import loginImage from "../assets/img/login.png";
 import logo from "../assets/img/logo.png";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
+import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
+  const { loginAdmin, logoutAdherent } = useAuth();
+
+  const { showToast } = useToast();
   const [pseudo, setPseudo] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); // État pour gérer les messages d'erreur
   const [loading, setLoading] = useState(false); // État pour indiquer le chargement
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem("user-info")) {
+    if (sessionStorage.getItem("user-info")) {
       navigate("/admin-tdi/home"); // Redirige si l'utilisateur est déjà connecté
     }
   }, [navigate]);
@@ -22,11 +26,10 @@ const Login = () => {
     e.preventDefault(); // Empêche le rafraîchissement de la page
     // Validation des entrées utilisateur
     if (!pseudo || !password) {
-      setError("Le pseudo et le mot de passe sont réquis");
+      showToast("Le pseudo et le mot de passe sont réquis", "info");
       return;
     }
 
-    setError(""); // Réinitialise les erreurs si les validations passent
     setLoading(true); // Active l'état de chargement
 
     // Appel à l'API pour tenter la connexion
@@ -45,21 +48,17 @@ const Login = () => {
 
       // Gère une réponse d'erreur de l'API
       if (result.error) {
-        setError(result.error); // Affiche un message d'erreur provenant de l'API
+        showToast(result.error, "danger"); // Affiche un message d'erreur provenant de l'API
         setLoading(false); // Désactive l'état de chargement
         return;
       }
-
-      // Stocke les informations utilisateur si la connexion réussit
-      localStorage.setItem("user-info", JSON.stringify(result.user));
-      localStorage.setItem("token", result.token); // Stocke le token d'accès si nécessaire
+      logoutAdherent(); // Pour éviter les conflits
+      loginAdmin(result.user, result.token);
 
       setLoading(false); // Désactive l'état de chargement
-      result.user.role === "super_admin"
-        ? navigate("/admin-tdi/home")
-        : navigate("/admin-tdi/mot"); // Redirige vers la page d'accueil ou tableau de bord
+      navigate("/admin-tdi/home");
     } catch (e) {
-      setError("Une erreur inatendue s'est produite. Réessayez");
+      showToast("Une erreur inatendue s'est produite. Réessayez");
       setLoading(false); // Désactive l'état de chargement
     }
   }
@@ -72,7 +71,6 @@ const Login = () => {
               <img src={loginImage} alt="Login Illustration" />
             </div>
             <div className="formBx bg-body">
-              {error && <p>{error}</p>}
               <img src={logo} alt="Logo" />
               <form onSubmit={login}>
                 <h2 className="h2 text-primary">Connexion</h2>

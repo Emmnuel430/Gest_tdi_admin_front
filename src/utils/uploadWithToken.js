@@ -3,7 +3,7 @@ export function uploadWithToken(
   formData,
   { onProgress, onSuccess, onError },
 ) {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
 
   const xhr = new XMLHttpRequest();
 
@@ -23,8 +23,8 @@ export function uploadWithToken(
     if (xhr.status === 200 || xhr.status === 201) {
       onSuccess && onSuccess(JSON.parse(xhr.response));
     } else if (xhr.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user-info");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user-info");
       window.location.href = "/";
     } else if (xhr.status === 422) {
       onError && onError("Erreur de validation");

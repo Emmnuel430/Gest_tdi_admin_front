@@ -9,18 +9,24 @@ import { useNavigate, Link } from "react-router-dom"; // Importation de 'useNavi
 import logo from "../../assets/img/logo.png"; // Importation du logo de l'application.
 import Sidebar from "./Sidebar"; // Importation du composant Sidebar
 import ThemeSwitcher from "../others/ThemeSwitcher"; // Importation du composant ThemeSwitcher
-import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { useFetchWithToken } from "../../hooks/useFetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import useIdleLogout from "../../hooks/useIdleLogout";
+import { useAuth } from "../../context/AuthContext";
 
 // Définition du composant Layout qui sera utilisé comme un modèle de page (avec du contenu dynamique via 'children')
 const Layout = ({ children }) => {
-  // Récupération des informations de l'utilisateur depuis le localStorage (si elles existent)
-  let user = JSON.parse(localStorage.getItem("user-info"));
+  const { admin, logoutAdmin } = useAuth();
+  const { fetchWithToken } = useFetchWithToken();
+
+  useIdleLogout();
+  // Récupération des informations de l'utilisateur depuis le sessionStorage (si elles existent)
+  let user = admin;
   const [load, setLoad] = useState(false);
 
   // Utilisation de 'useNavigate' pour effectuer des redirections dans l'application
   const navigate = useNavigate();
 
-  // Fonction de déconnexion qui efface les informations de l'utilisateur du localStorage et redirige vers la page de connexion
+  // Fonction de déconnexion qui efface les informations de l'utilisateur du sessionStorage et redirige vers la page de connexion
   async function logOut() {
     try {
       setLoad(true);
@@ -34,8 +40,7 @@ const Layout = ({ children }) => {
     }
     // Redirection
     navigate("/");
-    // Nettoyage du localStorage
-    localStorage.clear();
+    logoutAdmin();
   }
 
   return (
@@ -118,7 +123,7 @@ const Layout = ({ children }) => {
           <div className="bg-body">
             <div className="row small">
               <div className="col-12 col-sm-6 text-center text-sm-start">
-                &copy; {new Date().getFullYear()} <Link to="/">Gest</Link>,
+                &copy; {new Date().getFullYear()} <Link to="/">Gest v2</Link>,
                 AsNumeric - J/E. Tous droits réservés.
               </div>
               <div className="col-12 col-sm-6 text-center text-sm-end text-muted ">

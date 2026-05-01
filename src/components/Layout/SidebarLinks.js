@@ -18,41 +18,74 @@ const SidebarLinks = ({ user }) => {
   };
 
   const privateLinks = [
+    // 1. Vue globale
     {
       label: "Dashboard",
       to: "/admin-tdi/home",
-      icon: "fa fa-home",
+      icon: "chart-line",
+      roles: ["super_admin"],
+    },
+
+    // 2. Utilisateurs
+    {
+      label: "Adhérents",
+      to: "/admin-tdi/adherents",
+      icon: "user-check",
       roles: ["super_admin"],
     },
     {
       label: "Utilisateurs",
       to: "/admin-tdi/utilisateurs",
-      icon: "fa fa-users",
+      icon: "users-cog",
       roles: ["super_admin"],
     },
+
+    // 3. Activité métier
     {
-      label: "Demandes de prières",
+      label: (
+        <>
+          Demandes <br /> de prières
+        </>
+      ),
       to: "/admin-tdi/prayer-requests",
-      icon: "fas fa-praying-hands",
+      icon: "hands-praying",
       roles: ["super_admin"],
     },
     {
-      label: "Adherents",
-      to: "/admin-tdi/adherents",
-      icon: "fas fa-user-friends",
+      label: "Tsedakas",
+      to: "/admin-tdi/tsedakas",
+      icon: "hand-holding-heart",
       roles: ["super_admin"],
+      new: true,
     },
     {
-      label: "Contenu",
+      label: "Formations / Cours",
       to: "/admin-tdi/contenu",
-      icon: "fas fa-file-alt",
+      icon: "graduation-cap",
       roles: ["super_admin"],
       match: ["/admin-tdi/contenu", "/admin-tdi/contenu/add"],
     },
+
+    // 4. Business / paiement
     {
-      label: "Galerie",
-      to: "/admin-tdi/galerie/dossiers",
-      icon: "fa fa-images",
+      label: "Abonnements",
+      to: "/admin-tdi/subscription-plans",
+      icon: "id-card",
+      roles: ["super_admin"],
+      new: true,
+    },
+    {
+      label: "Transactions",
+      to: "/admin-tdi/transactions",
+      icon: "receipt",
+      roles: ["super_admin"],
+      new: true,
+    },
+
+    {
+      label: "Commandes",
+      to: "/admin-tdi/orders",
+      icon: "boxes-packing",
       new: true,
     },
   ];
@@ -61,18 +94,26 @@ const SidebarLinks = ({ user }) => {
     {
       label: "Pages",
       to: "/admin-tdi/pages",
-      icon: "fa fa-file",
+      icon: "file",
+    },
+
+    // Assets
+    {
+      label: "Galerie",
+      to: "/admin-tdi/galerie/dossiers",
+      icon: "photo-film",
+      new: true,
     },
     {
       label: "Affiches",
       to: "/admin-tdi/ads",
-      icon: "fa fa-image",
+      icon: "image",
     },
   ];
 
   return (
     <div className="navbar-nav w-100">
-      {/* 🔥 ADMIN LINKS */}
+      {/* ADMIN LINKS */}
       {privateLinks.map((link, index) => {
         if (!hasRole(link.roles)) return null;
 
@@ -84,11 +125,15 @@ const SidebarLinks = ({ user }) => {
               isActive(link) ? "active bg-body-secondary fw-bold" : ""
             }`}
           >
-            <i className={`${link.icon} me-2`}></i>
-            <span className="text-body">{link.label}</span>
-            {link.new && (
-              <span className="badge text-bg-success ms-2">New</span>
-            )}
+            <i className={`fas fa-${link.icon} me-2`}></i>
+            <div className="text-body position-relative">
+              {link.label}
+              {link.new && (
+                <span className="position-absolute small top-0 translate-middle rounded-pill badge text-bg-success ms-3">
+                  New
+                </span>
+              )}
+            </div>
           </Link>
         );
       })}
@@ -97,7 +142,7 @@ const SidebarLinks = ({ user }) => {
       <hr />
       <h6 className="text-uppercase text-muted ps-3 mt-3">Contenu du site</h6>
 
-      {/* 🔥 CONTENT LINKS */}
+      {/* CONTENT LINKS */}
       {publicLinks.map((link, index) => (
         <Link
           key={index}
@@ -108,9 +153,15 @@ const SidebarLinks = ({ user }) => {
               : ""
           }`}
         >
-          <i className={`${link.icon} me-2`}></i>
-          <span className="text-body">{link.label}</span>
-          {link.new && <span className="badge text-bg-success ms-2">New</span>}
+          <i className={`fas fa-${link.icon} me-2`}></i>
+          <div className="text-body position-relative">
+            {link.label}
+            {link.new && (
+              <span className="position-absolute small top-0 start-100 translate-middle rounded-pill badge text-bg-success ms-2">
+                New
+              </span>
+            )}
+          </div>
         </Link>
       ))}
     </div>

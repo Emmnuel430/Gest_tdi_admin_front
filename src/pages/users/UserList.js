@@ -6,22 +6,25 @@ import HeaderWithFilter from "../../components/Layout/HeaderWithFilter"; // Comp
 import Loader from "../../components/Layout/Loader"; // Composant pour le loader
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Composant de modal de confirmation pour la suppression d'utilisateur
 import SearchBar from "../../components/Layout/SearchBar"; // Composant pour la barre de recherche
-import { fetchWithToken } from "../../utils/fetchWithToken"; // Importation d'une fonction utilitaire pour les requêtes avec token
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
+import { useCrudUI } from "../../hooks/useCrudUI";
+import { useAuth } from "../../context/AuthContext";
 
 const UserList = () => {
+  const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   // États locaux pour gérer les utilisateurs, l'état de chargement, les erreurs et les modals
   const [users, setUsers] = useState([]); // Liste des utilisateurs
   const [loading, setLoading] = useState(false); // État de chargement
   const [error, setError] = useState(""); // État pour les erreurs
-  const [showModal, setShowModal] = useState(false); // État pour afficher ou cacher le modal de confirmation
-  const [selectedUser, setSelectedUser] = useState(null); // Utilisateur sélectionné pour suppression
+  const { ui, close, openDelete } = useCrudUI();
   const [filter, setFilter] = useState(""); // État pour le filtre
   const [sortOption, setSortOption] = useState(""); // État pour l'option de tri
   const [sortedUsers, setSortedUsers] = useState([]); // Liste des utilisateurs triés
   const [searchQuery, setSearchQuery] = useState(""); // Requête de recherche pour filtrer les users
 
-  // Récupérer l'ID de l'utilisateur connecté à partir du localStorage
-  const userInfo = JSON.parse(localStorage.getItem("user-info"));
+  // Récupérer l'ID de l'utilisateur connecté à partir du sessionStorage
+  const { admin } = useAuth();
+  const userInfo = admin;
   const userId = userInfo ? userInfo.id : null; // ID de l'utilisateur connecté
 
   // Récupérer la liste des utilisateurs lors du premier rendu
@@ -33,7 +36,7 @@ const UserList = () => {
       try {
         // Requête pour récupérer la liste des utilisateurs
         const response = await fetchWithToken(
-          `${process.env.REACT_APP_API_BASE_URL}/liste_user`
+          `${process.env.REACT_APP_API_BASE_URL}/liste_user`,
         );
         if (!response.ok) {
           throw new Error("Erreur lors de la récupération des utilisateurs.");
@@ -48,31 +51,19 @@ const UserList = () => {
     };
 
     fetchUsers(); // Appel de la fonction pour récupérer les utilisateurs
-  }, []); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
-
-  // Ouvrir le modal de confirmation de suppression avec l'utilisateur sélectionné
-  const handleOpenModal = (user) => {
-    setSelectedUser(user); // On définit l'utilisateur sélectionné
-    setShowModal(true); // On affiche le modal
-  };
-
-  // Fermer le modal
-  const handleCloseModal = () => {
-    setShowModal(false); // Cacher le modal
-    setSelectedUser(null); // Réinitialiser l'utilisateur sélectionné
-  };
+  }, [fetchWithToken]); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
 
   // Fonction pour supprimer l'utilisateur sélectionné
   const handleDelete = async () => {
-    if (!selectedUser) return; // Si aucun utilisateur sélectionné, on ne fait rien
+    if (!ui.data) return; // Si aucun utilisateur sélectionné, on ne fait rien
 
     try {
       // Requête DELETE pour supprimer l'utilisateur
       const response = await fetchWithToken(
-        `${process.env.REACT_APP_API_BASE_URL}/delete_user/${selectedUser.id}?user_id=${userId}`,
+        `${process.env.REACT_APP_API_BASE_URL}/delete_user/${ui.data.id}?user_id=${userId}`,
         {
           method: "DELETE", // Méthode de suppression
-        }
+        },
       );
 
       const result = await response.json(); // Convertir la réponse en JSON
@@ -80,19 +71,19 @@ const UserList = () => {
       // Si l'utilisateur a été supprimé
       if (result.status === "deleted") {
         alert("Utilisateur supprimé !"); // Afficher un message de succès
-        setUsers(users.filter((user) => user.id !== selectedUser.id)); // Mettre à jour la liste des utilisateurs
+        setUsers(users.filter((user) => user.id !== ui.data.id)); // Mettre à jour la liste des utilisateurs
       } else {
         alert("Échec de la suppression."); // Si l'échec
       }
     } catch (err) {
       setError("Une erreur est survenue lors de la suppression."); // En cas d'erreur
     } finally {
-      handleCloseModal(); // Fermer le modal après la suppression
+      close(); // Fermer le modal après la suppression
     }
   };
 
   const filteredUsers = sortedUsers.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    user.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   function formatRole(role) {
@@ -197,7 +188,7 @@ const UserList = () => {
                             <Button
                               variant="danger"
                               size="sm"
-                              onClick={() => handleOpenModal(user)} // Ouvre le modal pour la suppression
+                              onClick={() => openDelete(user)} // Ouvre le modal pour la suppression
                             >
                               <i className="fas fa-trash"></i>
                             </Button>
@@ -221,14 +212,14 @@ const UserList = () => {
 
       {/* Modal de confirmation pour la suppression d'un utilisateur */}
       <ConfirmPopup
-        show={showModal}
-        onClose={handleCloseModal}
+        show={ui.mode === "delete"}
+        onClose={close}
         onConfirm={handleDelete}
         title="Confirmer la suppression"
         body={
           <p>
             Voulez-vous vraiment supprimer l'utilisateur{" "}
-            <strong>{selectedUser?.name || "Inconnu"}</strong> ?
+            <strong>{ui.data?.name || "Inconnu"}</strong> ?
           </p>
         }
       />

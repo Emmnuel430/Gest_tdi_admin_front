@@ -121,7 +121,7 @@ export default function CardWrapper({
       )}
 
       {/* BODY */}
-      <div className="p-3">{children}</div>
+      <div className="p-1">{children}</div>
     </div>
   );
 }

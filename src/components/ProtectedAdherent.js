@@ -9,13 +9,13 @@ const ProtectedAdherent = ({ Cmp }) => {
     const excludedPaths = ["/adherent/login", "/logout"];
     if (excludedPaths.includes(window.location.pathname)) return;
 
-    const token = localStorage.getItem("adherent-token");
-    const adherentInfo = localStorage.getItem("adherent-info");
+    const token = sessionStorage.getItem("adherent-token");
+    const adherentInfo = sessionStorage.getItem("adherent-info");
     const adherent = adherentInfo ? JSON.parse(adherentInfo) : null;
 
     if (!token || !adherent) {
-      localStorage.removeItem("adherent-token");
-      localStorage.removeItem("adherent-info");
+      sessionStorage.removeItem("adherent-token");
+      sessionStorage.removeItem("adherent-info");
       window.location.href = process.env.REACT_APP_VITRINE_URL;
 
       return;
@@ -30,7 +30,7 @@ const ProtectedAdherent = ({ Cmp }) => {
               Authorization: `Bearer ${token}`,
               Accept: "application/json",
             },
-          }
+          },
         );
         if (!response.ok) throw new Error("Unauthorized");
 
@@ -39,8 +39,8 @@ const ProtectedAdherent = ({ Cmp }) => {
 
         setIsAuthorized(true);
       } catch (error) {
-        localStorage.removeItem("adherent-token");
-        localStorage.removeItem("adherent-info");
+        sessionStorage.removeItem("adherent-token");
+        sessionStorage.removeItem("adherent-info");
 
         window.location.href = process.env.REACT_APP_VITRINE_URL;
       }

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 
-import { fetchWithToken } from "../../utils/fetchWithToken2";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import Layout from "../../components/Layout/LayoutAdherent";
 import Loader from "../../components/Layout/Loader";
 
 const FormationsAdherents = () => {
+  const { fetchWithToken } = useFetchWithToken();
   const [formations, setFormations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,7 +17,7 @@ const FormationsAdherents = () => {
     const fetchFormations = async () => {
       try {
         const response = await fetchWithToken(
-          `${process.env.REACT_APP_API_BASE_URL}/adherent/contents?type=formation`
+          `${process.env.REACT_APP_API_BASE_URL}/adherent/contents?type=formation`,
         );
 
         if (!response.ok)
@@ -32,7 +33,7 @@ const FormationsAdherents = () => {
     };
 
     fetchFormations();
-  }, []);
+  }, [fetchWithToken]);
 
   const handleShowDetails = (contenu) => {
     setSelectedContenu(contenu);
