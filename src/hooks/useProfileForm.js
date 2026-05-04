@@ -45,7 +45,7 @@ export function useProfileForm(initialData = {}) {
     };
 
     if (adherent) loadProfile();
-  }, [adherent]);
+  }, [adherent, fetchWithToken]);
 
   // ================= PERSISTENCE =================
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout/LayoutAdherent";
 
@@ -7,7 +7,7 @@ const PaymentCallback = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState("loading"); // loading, success, failed, error
 
-  const verifyPayment = async () => {
+  const verifyPayment = useCallback(async () => {
     const reference = searchParams.get("reference");
     if (!reference) {
       setStatus("error");
@@ -29,11 +29,11 @@ const PaymentCallback = () => {
     } catch (error) {
       setStatus("error");
     }
-  };
+  }, [navigate, searchParams]);
 
   useEffect(() => {
     verifyPayment();
-  }, []);
+  }, [verifyPayment]);
 
   return (
     <Layout>

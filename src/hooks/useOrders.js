@@ -67,7 +67,7 @@ export const useOrders = (showToast) => {
         setLoading(false);
       }
     },
-    [showToast],
+    [showToast, fetchWithToken],
   );
 
   const changeStatus = async (id, newStatus) => {

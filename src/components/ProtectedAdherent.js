@@ -52,7 +52,7 @@ const ProtectedAdherent = ({ Cmp }) => {
     };
 
     checkAdherent();
-  }, []);
+  }, [updateAdherent]);
 
   return <>{isAuthorized ? <Cmp /> : null}</>;
 };
