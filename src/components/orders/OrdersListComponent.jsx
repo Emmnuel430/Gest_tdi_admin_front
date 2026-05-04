@@ -185,7 +185,7 @@ const OrdersListComponent = () => {
             {ui.data?.status === "delivered"
               ? "Marquer comme livrée la commande de"
               : "Annuler la commande de"}{" "}
-            <strong>{ui.data?.item?.nom}</strong> ?
+            <strong>{ui.data?.order?.nom}</strong> ?
           </p>
         }
       />

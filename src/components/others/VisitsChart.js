@@ -50,7 +50,7 @@ export default function VisitsChart() {
       }
     };
     fetchData();
-  }, [period, fetchWithToken]);
+  }, [period]);
 
   if (loading || !data)
     return (

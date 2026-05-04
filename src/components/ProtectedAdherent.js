@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 // import { useNavigate } from "react-router-dom";
 
 const ProtectedAdherent = ({ Cmp }) => {
-  // const  = useNavigate();
+  const { updateAdherent } = useAuth();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
@@ -36,6 +37,10 @@ const ProtectedAdherent = ({ Cmp }) => {
 
         const data = await response.json();
         if (data.adherent.id !== adherent.id) throw new Error("Invalid");
+
+        // 3. MISE À JOUR DU CONTEXTE :
+        // Si ton useAuth a une fonction updateAdherent, appelle-la ici
+        updateAdherent(data.adherent);
 
         setIsAuthorized(true);
       } catch (error) {

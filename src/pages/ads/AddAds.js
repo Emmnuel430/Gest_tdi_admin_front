@@ -31,7 +31,7 @@ const AddAds = () => {
       .catch((error) => {
         console.error("Erreur de chargement des pages :", error);
       });
-  }, [fetchWithToken]);
+  }, []);
 
   const handleConfirm = () => {
     setShowModal(false);

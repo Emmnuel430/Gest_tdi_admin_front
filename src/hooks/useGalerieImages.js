@@ -12,24 +12,21 @@ export const useGalerieImages = (dossierId) => {
 
   const { showToast } = useToast();
 
-  const fetchImages = useCallback(
-    async (dossierId) => {
-      setLoading(true);
-      try {
-        const res = await fetchWithToken(
-          `${process.env.REACT_APP_API_BASE_URL}/galerie/images/dossier/${dossierId}`,
-        );
-        const data = await res.json();
-        setImages(data.images);
-        setDossier(data.dossier);
-      } catch {
-        setError("Erreur chargement images");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [fetchWithToken],
-  );
+  const fetchImages = useCallback(async (dossierId) => {
+    setLoading(true);
+    try {
+      const res = await fetchWithToken(
+        `${process.env.REACT_APP_API_BASE_URL}/galerie/images/dossier/${dossierId}`,
+      );
+      const data = await res.json();
+      setImages(data.images);
+      setDossier(data.dossier);
+    } catch {
+      setError("Erreur chargement images");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   useEffect(() => {
     if (!dossierId) return;
 

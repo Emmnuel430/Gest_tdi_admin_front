@@ -31,8 +31,6 @@ import Adherents from "./pages/adherents/Adherents";
 import ProtectedAdherent from "./components/ProtectedAdherent";
 import HomeAdherent from "./pages/adherents/HomeAdherent";
 import UpdateAdherents from "./pages/adherents/UpdateAdherents";
-import CoursAdherents from "./pages/adherents/CoursAdherents";
-import FormationsAdherents from "./pages/adherents/FormationsAdherents";
 import AdherentValidate from "./pages/adherents/AdherentValidate";
 import ProfilAdherent from "./pages/adherents/ProfilAdherent";
 // ----
@@ -48,6 +46,9 @@ import GalerieDossierShow from "./pages/galeries/GalerieDossierShow";
 import TransactionList from "./pages/transactions/TransactionList";
 import OrderList from "./pages/orders/OrderList";
 import TsedakaList from "./pages/tsdakas/TsedakaList";
+import ContentManagerAdherent from "./pages/adherents/ContentManagerAdherent";
+import PaymentCallback from "./pages/payments/PaymentCallback";
+import PaymentSuccess from "./pages/payments/PaymentSuccess";
 
 const AppRoutes = () => {
   return (
@@ -65,13 +66,33 @@ const AppRoutes = () => {
         {/* Cours */}
         <Route
           path="/adherent/cours"
-          element={<ProtectedAdherent Cmp={CoursAdherents} />}
+          element={
+            <ProtectedAdherent
+              Cmp={() => <ContentManagerAdherent type="cours" />}
+            />
+          }
         />
+
         {/* Formations */}
         <Route
           path="/adherent/formations"
-          element={<ProtectedAdherent Cmp={FormationsAdherents} />}
+          element={
+            <ProtectedAdherent
+              Cmp={() => <ContentManagerAdherent type="formation" />}
+            />
+          }
         />
+
+        {/* Événements */}
+        <Route
+          path="/adherent/evenements"
+          element={
+            <ProtectedAdherent
+              Cmp={() => <ContentManagerAdherent type="evenement" />}
+            />
+          }
+        />
+
         {/* Compléter le profil */}
         <Route
           path="/adherent/validate"
@@ -82,6 +103,8 @@ const AppRoutes = () => {
           path="/adherent/profil"
           element={<ProtectedAdherent Cmp={ProfilAdherent} />}
         />
+        <Route path="/payment/callback" element={<PaymentCallback />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
         {/* ------------------------ */}
         <Route
           path="/admin-tdi/home"

@@ -48,7 +48,7 @@ const PrayerList = () => {
     };
 
     fetchPrayers();
-  }, [showToast, fetchWithToken]);
+  }, [showToast]);
 
   // 🔍 Recherche
   const filteredPrayers = sortedPrayers.filter((prayer) =>

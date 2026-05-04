@@ -23,7 +23,7 @@ export const useAdherents = (showToast) => {
     } finally {
       setLoading(false);
     }
-  }, [showToast, fetchWithToken]);
+  }, [showToast]);
 
   useEffect(() => {
     fetchAdherents();

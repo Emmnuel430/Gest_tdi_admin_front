@@ -54,7 +54,7 @@ const ContenuList = () => {
     }, 59000); // Intervalle de 59 secondes
 
     return () => clearInterval(interval); // Nettoie l'intervalle lors du démontage
-  }, [fetchWithToken, showToast]);
+  }, [showToast]);
 
   const handleDelete = async () => {
     if (!ui.data) return;

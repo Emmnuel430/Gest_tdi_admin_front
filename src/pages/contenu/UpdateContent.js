@@ -43,7 +43,7 @@ const UpdateContent = () => {
       }
     };
     fetchPlans();
-  }, [showToast, fetchWithToken]);
+  }, [showToast]);
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -87,7 +87,7 @@ const UpdateContent = () => {
       }
     };
     fetchContent();
-  }, [id, showToast, fetchWithToken]);
+  }, [id, showToast]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

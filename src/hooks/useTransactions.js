@@ -41,7 +41,7 @@ export const useTransactions = (showToast) => {
         setLoading(false);
       }
     },
-    [showToast, fetchWithToken],
+    [showToast],
   );
 
   const changeStatus = async (id, newStatus) => {

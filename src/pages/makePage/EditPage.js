@@ -70,7 +70,7 @@ export default function EditPage() {
         );
       })
       .catch(() => setError("Erreur lors du chargement de la page"));
-  }, [id, setError, setPage, setPreviewMainImage, fetchWithToken]);
+  }, [id, setError, setPage, setPreviewMainImage]);
 
   const removeSubsectionWithId = (sectionIndex, subIndex) => {
     removeSubsection(sectionIndex, subIndex, {

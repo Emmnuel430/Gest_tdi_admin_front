@@ -1,70 +1,79 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const SidebarLinksAdherent = () => {
   const location = useLocation();
+  const { adherent } = useAuth();
+  const isProfileCompleted =
+    adherent?.profile_completed === true ||
+    adherent?.profile_completed === "true";
 
-  const isActive = (path) => location.pathname === path;
+  const links = [
+    {
+      label: "Accueil",
+      to: "/adherent/home",
+      icon: "home",
+    },
+    {
+      label: "Formations",
+      to: "/adherent/formations",
+      icon: "book-open",
+      requiresProfile: true,
+    },
+    {
+      label: "Cours",
+      to: "/adherent/cours",
+      icon: "book",
+      requiresProfile: true,
+    },
+    {
+      label: "Événements",
+      to: "/adherent/evenements",
+      icon: "calendar",
+      requiresProfile: true,
+    },
+    {
+      label: "Mon profil",
+      to: "/adherent/profil",
+      icon: "user-circle",
+    },
+  ];
+
+  const isActive = (link) => {
+    if (link.match) {
+      return link.match.some((path) => location.pathname.startsWith(path));
+    }
+    return location.pathname === link.to;
+  };
 
   return (
     <div className="navbar-nav w-100">
-      {/* Tableau de bord */}
-      <Link
-        to="/adherent/home"
-        className={`nav-item nav-link ${
-          isActive("/adherent/home") ? "active bg-body-secondary fw-bold" : ""
-        }`}
-      >
-        <i className="fa fa-home me-2"></i>
-        <span className="text-body">Accueil</span>
-      </Link>
+      {links.map((link, index) => {
+        const isDisabled = link.requiresProfile && !isProfileCompleted;
 
-      {/* Formations */}
-      <Link
-        to="/adherent/formations"
-        className={`nav-item nav-link ${
-          isActive("/adherent/formations")
-            ? "active bg-body-secondary fw-bold"
-            : ""
-        }`}
-      >
-        <i className="fas fa-book-open me-2"></i>
-        <span className="text-body">Formations</span>
-      </Link>
-
-      <Link
-        to="/adherent/cours"
-        className={`nav-item nav-link ${
-          isActive("/adherent/cours") ? "active bg-body-secondary fw-bold" : ""
-        }`}
-      >
-        <i className="fas fa-book me-2"></i>
-        <span className="text-body">Cours</span>
-      </Link>
-
-      {/* Historique ou abonnement
-      <Link
-        to="/adherent/abonnement"
-        className={`nav-item nav-link ${
-          isActive("/adherent/abonnement")
-            ? "active bg-body-secondary fw-bold"
-            : ""
-        }`}
-      >
-        <i className="fas fa-receipt me-2"></i>
-        <span className="text-body">Mon abonnement</span>
-      </Link> */}
-
-      {/* Profil */}
-      <Link
-        to="/adherent/profil"
-        className={`nav-item nav-link ${
-          isActive("/adherent/profil") ? "active bg-body-secondary fw-bold" : ""
-        }`}
-      >
-        <i className="fas fa-user-circle me-2"></i>
-        <span className="text-body">Mon profil</span>
-      </Link>
+        return (
+          <Link
+            key={index}
+            to={isDisabled ? "#" : link.to}
+            onClick={(e) => {
+              if (isDisabled) {
+                e.preventDefault();
+                alert(
+                  "Completez votre profil afin de pouvoir accéder à cette page.",
+                );
+              }
+            }}
+            className={`nav-item nav-link ${
+              isActive(link) ? "active bg-body-secondary fw-bold" : ""
+            } ${isDisabled ? "opacity-50" : ""}`}
+            // style={{ pointerEvents: isDisabled ? "none" : "auto" }}
+          >
+            <i className={`fas fa-${link.icon} me-2`}></i>
+            <span className="text-body">{link.label}</span>
+          </Link>
+        );
+      })}
     </div>
   );
 };

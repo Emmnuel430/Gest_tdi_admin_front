@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useFetchWithToken } from "./useFetchWithToken";
+import { useAuth } from "../context/AuthContext";
 
 const STORAGE_KEY = "adherent_profile_form";
 
 export function useProfileForm(initialData = {}) {
+  const { adherent, updateAdherent } = useAuth();
   const { fetchWithToken } = useFetchWithToken();
 
   const [formData, setFormData] = useState(() => {
@@ -11,14 +13,46 @@ export function useProfileForm(initialData = {}) {
     return saved ? JSON.parse(saved) : initialData;
   });
 
-  const [currentStep, setCurrentStep] = useState(0);
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loadingInit, setLoadingInit] = useState(true);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!adherent?.profile_completed) {
+        setLoadingInit(false);
+        return;
+      }
+
+      try {
+        const res = await fetchWithToken(
+          `${process.env.REACT_APP_API_BASE_URL}/adherent/me`,
+        );
+        const data = await res.json();
+        const profile = data.profile || {};
+
+        // ✅ Nettoyage des données pour les inputs HTML
+        const cleanProfile = { ...profile };
+        if (profile.date_naissance) {
+          cleanProfile.date_naissance = profile.date_naissance.split("T")[0]; // Garde YYYY-MM-DD
+        }
+
+        setFormData(cleanProfile);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanProfile));
+      } catch (e) {
+        console.error("Erreur API", e);
+      } finally {
+        setLoadingInit(false);
+      }
+    };
+
+    if (adherent) loadProfile();
+  }, [adherent]);
 
   // ================= PERSISTENCE =================
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-  }, [formData]);
+    if (!loadingInit) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    }
+  }, [formData, loadingInit]);
 
   // ================= UPDATE FIELD =================
   const updateField = (field, value) => {
@@ -27,6 +61,10 @@ export function useProfileForm(initialData = {}) {
       [field]: value,
     }));
   };
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   // ================= API SAVE =================
   const saveStep = async (extraData = {}) => {
@@ -74,6 +112,7 @@ export function useProfileForm(initialData = {}) {
   const submitFinal = async () => {
     try {
       await saveStep({ is_final_step: true });
+      updateAdherent({ profile_completed: true });
 
       // nettoyage localStorage après succès
       localStorage.removeItem(STORAGE_KEY);

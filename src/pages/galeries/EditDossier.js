@@ -34,7 +34,7 @@ const EditDossier = () => {
       }
     };
     fetchDossier();
-  }, [id, showToast, fetchWithToken]);
+  }, [id, showToast]);
 
   const handleConfirm = async () => {
     close();

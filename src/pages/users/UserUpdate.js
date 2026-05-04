@@ -49,7 +49,7 @@ const UserUpdate = () => {
     };
 
     fetchUser(); // Appel de la fonction pour récupérer les données de l'utilisateur
-  }, [id, fetchWithToken]);
+  }, [id]);
 
   // Fonction pour gérer les changements dans les champs du formulaire
   const handleChange = (e) => {

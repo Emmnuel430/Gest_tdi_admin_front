@@ -13,8 +13,10 @@ import { useToast } from "../../context/ToastContext";
 import { useCrudUI } from "../../hooks/useCrudUI";
 import { useAdherents } from "../../hooks/useAdherents";
 import AdherentsTable from "../../components/adherents/AdherentsTable";
+import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 
 const AdherentsPage = () => {
+  const { fetchWithToken } = useFetchWithToken();
   const { showToast } = useToast();
 
   const {
@@ -25,8 +27,9 @@ const AdherentsPage = () => {
     handleToggleValidate,
   } = useAdherents(showToast);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
-  const { ui, close, openDetails, openToggle } = useCrudUI();
+  const { ui, setUi, close, openDetails, openToggle } = useCrudUI();
 
   const [sortOption, setSortOption] = useState("");
 
@@ -45,6 +48,41 @@ const AdherentsPage = () => {
     if (!ui.data) return;
     await handleToggleValidate(ui.data);
     close();
+  };
+
+  const handleShowDetails = async (adherent) => {
+    // 1. On ouvre tout de suite avec les infos qu'on a déjà
+    openDetails(adherent);
+
+    try {
+      // 2. On lance le fetch en arrière-plan
+      const response = await fetchWithToken(
+        `${process.env.REACT_APP_API_BASE_URL}/adherents/${adherent.id}`,
+      );
+
+      if (!response.ok) throw new Error("Erreur profil");
+
+      const data = await response.json();
+      const fullData = data.data;
+
+      // 3. On enrichit ui.data manuellement
+      // On garde l'adherent actuel et on lui injecte le profile reçu
+      setUi((prev) => ({
+        ...prev,
+        data: {
+          // On met à jour 'data'
+          ...prev.data, // On garde les infos de base (nom, id, etc.)
+          profile: fullData.profile, // On ajoute le profil
+        },
+      }));
+
+      // console.log(ui.data);
+    } catch (err) {
+      console.error("Erreur lors du chargement du profil:", err);
+      // Optionnel : ne pas bloquer l'utilisateur si le profil échoue
+    } finally {
+      setLoadingProfile(false);
+    }
   };
 
   return (
@@ -78,7 +116,7 @@ const AdherentsPage = () => {
 
             <AdherentsTable
               adherents={filtered}
-              onShowDetails={openDetails} // Ouvre le mode 'details' avec l'objet
+              onShowDetails={handleShowDetails}
               onToggleValidate={openToggle} // Ouvre le mode 'toggle' avec l'objet
             />
           </>
@@ -91,7 +129,12 @@ const AdherentsPage = () => {
           <Modal.Title>Détails</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {ui.data && <AdhModalComponent selectedAdherent={ui.data} />}
+          {ui.data && (
+            <AdhModalComponent
+              selectedAdherent={ui.data}
+              loading={loadingProfile}
+            />
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={close}>Fermer</Button>

@@ -28,7 +28,7 @@ export const useDossiers = () => {
     };
 
     fetchDossiers();
-  }, [fetchWithToken]);
+  }, []);
 
   const deleteDossier = async (ids) => {
     try {

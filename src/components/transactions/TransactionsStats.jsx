@@ -134,7 +134,7 @@ export default function TransactionsStats() {
     };
 
     fetchStats();
-  }, [showToast, fetchWithToken]);
+  }, [showToast]);
 
   if (loading || !stats) {
     return (

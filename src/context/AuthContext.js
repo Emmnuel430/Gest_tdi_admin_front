@@ -43,6 +43,16 @@ export const AuthProvider = ({ children }) => {
     setAdherent(null);
   };
 
+  const updateAdherent = (newData) => {
+    setAdherent((prev) => {
+      if (!prev) return prev;
+
+      const updated = { ...prev, ...newData };
+      sessionStorage.setItem("adherent-info", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -53,6 +63,7 @@ export const AuthProvider = ({ children }) => {
         loginAdherent,
         logoutAdmin,
         logoutAdherent,
+        updateAdherent,
       }}
     >
       {!loading && children}

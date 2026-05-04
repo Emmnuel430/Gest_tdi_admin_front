@@ -40,7 +40,7 @@ export const useMedia = () => {
         setLoading(false);
       }
     },
-    [loading, fetchWithToken],
+    [loading],
   );
 
   // Upload medias
@@ -78,35 +78,32 @@ export const useMedia = () => {
   }, []);
 
   // Delete medias (force delete)
-  const deleteMedias = useCallback(
-    async (ids) => {
-      try {
-        const response = await fetchWithToken(
-          `${process.env.REACT_APP_API_BASE_URL}/media/force`,
-          {
-            method: "DELETE",
-            body: JSON.stringify({ ids }),
-          },
-        );
+  const deleteMedias = useCallback(async (ids) => {
+    try {
+      const response = await fetchWithToken(
+        `${process.env.REACT_APP_API_BASE_URL}/media/force`,
+        {
+          method: "DELETE",
+          body: JSON.stringify({ ids }),
+        },
+      );
 
-        if (response.ok) {
-          // Remove deleted medias from local state
-          setMedias((prev) => prev.filter((media) => !ids.includes(media.id)));
-          return { success: true };
-        } else {
-          const error = await response.json();
-          return {
-            success: false,
-            error: error.error || "Erreur lors de la suppression",
-          };
-        }
-      } catch (err) {
-        console.error("Delete error:", err);
-        return { success: false, error: "Erreur lors de la suppression" };
+      if (response.ok) {
+        // Remove deleted medias from local state
+        setMedias((prev) => prev.filter((media) => !ids.includes(media.id)));
+        return { success: true };
+      } else {
+        const error = await response.json();
+        return {
+          success: false,
+          error: error.error || "Erreur lors de la suppression",
+        };
       }
-    },
-    [fetchWithToken],
-  );
+    } catch (err) {
+      console.error("Delete error:", err);
+      return { success: false, error: "Erreur lors de la suppression" };
+    }
+  }, []);
 
   return {
     medias,

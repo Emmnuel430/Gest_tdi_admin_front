@@ -30,6 +30,7 @@ export const useCrudUI = () => {
 
     // État UI unique
     ui,
+    setUi,
     close,
 
     // Actions spécifiques (plus lisibles dans le composant)

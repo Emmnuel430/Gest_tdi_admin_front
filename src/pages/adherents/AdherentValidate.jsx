@@ -3,6 +3,7 @@ import Layout from "../../components/Layout/LayoutAdherent";
 import { useProfileForm } from "../../hooks/useProfileForm";
 import { useToast } from "../../context/ToastContext";
 import { STEPS } from "../../constants/auth";
+import Back from "../../components/Layout/Back";
 
 const AdherentValidate = () => {
   // ================= STATE =================
@@ -74,7 +75,8 @@ const AdherentValidate = () => {
         return (
           <div key={field.name} className="mb-3">
             <label htmlFor={field.name} className="form-label fw-semibold">
-              {field.label}
+              {field.label}{" "}
+              {field.required && <span className="text-danger">*</span>}
             </label>
             <textarea
               id={field.name}
@@ -83,6 +85,7 @@ const AdherentValidate = () => {
               placeholder={field.placeholder}
               rows={field.rows || 3}
               value={value}
+              required={field.required}
               onChange={(e) => updateField(field.name, e.target.value)}
             />
             {hasError && (
@@ -97,13 +100,15 @@ const AdherentValidate = () => {
         return (
           <div key={field.name} className="mb-3">
             <label htmlFor={field.name} className="form-label fw-semibold">
-              {field.label}
+              {field.label}{" "}
+              {field.required && <span className="text-danger">*</span>}
             </label>
             <select
               id={field.name}
               name={field.name}
               className={`form-select ${hasError ? "is-invalid" : ""}`}
               value={value}
+              required={field.required}
               onChange={(e) => updateField(field.name, e.target.value)}
             >
               {field.options.map((opt) => (
@@ -146,7 +151,8 @@ const AdherentValidate = () => {
         return (
           <div key={field.name} className="mb-3">
             <label htmlFor={field.name} className="form-label fw-semibold">
-              {field.label}
+              {field.label}{" "}
+              {field.required && <span className="text-danger">*</span>}
             </label>
             <input
               type="number"
@@ -155,6 +161,7 @@ const AdherentValidate = () => {
               className={`form-control ${hasError ? "is-invalid" : ""}`}
               placeholder={field.placeholder}
               value={value}
+              required={field.required}
               onChange={(e) =>
                 updateField(
                   field.name,
@@ -175,7 +182,8 @@ const AdherentValidate = () => {
         return (
           <div key={field.name} className="mb-3">
             <label htmlFor={field.name} className="form-label fw-semibold">
-              {field.label}
+              {field.label}{" "}
+              {field.required && <span className="text-danger">*</span>}
             </label>
             <input
               type={field.type}
@@ -183,6 +191,7 @@ const AdherentValidate = () => {
               name={field.name}
               className={`form-control ${hasError ? "is-invalid" : ""}`}
               placeholder={field.placeholder}
+              required={field.required}
               value={value}
               onChange={(e) => updateField(field.name, e.target.value)}
             />
@@ -196,8 +205,18 @@ const AdherentValidate = () => {
     }
   };
 
+  const isStepInvalid = () => {
+    const currentStepFields = STEPS[currentStep].fields;
+    return currentStepFields.some((field) => {
+      if (!field.required) return false;
+      const val = formData[field.name];
+      return val === undefined || val === null || val === "" || val === false;
+    });
+  };
+
   return (
     <Layout>
+      <Back>adherent/profil</Back>
       <div className="container py-4">
         <div className="row justify-content-center">
           <div className="col-lg-8">
@@ -284,7 +303,7 @@ const AdherentValidate = () => {
                   <button
                     className="btn btn-success"
                     onClick={handleSubmit}
-                    disabled={loading}
+                    disabled={loading || isStepInvalid()}
                   >
                     {loading ? (
                       <>
@@ -305,7 +324,7 @@ const AdherentValidate = () => {
                   <button
                     className="btn btn-primary"
                     onClick={handleNext}
-                    disabled={loading}
+                    disabled={loading || isStepInvalid()}
                   >
                     {loading ? (
                       <>

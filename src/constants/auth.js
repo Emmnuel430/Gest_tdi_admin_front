@@ -18,17 +18,20 @@ export const STEPS = [
         name: "date_naissance",
         label: "Date de naissance",
         type: "date",
+        required: true,
       },
       {
         name: "adresse",
         label: "Adresse",
         type: "text",
         placeholder: "Ex: 123 Rue de la Paix",
+        required: true,
       },
       {
         name: "situation_matrimoniale",
         label: "Situation matrimoniale",
         type: "select",
+        required: true,
         options: [
           { value: "", label: "-- Sélectionner --" },
           { value: "celibataire", label: "Célibataire" },
@@ -48,6 +51,7 @@ export const STEPS = [
         label: "Profession",
         type: "text",
         placeholder: "Ex: Ingénieur",
+        required: true,
       },
     ],
   },
@@ -62,6 +66,7 @@ export const STEPS = [
         label: "Téléphone WhatsApp",
         type: "tel",
         placeholder: "+225 07 12 30 45 67",
+        required: true,
       },
       {
         name: "telephone_secondaire",
@@ -82,18 +87,21 @@ export const STEPS = [
         label: "Nom du contact d'urgence",
         type: "text",
         placeholder: "Ex: Marie Dupont",
+        required: true,
       },
       {
         name: "urgence_numero",
         label: "Téléphone du contact d'urgence",
         type: "tel",
         placeholder: "+221 77 123 45 67",
+        required: true,
       },
       {
         name: "urgence_lien",
         label: "Lien de parenté",
         type: "text",
         placeholder: "Ex: Mère, Frère, Ami",
+        required: true,
       },
     ],
   },
@@ -107,6 +115,7 @@ export const STEPS = [
         name: "niveau_etudes",
         label: "Niveau d'études",
         type: "select",
+        required: true,
         options: [
           { value: "", label: "-- Sélectionner --" },
           { value: "primaire", label: "Primaire" },
@@ -126,7 +135,7 @@ export const STEPS = [
       },
       {
         name: "etude_religieuse",
-        label: "Étude religieuse",
+        label: "Cochez si vous avez deja fait des études religieuses",
         type: "checkbox",
       },
       {
@@ -139,6 +148,7 @@ export const STEPS = [
         name: "niveau_juif",
         label: "Niveau d'étude juive",
         type: "select",
+        required: true,
         options: [
           { value: "", label: "-- Sélectionner --" },
           { value: "debutant", label: "Débutant" },
@@ -150,6 +160,7 @@ export const STEPS = [
         name: "niveau_francais",
         label: "Niveau de français",
         type: "select",
+        required: true,
         options: [
           { value: "", label: "-- Sélectionner --" },
           { value: "debutant", label: "Débutant" },
@@ -162,6 +173,7 @@ export const STEPS = [
         name: "niveau_hebreu",
         label: "Niveau d'hébreu",
         type: "select",
+        required: true,
         options: [
           { value: "", label: "-- Sélectionner --" },
           { value: "aucun", label: "Aucun" },
@@ -169,12 +181,6 @@ export const STEPS = [
           { value: "intermediaire", label: "Intermédiaire" },
           { value: "avance", label: "Avancé" },
         ],
-      },
-      {
-        name: "autres_langues",
-        label: "Autres langues",
-        type: "text",
-        placeholder: "Ex: Anglais, Espagnol, Arabe",
       },
     ],
   },
@@ -190,6 +196,7 @@ export const STEPS = [
         type: "textarea",
         placeholder: "Décrivez votre motivation...",
         rows: 4,
+        required: true,
       },
       {
         name: "objectifs",
@@ -197,6 +204,7 @@ export const STEPS = [
         type: "textarea",
         placeholder: "Décrivez vos objectifs...",
         rows: 4,
+        required: true,
       },
     ],
   },

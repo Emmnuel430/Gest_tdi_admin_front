@@ -42,7 +42,7 @@ const Ads = () => {
     };
 
     fetchAds(); // Appel de la fonction pour récupérer les ads
-  }, [fetchWithToken]); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
+  }, []); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
 
   useEffect(() => {
     if (ads.length > 0) {

@@ -42,7 +42,7 @@ const AddContent = () => {
       }
     };
     fetchPlans();
-  }, [showToast, fetchWithToken]);
+  }, [showToast]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

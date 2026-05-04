@@ -56,9 +56,15 @@ const AdherentsTable = ({ adherents, onShowDetails, onToggleValidate }) => {
                     <div>
                       <div className="fw-semibold">{sub.plan?.name}</div>
 
-                      <span className="badge bg-success-subtle text-success border border-success-subtle">
-                        Actif
-                      </span>
+                      {a.profile_completed ? (
+                        <span className="badge bg-success-subtle text-success border border-success-subtle">
+                          Actif
+                        </span>
+                      ) : (
+                        <span className="badge bg-danger-subtle text-danger border border-danger-subtle">
+                          Profil pas encore validé
+                        </span>
+                      )}
                     </div>
                   ) : (
                     <span className="badge bg-secondary-subtle text-secondary">
