@@ -38,7 +38,7 @@ const ContentManagerAdherent = ({ type }) => {
     } finally {
       setLoading(false);
     }
-  }, [type, showToast, fetchWithToken]); // Refetch dès que le "type" change
+  }, [type, showToast, fetchWithToken]);
 
   useEffect(() => {
     fetchData();

@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
+import { useCallback } from "react";
 
 const AuthContext = createContext();
 
@@ -8,7 +15,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initialisation au chargement de l'app
     const storedAdmin = sessionStorage.getItem("user-info");
     const storedAdherent = sessionStorage.getItem("adherent-info");
 
@@ -18,32 +24,36 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Fonctions pour mettre à jour l'état lors du login
-  const loginAdmin = (userData, token) => {
+  // LOGIN ADMIN
+  const loginAdmin = useCallback((userData, token) => {
     sessionStorage.setItem("user-info", JSON.stringify(userData));
     sessionStorage.setItem("token", token);
     setAdmin(userData);
-  };
+  }, []);
 
-  const loginAdherent = (data, token) => {
+  // LOGIN ADHERENT
+  const loginAdherent = useCallback((data, token) => {
     sessionStorage.setItem("adherent-info", JSON.stringify(data));
     sessionStorage.setItem("adherent-token", token);
     setAdherent(data);
-  };
+  }, []);
 
-  const logoutAdmin = () => {
+  // LOGOUT ADMIN
+  const logoutAdmin = useCallback(() => {
     sessionStorage.removeItem("user-info");
     sessionStorage.removeItem("token");
     setAdmin(null);
-  };
+  }, []);
 
-  const logoutAdherent = () => {
+  // LOGOUT ADHERENT
+  const logoutAdherent = useCallback(() => {
     sessionStorage.removeItem("adherent-info");
     sessionStorage.removeItem("adherent-token");
     setAdherent(null);
-  };
+  }, []);
 
-  const updateAdherent = (newData) => {
+  // UPDATE ADHERENT (le plus important pour toi)
+  const updateAdherent = useCallback((newData) => {
     setAdherent((prev) => {
       if (!prev) return prev;
 
@@ -51,21 +61,33 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.setItem("adherent-info", JSON.stringify(updated));
       return updated;
     });
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      admin,
+      adherent,
+      loading,
+      loginAdmin,
+      loginAdherent,
+      logoutAdmin,
+      logoutAdherent,
+      updateAdherent,
+    }),
+    [
+      admin,
+      adherent,
+      loading,
+      loginAdmin,
+      loginAdherent,
+      logoutAdmin,
+      logoutAdherent,
+      updateAdherent,
+    ],
+  );
 
   return (
-    <AuthContext.Provider
-      value={{
-        admin,
-        adherent,
-        loading,
-        loginAdmin,
-        loginAdherent,
-        logoutAdmin,
-        logoutAdherent,
-        updateAdherent,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
