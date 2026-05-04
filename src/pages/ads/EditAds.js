@@ -43,7 +43,7 @@ const EditAds = () => {
         console.error("Erreur de chargement de l'affiche:", error);
         setError("Impossible de charger l'affiche.");
       });
-  }, [id]);
+  }, [id, fetchWithToken]);
 
   const handleConfirm = () => {
     setShowModal(false);

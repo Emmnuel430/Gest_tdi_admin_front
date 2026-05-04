@@ -51,7 +51,7 @@ const UserList = () => {
     };
 
     fetchUsers(); // Appel de la fonction pour récupérer les utilisateurs
-  }, []); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
+  }, [fetchWithToken]); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
 
   // Fonction pour supprimer l'utilisateur sélectionné
   const handleDelete = async () => {

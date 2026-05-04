@@ -50,7 +50,7 @@ const TsedakaList = () => {
     };
 
     fetchTsedakas();
-  }, [showToast]);
+  }, [showToast, fetchWithToken]);
 
   const filteredTsedakas = sortedTsedakas.filter((donation) => {
     const normalized = (value) => (value || "").toString().toLowerCase();

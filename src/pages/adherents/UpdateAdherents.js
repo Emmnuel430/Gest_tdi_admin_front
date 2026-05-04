@@ -59,7 +59,7 @@ const UpdateAdherents = () => {
     };
 
     fetchAdherent();
-  }, [id, showToast]);
+  }, [id, showToast, fetchWithToken]);
 
   // Submit
   const handleSubmit = async () => {

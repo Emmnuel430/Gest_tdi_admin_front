@@ -48,7 +48,7 @@ const Pages = () => {
     };
 
     fetchPages(); // Appel de la fonction pour récupérer les pages
-  }, []); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
+  }, [fetchWithToken]); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
 
   useEffect(() => {
     if (pages.length > 0) {

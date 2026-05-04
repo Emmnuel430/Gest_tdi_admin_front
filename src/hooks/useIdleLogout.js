@@ -22,7 +22,7 @@ const useIdleLogout = (timeoutMinutes = 15) => {
     admin ? logoutAdmin() : logoutAdherent();
 
     admin ? navigate("/") : navigate("/adherent/login");
-  }, [navigate, admin, logoutAdmin, logoutAdherent]);
+  }, [navigate, admin, logoutAdmin, logoutAdherent, fetchWithToken]);
 
   const resetTimer = useCallback(() => {
     clearTimeout(timeoutRef.current);

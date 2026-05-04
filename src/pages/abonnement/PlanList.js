@@ -49,7 +49,7 @@ const PlanList = () => {
     };
 
     fetchPlans();
-  }, [showToast]);
+  }, [showToast, fetchWithToken]);
 
   useEffect(() => {
     if (plans.length > 0) {

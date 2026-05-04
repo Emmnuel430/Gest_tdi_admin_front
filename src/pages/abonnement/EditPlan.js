@@ -56,7 +56,7 @@ const EditPlan = () => {
     };
 
     loadPlan();
-  }, [id, showToast]);
+  }, [id, showToast, fetchWithToken]);
 
   const handleConfirm = () => {
     setShowModal(false);
