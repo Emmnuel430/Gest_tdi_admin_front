@@ -92,6 +92,28 @@ export const useGalerieImages = (dossierId) => {
     }
   };
 
+  const reorderImages = async (items) => {
+    try {
+      const res = await fetchWithToken(
+        `${process.env.REACT_APP_API_BASE_URL}/galerie/images/reorder`,
+        {
+          method: "POST",
+          body: JSON.stringify(items),
+        },
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Erreur reorder");
+      }
+
+      showToast(data.message, "success");
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  };
+
   return {
     fetchImages,
     dossier,
@@ -101,5 +123,6 @@ export const useGalerieImages = (dossierId) => {
     loadingIds,
     deleteImage,
     toggleImage,
+    reorderImages,
   };
 };

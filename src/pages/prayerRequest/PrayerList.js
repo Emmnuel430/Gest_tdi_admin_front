@@ -24,7 +24,7 @@ const PrayerList = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // 🎯 Récupération des prières
+  // Récupération des prières
   useEffect(() => {
     const fetchPrayers = async () => {
       setLoading(true);
@@ -50,17 +50,17 @@ const PrayerList = () => {
     fetchPrayers();
   }, [showToast, fetchWithToken]);
 
-  // 🔍 Recherche
+  // Recherche
   const filteredPrayers = sortedPrayers.filter((prayer) =>
     prayer.objet.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  // 📌 Détails
+  // Détails
   const handleShowPrayerDetails = (prayer) => {
     openDetails(prayer);
   };
 
-  // ❌ Suppression
+  // Suppression
   const handleOpenModal = (prayer) => {
     openDelete(prayer);
   };
@@ -210,6 +210,14 @@ const PrayerList = () => {
                       <div className="text-muted small">Email</div>
                       <div className="text-break">{ui.data.email}</div>
                     </div>
+                    {ui.data.numero && (
+                      <div>
+                        <div className="text-muted small">Numero</div>
+                        <div className="text-break">
+                          {ui.data.numero || "-"}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

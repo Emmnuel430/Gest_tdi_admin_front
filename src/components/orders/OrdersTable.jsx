@@ -55,7 +55,7 @@ const OrdersTable = ({ orders, openStatus, openDetails }) => {
                     className="border border-secondary text-body"
                   >
                     {order.total_items ||
-                      order.metadata?.cart_details?.length ||
+                      // order.metadata?.cart_details?.length ||
                       0}{" "}
                     article(s)
                   </Badge>

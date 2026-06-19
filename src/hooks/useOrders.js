@@ -70,14 +70,14 @@ export const useOrders = (showToast) => {
     [showToast, fetchWithToken],
   );
 
-  const changeStatus = async (id, newStatus) => {
+  const changeStatus = async (id, payload) => {
     try {
       const res = await fetchWithToken(
         `${process.env.REACT_APP_API_BASE_URL}/orders/${id}/status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus }),
+          body: JSON.stringify(payload),
         },
       );
 
@@ -86,7 +86,7 @@ export const useOrders = (showToast) => {
       if (res.ok) {
         setAllOrders((prevOrders) => {
           const updatedOrders = prevOrders.map((order) =>
-            order.id === id ? { ...order, status: newStatus } : order,
+            order.id === id ? { ...order, status: payload.status } : order,
           );
           const filtered = filterOrders(updatedOrders, filters.status);
           const { pageOrders, pagination: pageInfo } = buildPagination(

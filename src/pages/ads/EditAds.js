@@ -3,10 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
-import ToastMessage from "../../components/Layout/ToastMessage";
 import { useFetchWithToken } from "../../hooks/useFetchWithToken";
+import { useToast } from "../../context/ToastContext";
 
 const EditAds = () => {
+  const { showToast } = useToast();
+
   const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   const [afficheTitre, setAfficheTitre] = useState("");
   const [afficheLien, setAfficheLien] = useState("");
@@ -14,7 +16,6 @@ const EditAds = () => {
   const [currentImage, setCurrentImage] = useState(null);
   const [actif, setActif] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
 
   const [pages, setPages] = useState([]);
@@ -41,9 +42,9 @@ const EditAds = () => {
       })
       .catch((error) => {
         console.error("Erreur de chargement de l'affiche:", error);
-        setError("Impossible de charger l'affiche.");
+        showToast("Impossible de charger l'affiche.", "danger");
       });
-  }, [id, fetchWithToken]);
+  }, [id, fetchWithToken, showToast]);
 
   const handleConfirm = () => {
     setShowModal(false);
@@ -55,7 +56,6 @@ const EditAds = () => {
   };
 
   const handleSubmit = async () => {
-    setError("");
     setLoading(true);
 
     const formData = new FormData();
@@ -76,7 +76,7 @@ const EditAds = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.message || "Erreur lors de la mise à jour.");
+        showToast(result.message || "Erreur lors de la mise à jour.", "danger");
         setLoading(false);
         return;
       }
@@ -84,7 +84,7 @@ const EditAds = () => {
       alert("Affiche modifiée avec succès !");
       navigate("/admin-tdi/ads");
     } catch (err) {
-      setError("Une erreur s'est produite.");
+      showToast("Une erreur s'est produite.", "danger");
       setLoading(false);
     }
   };
@@ -95,8 +95,6 @@ const EditAds = () => {
       <div className="col-sm-6 offset-sm-3 mt-5">
         <h1>Modifier une affiche</h1>
         <br />
-
-        {error && <ToastMessage message={error} onClose={() => setError("")} />}
 
         <div className="mb-3">
           <label className="form-label">Titre de l'affiche</label>

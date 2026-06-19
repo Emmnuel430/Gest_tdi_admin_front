@@ -7,7 +7,6 @@ import ConfirmPopup from "../../components/Layout/ConfirmPopup";
 import SearchBar from "../../components/Layout/SearchBar";
 import HeaderWithFilter from "../../components/Layout/HeaderWithFilter";
 import { useToast } from "../../context/ToastContext";
-import { formatDateRelative } from "../../utils/formatDateRelative";
 import { useDossiers } from "../../hooks/useDossiers";
 import { useCrudUI } from "../../hooks/useCrudUI";
 import CardWrapper from "../../components/Galerie/CardWrapper";
@@ -170,16 +169,16 @@ const GalerieDossiersList = () => {
 
             {/* SECTION GALERIE - Affichage des dossiers ou message vide */}
             <div
-              className="d-flex flex-wrap gap-4 justify-content-center border p-2 rounded-4"
+              className="d-flex flex-wrap gap-4 p-3 rounded-4"
               style={{
                 rowGap: "1.5rem",
-                overflowY: "auto",
-                maxHeight: "400px",
+                minHeight: "250px",
               }}
             >
               {filteredDossiers.length ? (
                 filteredDossiers.map((d) => (
                   <CardWrapper
+                    type="folder"
                     key={d.id}
                     item={d}
                     selectedIds={selectedIds}
@@ -215,24 +214,7 @@ const GalerieDossiersList = () => {
                         onClick: () => openDelete(d),
                       },
                     ]}
-                  >
-                    <div className="d-flex justify-content-between">
-                      <h6 className="card-title mb-1 text-truncate fw-semibold">
-                        {d.nom}
-                      </h6>
-                      <span className="badge rounded-pill border border-secondary text-muted small">
-                        {d.images_count > 0
-                          ? `${d.images_count} image${d.images_count > 1 ? "s" : ""}`
-                          : "Vide"}
-                      </span>
-                    </div>
-                    <div className="text-muted small">
-                      Création : {formatDateRelative(d.created_at)}
-                      {!d.is_visible && (
-                        <span className="text-warning ms-2">- Masqué</span>
-                      )}
-                    </div>
-                  </CardWrapper>
+                  ></CardWrapper>
                 ))
               ) : (
                 <div className="text-center text-muted py-5 w-100">

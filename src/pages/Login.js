@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "../assets/css/Login.css";
-import loginImage from "../assets/img/login.png";
-import logo from "../assets/img/logo.png";
 import { useNavigate } from "react-router-dom";
-import { Spinner } from "react-bootstrap";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
+import AuthLayout from "../components/Layout/AuthLayout";
 
 const Login = () => {
   const { loginAdmin, logoutAdherent } = useAuth();
@@ -58,62 +56,38 @@ const Login = () => {
       setLoading(false); // Désactive l'état de chargement
       navigate("/admin-tdi/home");
     } catch (e) {
-      showToast("Une erreur inatendue s'est produite. Réessayez");
+      showToast("Une erreur inatendue s'est produite. Réessayez", "danger");
       setLoading(false); // Désactive l'état de chargement
     }
   }
   return (
-    <div>
-      <section>
-        <div className="container">
-          <div className="user signinBx">
-            <div className="imgBx bg-body">
-              <img src={loginImage} alt="Login Illustration" />
-            </div>
-            <div className="formBx bg-body">
-              <img src={logo} alt="Logo" />
-              <form onSubmit={login}>
-                <h2 className="h2 text-primary">Connexion</h2>
-                <label htmlFor="Pseudo">Pseudo</label>
-                <input
-                  type="text"
-                  placeholder="Pseudo"
-                  value={pseudo}
-                  onChange={(e) => setPseudo(e.target.value)}
-                />
-                <br />
-                <br />
-                <label htmlFor="password">Mot de passe</label>
-                <input
-                  type="password"
-                  placeholder="Mot de Passe"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <div className="d-flex align-items-center mt-3">
-                  <input
-                    type="submit"
-                    className="btn btn-primary m-0"
-                    value={loading ? "Connexion ..." : "Connexion"}
-                    disabled={loading}
-                  />
-                  &nbsp;&nbsp;
-                  {loading ? (
-                    <>
-                      <Spinner
-                        animation="border"
-                        size="sm"
-                        className="my-auto"
-                      />
-                    </>
-                  ) : null}
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+    <AuthLayout
+      title="Connexion - ADMIN"
+      onSubmit={login}
+      loading={loading}
+      submitDisabled={loading || !pseudo || !password}
+    >
+      <label htmlFor="pseudo">Pseudo</label>
+
+      <input
+        type="text"
+        placeholder="Pseudo"
+        value={pseudo}
+        onChange={(e) => setPseudo(e.target.value)}
+      />
+
+      <br />
+      <br />
+
+      <label htmlFor="password">Mot de passe</label>
+
+      <input
+        type="password"
+        placeholder="Mot de Passe"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+    </AuthLayout>
   );
 };
 

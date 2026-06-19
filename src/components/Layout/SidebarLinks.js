@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const SidebarLinks = ({ user }) => {
   const location = useLocation();
-  if (!user) return null;
+
+  const activeLinkRef = useRef(null);
+  // Déclenche le scroll automatique vers l'élément actif au chargement initial ou changement d'URL
+  useEffect(() => {
+    if (activeLinkRef.current) {
+      activeLinkRef.current.scrollIntoView({
+        behavior: "smooth", // "smooth" pour une animation fluide, "auto" pour un saut instantané
+        block: "nearest", // Aligne l'élément seulement s'il n'est pas déjà visible dans la zone de scroll
+      });
+    }
+  }, [location.pathname]); // S'exécute à chaque changement de page
 
   const isActive = (link) => {
     if (link.match) {
@@ -116,24 +126,23 @@ const SidebarLinks = ({ user }) => {
       {/* ADMIN LINKS */}
       {privateLinks.map((link, index) => {
         if (!hasRole(link.roles)) return null;
+        const isCurrentActive = isActive(link);
 
         return (
           <Link
             key={index}
             to={link.to}
+            // Attribution de la ref uniquement au lien actif
+            ref={isCurrentActive ? activeLinkRef : null}
             className={`nav-link d-flex align-items-center ${
-              isActive(link) ? "active bg-body-secondary fw-bold" : ""
+              isCurrentActive ? "active bg-body-secondary fw-bold" : ""
             }`}
+            style={{
+              scrollMarginBottom: "50px",
+            }}
           >
             <i className={`fas fa-${link.icon} me-2`}></i>
-            <div className="text-body position-relative">
-              {link.label}
-              {link.new && (
-                <span className="position-absolute small top-0 translate-middle rounded-pill badge text-bg-success ms-3">
-                  New
-                </span>
-              )}
-            </div>
+            <div className="text-body position-relative">{link.label}</div>
           </Link>
         );
       })}
@@ -143,27 +152,27 @@ const SidebarLinks = ({ user }) => {
       <h6 className="text-uppercase text-muted ps-3 mt-3">Contenu du site</h6>
 
       {/* CONTENT LINKS */}
-      {publicLinks.map((link, index) => (
-        <Link
-          key={index}
-          to={link.to}
-          className={`nav-link d-flex align-items-center ${
-            location.pathname === link.to
-              ? "active bg-body-secondary fw-bold"
-              : ""
-          }`}
-        >
-          <i className={`fas fa-${link.icon} me-2`}></i>
-          <div className="text-body position-relative">
-            {link.label}
-            {link.new && (
-              <span className="position-absolute small top-0 start-100 translate-middle rounded-pill badge text-bg-success ms-2">
-                New
-              </span>
-            )}
-          </div>
-        </Link>
-      ))}
+      {publicLinks.map((link, index) => {
+        const isCurrentActive = location.pathname === link.to;
+
+        return (
+          <Link
+            key={index}
+            to={link.to}
+            // Attribution de la ref uniquement au lien actif
+            ref={isCurrentActive ? activeLinkRef : null}
+            className={`nav-link d-flex align-items-center ${
+              isCurrentActive ? "active bg-body-secondary fw-bold" : ""
+            }`}
+            style={{
+              scrollMarginBottom: "50px",
+            }}
+          >
+            <i className={`fas fa-${link.icon} me-2`}></i>
+            <div className="text-body position-relative">{link.label}</div>
+          </Link>
+        );
+      })}
     </div>
   );
 };

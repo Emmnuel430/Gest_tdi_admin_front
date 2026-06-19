@@ -12,165 +12,171 @@ const HeaderWithFilter = ({
   filterOptions = [],
   main,
   onLinkClick,
-  sortOption, // Option de tri sélectionnée
-  setSortOption, // Fonction pour modifier le tri
-  dataList, // Liste à trier (générique)
-  setSortedList, // Fonction pour mettre à jour la liste triée
+  sortOption,
+  setSortOption,
+  dataList,
+  setSortedList,
   alphaField,
   dateField,
 }) => {
   React.useEffect(() => {
-    const sortDataList = () => {
-      if (!Array.isArray(dataList)) return; // ✅ vérification clé
-      if (!dataList) return; // Si la liste est vide, on ne fait rien
+    if (!Array.isArray(dataList)) return;
 
-      let sorted = [...dataList];
+    let sorted = [...dataList];
 
-      if (!sortOption) {
-        // Si aucun tri n'est sélectionné, on affiche toute la liste originale
-        setSortedList(dataList);
-        return;
-      }
+    if (!sortOption) {
+      setSortedList(dataList);
+      return;
+    }
 
-      if (sortOption === "updated_desc" && dateField) {
-        sorted.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-      }
+    if (sortOption === "updated_desc" && dateField) {
+      sorted.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+    } else if (sortOption === "alpha" && alphaField) {
+      sorted.sort((a, b) =>
+        (a[alphaField] || "").localeCompare(b[alphaField] || ""),
+      );
+    } else if (
+      ["date_auj", "date_semaine", "date_mois", "date_annee"].includes(
+        sortOption,
+      )
+    ) {
+      const today = new Date();
+      sorted = sorted.filter((item) => {
+        const itemDate = new Date(item[dateField]);
+        if (isNaN(itemDate)) return false;
 
-      if (sortOption === "alpha" && alphaField) {
-        sorted.sort((a, b) =>
-          (a[alphaField] || "").localeCompare(b[alphaField] || ""),
-        );
-      } else if (
-        ["date_auj", "date_semaine", "date_mois", "date_annee"].includes(
-          sortOption,
-        )
-      ) {
-        const today = new Date();
-        sorted = sorted.filter((item) => {
-          const itemDate = new Date(item[dateField]);
-          if (isNaN(itemDate)) return false;
+        switch (sortOption) {
+          case "date_auj":
+            return itemDate.toDateString() === today.toDateString();
+          case "date_semaine":
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(today.getDate() - 7);
+            return itemDate >= oneWeekAgo && itemDate <= today;
+          case "date_mois":
+            return (
+              itemDate.getMonth() === today.getMonth() &&
+              itemDate.getFullYear() === today.getFullYear()
+            );
+          case "date_annee":
+            return itemDate.getFullYear() === today.getFullYear();
+          default:
+            return true;
+        }
+      });
+    }
 
-          switch (sortOption) {
-            case "date_auj":
-              return itemDate.toDateString() === today.toDateString();
-            case "date_semaine":
-              const oneWeekAgo = new Date();
-              oneWeekAgo.setDate(today.getDate() - 7);
-              return itemDate >= oneWeekAgo && itemDate <= today;
-            case "date_mois":
-              return (
-                itemDate.getMonth() === today.getMonth() &&
-                itemDate.getFullYear() === today.getFullYear()
-              );
-            case "date_annee":
-              return itemDate.getFullYear() === today.getFullYear();
-            default:
-              return true;
-          }
-        });
-      }
-
-      setSortedList(sorted);
-    };
-
-    sortDataList();
+    setSortedList(sorted);
   }, [sortOption, dataList, alphaField, dateField, setSortedList]);
 
+  const hasFiltersOrSort =
+    filterOptions.length > 0 ||
+    (setSortOption && Array.isArray(dataList) && dataList.length > 0);
+
   return (
-    <div>
-      {/* Titre et liens */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        {(title || title2) && (
-          <div>
-            {title ? (
-              <h1>Liste des {title}</h1>
-            ) : title2 ? (
-              <h1>{title2}</h1>
-            ) : null}
-          </div>
-        )}
-        <div>
+    <div className="mb-4">
+      {/* Section Supérieure : Titre & Actions */}
+      <div className="row align-items-center g-3 mb-3">
+        <div className="col-12 col-sm-auto me-sm-auto">
+          {(title || title2) && (
+            <h1>{title ? `Liste des ${title}` : title2}</h1>
+          )}
+        </div>
+        <div className="col-12 col-sm-auto text-sm-end">
           {onLinkClick ? (
             <button
-              className="btn btn-primary me-2"
+              className="btn btn-primary w-100 w-sm-auto d-inline-flex align-items-center justify-content-center gap-2 shadow-sm"
               onClick={(e) => {
                 e.preventDefault();
                 onLinkClick();
               }}
             >
-              <span className="d-none d-sm-inline">
-                {linkText2 || linkText}
-              </span>
-              <span className="d-inline d-sm-none">+</span>
+              <span>{linkText2 || linkText}</span>
             </button>
           ) : (
             linkText && (
-              <Link to={link} className="btn btn-primary me-2">
-                <span className="d-none d-sm-inline">{linkText}</span>
-                <span className="d-inline d-sm-none">+</span>
+              <Link
+                to={link}
+                className="btn btn-primary w-100 w-sm-auto d-inline-flex align-items-center justify-content-center gap-2 shadow-sm"
+              >
+                <span>{linkText}</span>
               </Link>
             )
           )}
         </div>
       </div>
 
-      {/* Total et filtre */}
-      {(main || filterOptions.length > 0) && (
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            {main && (
-              <h5>
-                Total {title} :
-                <span className="d-inline-block w-100 text-center">
-                  <strong>{main}</strong>
+      {/* Section Inférieure : Compteur, Filtres & Tris regroupés */}
+      <div className="card border bg-body p-3 shadow-sm rounded-3">
+        <div className="row g-3 align-items-center">
+          {/* Compteur Total */}
+          <div className="col-12 col-md-auto me-md-auto text-center text-md-start">
+            {main !== 0 && (
+              <div className="d-inline-flex align-items-center gap-2 bg-body px-3 py-2 rounded-2 border shadow-xs">
+                <span className="text-muted small fw-medium">
+                  Total {title || ""}
                 </span>
-              </h5>
+                <span className="badge bg-primary rounded-pill px-2.5 py-1.5 fs-6 fw-bold">
+                  {main}
+                </span>
+              </div>
             )}
           </div>
-          <div>
-            {filterOptions.length > 0 && (
-              <select
-                className="form-select"
-                onChange={(e) => setFilter(e.target.value)}
-                value={filter}
-              >
-                {filterOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-        </div>
-      )}
 
-      {/* Tri */}
-      {setSortOption && Array.isArray(dataList) && dataList.length > 0 && (
-        <div className="d-flex justify-content-end align-items-center mb-4">
-          <div>
-            <label htmlFor="sort" className="me-2">
-              Trier par :
-            </label>
-            <select
-              id="sort"
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-              className="form-select form-select-sm d-inline-block w-auto"
-            >
-              <option value="">Aucun</option>
-              {alphaField && <option value="alpha">Ordre alphabétique</option>}
-              <option value="date_auj">Créé aujourd'hui</option>
-              <option value="date_semaine">Créé cette semaine</option>
-              <option value="date_mois">Créé ce mois-ci</option>
-              <option value="date_annee">Créé cette année</option>
-              {dateField && (
-                <option value="updated_desc">Dernière mise à jour</option>
-              )}
-            </select>
-          </div>
+          {/* Filtres et Tris combinés sur la droite */}
+          {hasFiltersOrSort && (
+            <div className="col-12 col-md-auto">
+              <div className="row g-2 justify-content-center justify-content-md-end">
+                {/* Sélecteur de Filtre */}
+                {filterOptions.length > 0 && (
+                  <div className="col-6 col-sm-auto">
+                    <select
+                      className="form-select bg-body border"
+                      onChange={(e) => setFilter(e.target.value)}
+                      value={filter}
+                      aria-label="Filtrer les résultats"
+                    >
+                      {filterOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Sélecteur de Tri */}
+                {setSortOption &&
+                  Array.isArray(dataList) &&
+                  dataList.length > 0 && (
+                    <div className="col-6 col-sm-auto">
+                      <select
+                        id="sort"
+                        value={sortOption}
+                        onChange={(e) => setSortOption(e.target.value)}
+                        className="form-select bg-body border"
+                        aria-label="Trier les résultats"
+                      >
+                        <option value="">Aucun tri</option>
+                        {alphaField && (
+                          <option value="alpha">Ordre alphabétique</option>
+                        )}
+                        <option value="date_auj">Créé aujourd'hui</option>
+                        <option value="date_semaine">Créé cette semaine</option>
+                        <option value="date_mois">Créé ce mois-ci</option>
+                        <option value="date_annee">Créé cette année</option>
+                        {dateField && (
+                          <option value="updated_desc">
+                            Dernière mise à jour
+                          </option>
+                        )}
+                      </select>
+                    </div>
+                  )}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

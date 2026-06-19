@@ -26,14 +26,8 @@ const TransactionsListComponent = () => {
   } = useTransactions(showToast);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [
-    statusFilter,
-    // setStatusFilter
-  ] = useState("");
-  const [
-    typeFilter,
-    // setTypeFilter
-  ] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
 
   // Charger les transactions au mount
   useEffect(() => {
@@ -51,11 +45,11 @@ const TransactionsListComponent = () => {
     await changeStatus(id, newStatus);
   };
 
-  // const handleFilterChange = async (status = "", type = "") => {
-  //   setStatusFilter(status);
-  //   setTypeFilter(type);
-  //   await fetchTransactions(1, status, type);
-  // };
+  const handleFilterChange = async (status = "", type = "") => {
+    setStatusFilter(status);
+    setTypeFilter(type);
+    await fetchTransactions(1, status, type);
+  };
 
   const renderPagination = () => {
     if (pagination.last_page <= 1) return null;
@@ -145,16 +139,53 @@ const TransactionsListComponent = () => {
             delay={300}
           />
 
-          <HeaderWithFilter
-            title2="Dernières transactions"
-            main={pagination.total}
-            dataList={transactions}
-            sortOption=""
-            setSortOption={() => {}}
-            setSortedList={() => {}}
-            alphaField="reference"
-            dateField="created_at"
-          />
+          <div className="d-flex flex-column mb-3">
+            {/* Filtre pour les Statuts de transaction */}
+            <HeaderWithFilter
+              title2="Dernières transactions"
+              main={pagination.total}
+              dataList={transactions}
+              // Configuration du premier filtre : Status
+              filter={statusFilter}
+              setFilter={(value) => handleFilterChange(value, typeFilter)}
+              filterOptions={[
+                { label: "Tous les statuts", value: "" },
+                { label: "En attente", value: "pending" },
+                { label: "Succès", value: "success" },
+                { label: "Échouée", value: "failed" },
+                { label: "Remboursée", value: "refunded" },
+              ]}
+              // On désactive le tri local JS (on laisse faire Laravel 'latest()')
+              sortOption=""
+              setSortOption={() => {}}
+              setSortedList={() => {}}
+              alphaField="reference"
+              // dateField="created_at"
+            />
+
+            {/* Filtre secondaire pour les Types (Placé juste en dessous ou géré manuellement) */}
+            <div
+              className="row g-2 justify-content-end px-3"
+              style={{ marginTop: "-20px" }}
+            >
+              <div className="col-12 col-sm-auto">
+                <select
+                  className="form-select bg-body border"
+                  value={typeFilter}
+                  onChange={(e) =>
+                    handleFilterChange(statusFilter, e.target.value)
+                  }
+                  aria-label="Filtrer par type"
+                >
+                  <option value="">Tous les types</option>
+                  <option value="cart">Panier (Cart)</option>
+                  <option value="prayer-request">Demande de prière</option>
+                  <option value="subscription">Abonnement</option>
+                  <option value="tsedaka">Tsedaka</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
           <TransactionsTable
             transactions={filtered}

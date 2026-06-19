@@ -14,7 +14,6 @@ function App() {
           <AppRoutes />{" "}
         </ToastProvider>
       </AuthProvider>
-      +
     </div>
   );
 }

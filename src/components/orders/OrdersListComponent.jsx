@@ -14,12 +14,94 @@ import { useCrudUI } from "../../hooks/useCrudUI";
 
 const OrdersListComponent = () => {
   const { showToast } = useToast();
-  const { ui, close, openStatus, openDetails } = useCrudUI();
+  const { ui, open, close, openDetails } = useCrudUI();
   const { orders, pagination, loading, fetchOrders, changeStatus, goToPage } =
     useOrders(showToast);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+
+  const [deliveryDetails, setDeliveryDetails] = useState([]);
+  const openStatusModal = (order, status) => {
+    if (status === "delivered") {
+      const deliveryDetails = order.metadata?.delivery_details || [];
+
+      const details =
+        order.metadata?.cart_details?.map((item) => {
+          const delivery = deliveryDetails.find(
+            (d) => Number(d.product_id) === Number(item.product_id),
+          );
+
+          return {
+            product_id: Number(item.product_id),
+            title: item.title,
+            ordered_quantity: Number(item.quantity),
+            delivered_quantity:
+              delivery?.delivered_quantity ?? Number(item.quantity),
+          };
+        }) || [];
+
+      setDeliveryDetails(details);
+    }
+
+    open("status", { order, status });
+  };
+
+  const increaseDeliveredQty = (productId) => {
+    setDeliveryDetails((prev) =>
+      prev.map((item) =>
+        item.product_id === productId
+          ? {
+              ...item,
+              delivered_quantity: Math.min(
+                item.ordered_quantity,
+                item.delivered_quantity + 1,
+              ),
+            }
+          : item,
+      ),
+    );
+  };
+
+  const decreaseDeliveredQty = (productId) => {
+    setDeliveryDetails((prev) =>
+      prev.map((item) =>
+        item.product_id === productId
+          ? {
+              ...item,
+              delivered_quantity: Math.max(0, item.delivered_quantity - 1),
+            }
+          : item,
+      ),
+    );
+  };
+
+  const QuantityControl = ({ item }) => (
+    <div className="d-inline-flex align-items-center bg-body rounded-pill px-2 py-1 gap-2">
+      <button
+        type="button"
+        className="btn btn-sm btn-body border rounded-circle shadow-sm"
+        disabled={item.delivered_quantity <= 0}
+        onClick={() => decreaseDeliveredQty(item.product_id)}
+        style={{ width: 32, height: 32 }}
+      >
+        −
+      </button>
+
+      <span className="fw-semibold text-center" style={{ minWidth: 30 }}>
+        {item.delivered_quantity}
+      </span>
+
+      <button
+        type="button"
+        className="btn btn-sm btn-body border rounded-circle shadow-sm"
+        onClick={() => increaseDeliveredQty(item.product_id)}
+        style={{ width: 32, height: 32 }}
+      >
+        +
+      </button>
+    </div>
+  );
 
   useEffect(() => {
     fetchOrders(1, statusFilter);
@@ -36,7 +118,18 @@ const OrdersListComponent = () => {
 
     const { order, status } = ui.data;
 
-    await changeStatus(order.id, status);
+    const payload = {
+      status,
+    };
+
+    if (status === "delivered") {
+      payload.delivery_details = deliveryDetails.map((item) => ({
+        product_id: item.product_id,
+        delivered_quantity: item.delivered_quantity,
+      }));
+    }
+
+    await changeStatus(order.id, payload);
 
     close();
   };
@@ -150,7 +243,7 @@ const OrdersListComponent = () => {
 
           <OrdersTable
             orders={filtered}
-            openStatus={openStatus}
+            openStatus={openStatusModal}
             openDetails={openDetails}
           />
 
@@ -174,6 +267,7 @@ const OrdersListComponent = () => {
         show={ui.mode === "status"}
         onClose={close}
         onConfirm={handleConfirmStatus}
+        modalSize={ui.data?.status === "delivered" ? "lg" : "md"}
         title={
           ui.data?.status === "delivered"
             ? "Confirmer la livraison"
@@ -181,12 +275,49 @@ const OrdersListComponent = () => {
         }
         btnClass={ui.data?.status === "delivered" ? "success" : "danger"}
         body={
-          <p>
-            {ui.data?.status === "delivered"
-              ? "Marquer comme livrée la commande de"
-              : "Annuler la commande de"}{" "}
-            <strong>{ui.data?.order?.nom}</strong> ?
-          </p>
+          ui.data?.status === "delivered" ? (
+            <>
+              <p>
+                Confirmer la livraison de <strong>{ui.data?.order?.nom}</strong>
+              </p>
+
+              <div className="table-responsive">
+                <table className="table align-middle">
+                  <thead>
+                    <tr>
+                      <th>Produit</th>
+                      <th>Qté commandée</th>
+                      <th>Qté livrée</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {deliveryDetails.map((item) => (
+                      <tr key={item.product_id}>
+                        <td
+                          className="text-truncate"
+                          style={{ maxWidth: "150px" }}
+                          title={item.title}
+                        >
+                          {item.title}
+                        </td>
+
+                        <td>{item.ordered_quantity}</td>
+
+                        <td>
+                          <QuantityControl item={item} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <p>
+              Annuler la commande de <strong>{ui.data?.order?.nom}</strong> ?
+            </p>
+          )
         }
       />
     </>

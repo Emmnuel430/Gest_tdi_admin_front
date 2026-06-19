@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "../assets/css/Login.css";
-import loginImage from "../assets/img/login.png";
-import logo from "../assets/img/logo.png";
 import { useNavigate } from "react-router-dom";
-import { Spinner } from "react-bootstrap";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
+import AuthLayout from "../components/Layout/AuthLayout";
 
 const LoginAdherent = () => {
   const { loginAdherent, logoutAdmin } = useAuth();
@@ -69,51 +67,33 @@ const LoginAdherent = () => {
   }
 
   return (
-    <div>
-      <section>
-        <div className="container">
-          <div className="user signinBx">
-            <div className="imgBx bg-body">
-              <img src={loginImage} alt="Login Illustration" />
-            </div>
-            <div className="formBx bg-body">
-              <img src={logo} alt="Logo" />
-              <form onSubmit={login}>
-                <h2 className="h2 text-primary">Connexion Adhérent</h2>
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  placeholder="Ex : abc@xyz.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <br />
-                <br />
-                <label htmlFor="password">Mot de passe</label>
-                <input
-                  type="password"
-                  placeholder="Mot de Passe"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <div className="d-flex align-items-center mt-3">
-                  <input
-                    type="submit"
-                    className="btn btn-primary m-0"
-                    value={loading ? "Connexion ..." : "Connexion"}
-                    disabled={loading || !email || !password}
-                  />
-                  &nbsp;&nbsp;
-                  {loading ? (
-                    <Spinner animation="border" size="sm" className="my-auto" />
-                  ) : null}
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+    <AuthLayout
+      title="Connexion - Adhérent"
+      onSubmit={login}
+      loading={loading}
+      submitDisabled={loading || !email || !password}
+    >
+      <label htmlFor="email">Email</label>
+
+      <input
+        type="email"
+        placeholder="Ex : abc@xyz.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+
+      <br />
+      <br />
+
+      <label htmlFor="password">Mot de passe</label>
+
+      <input
+        type="password"
+        placeholder="Mot de Passe"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+    </AuthLayout>
   );
 };
 

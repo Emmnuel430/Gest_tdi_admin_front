@@ -6,14 +6,14 @@ export const ToastProvider = ({ children }) => {
   const [toast, setToast] = useState({
     show: false,
     message: "",
-    type: "success",
+    type: "info",
   });
 
-  const showToast = useCallback((message, type = "success") => {
+  const showToast = useCallback((message, type = "info") => {
     setToast({ show: true, message, type });
 
     setTimeout(() => {
-      setToast({ show: false, message: "", type: "success" });
+      setToast({ show: false, message: "", type: "info" });
     }, 3000);
   }, []);
 

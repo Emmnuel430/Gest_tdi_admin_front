@@ -3,17 +3,18 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
-import ToastMessage from "../../components/Layout/ToastMessage";
 import { useFetchWithToken } from "../../hooks/useFetchWithToken";
+import { useToast } from "../../context/ToastContext";
 
 const AddAds = () => {
+  const { showToast } = useToast();
+
   const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   const [afficheTitre, setAfficheTitre] = useState("");
   const [afficheLien, setAfficheLien] = useState("");
   const [mainImage, setMainImage] = useState(null);
   const [actif, setActif] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
 
   const navigate = useNavigate();
@@ -44,11 +45,10 @@ const AddAds = () => {
 
   const handleSubmit = async () => {
     if (!mainImage) {
-      setError("Veuillez sélectionner une image.");
+      showToast("Veuillez sélectionner une image.");
       return;
     }
 
-    setError("");
     setLoading(true);
 
     const formData = new FormData();
@@ -69,7 +69,7 @@ const AddAds = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.message || "Erreur lors de l'ajout.");
+        showToast(result.message || "Erreur lors de l'ajout.", "danger");
         setLoading(false);
         return;
       }
@@ -77,7 +77,7 @@ const AddAds = () => {
       alert("Affiche ajoutée !");
       navigate("/admin-tdi/ads");
     } catch (err) {
-      setError("Une erreur s'est produite.");
+      showToast("Une erreur s'est produite.", "danger");
       setLoading(false);
     }
   };
@@ -88,8 +88,6 @@ const AddAds = () => {
       <div className="col-sm-6 offset-sm-3 mt-5">
         <h1>Ajouter une affiche</h1>
         <br />
-
-        {error && <ToastMessage message={error} onClose={() => setError("")} />}
 
         <div className="mb-3">
           <label className="form-label">Titre de l'affiche</label>

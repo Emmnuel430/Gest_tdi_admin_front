@@ -180,28 +180,38 @@ const TsedakaList = () => {
                   <div className="card-body">
                     <h6 className="text-muted mb-3">Donateur</h6>
                     <div className="d-flex flex-wrap gap-4">
-                      <div>
-                        <div className="text-muted small">Nom complet</div>
-                        <div className="fw-semibold">
-                          {ui.data.anonymous ? (
-                            <span className="text-uppercase">Anonyme</span>
-                          ) : (
-                            <>
-                              <span className="text-uppercase">
-                                {ui.data.nom}
-                              </span>{" "}
-                              <span className="text-capitalize">
-                                {ui.data.prenom}
-                              </span>
-                            </>
-                          )}
+                      {!ui.data.anonymous && (
+                        <div>
+                          <div className="text-muted small">Nom complet</div>
+                          <div className="fw-semibold">
+                            {ui.data.anonymous ? (
+                              <span className="text-uppercase">Anonyme</span>
+                            ) : (
+                              <>
+                                <span className="text-uppercase">
+                                  {ui.data.nom}
+                                </span>{" "}
+                                <span className="text-capitalize">
+                                  {ui.data.prenom}
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       <div>
                         <div className="text-muted small">Email</div>
                         <div className="text-break">{ui.data.email || "-"}</div>
                       </div>
+                      {ui.data.numero && (
+                        <div>
+                          <div className="text-muted small">Numero</div>
+                          <div className="text-break">
+                            {ui.data.numero || "-"}
+                          </div>
+                        </div>
+                      )}
 
                       <div>
                         <div>

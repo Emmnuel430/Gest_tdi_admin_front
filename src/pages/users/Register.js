@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Importation du modal de confirmation
-import ToastMessage from "../../components/Layout/ToastMessage"; // Importation du composant de message toast
 import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import { useCrudUI } from "../../hooks/useCrudUI";
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 
 const Register = () => {
+  const { showToast } = useToast();
+
   const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   // États pour stocker les données du formulaire et d'autres informations d'état
   const [nom, setNom] = useState(""); // Nom de l'utilisateur
@@ -17,7 +19,6 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState(""); // Rôle de l'utilisateur
   const [loading, setLoading] = useState(false); // Indicateur de chargement lors de la soumission
-  const [error, setError] = useState(""); // Message d'erreur en cas de problème
   const { ui, close, openConfirm } = useCrudUI();
   const navigate = useNavigate(); // Hook pour la navigation
 
@@ -48,11 +49,10 @@ const Register = () => {
   const signUp = async () => {
     // Vérification que tous les champs sont remplis
     if (!nom || !role || !pseudo || !password) {
-      setError("Tous les champs sont requis.");
+      showToast("Tous les champs sont requis.");
       return;
     }
 
-    setError(""); // Réinitialise l'erreur
     setLoading(true); // Active le chargement
 
     try {
@@ -72,7 +72,7 @@ const Register = () => {
 
       // Si une erreur est retournée par le serveur, on l'affiche et on désactive le chargement
       if (result.error) {
-        setError(result.error);
+        showToast(result.error, "danger");
         setLoading(false);
         return;
       }
@@ -85,7 +85,10 @@ const Register = () => {
       setRole("");
       navigate("/admin-tdi/utilisateurs"); // Redirige vers la liste des utilisateurs
     } catch (e) {
-      setError("Une erreur inattendue s'est produite. Veuillez réessayer."); // En cas d'erreur serveur
+      showToast(
+        "Une erreur inattendue s'est produite. Veuillez réessayer.",
+        "danger",
+      ); // En cas d'erreur serveur
       setLoading(false);
     }
   };
@@ -95,16 +98,6 @@ const Register = () => {
       <Back>admin-tdi/utilisateurs</Back>
       <div className="col-sm-6 offset-sm-3 mt-5">
         <h1>Création d'un nouvel utilisateur</h1>
-
-        {/* Affichage d'un message d'erreur si nécessaire */}
-        {error && (
-          <ToastMessage
-            message={error}
-            onClose={() => {
-              setError(null);
-            }}
-          />
-        )}
 
         {/* Formulaire d'inscription */}
         <label htmlFor="nom" className="form-label">

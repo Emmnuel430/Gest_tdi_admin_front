@@ -30,6 +30,7 @@ const GalerieDossierShow = () => {
     deleteImage,
     toggleImage,
     fetchImages,
+    reorderImages,
   } = useGalerieImages(id);
 
   // Gestion de l'UI CRUD (sélection, modals)
@@ -56,6 +57,11 @@ const GalerieDossierShow = () => {
   const [loader, setLoader] = useState(false);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState(null);
+
+  // ==================== STATES - DRAG & DROP ====================
+
+  const [draggedId, setDraggedId] = useState(null);
+  const [dragOverId, setDragOverId] = useState(null);
 
   // ==================== HANDLERS - ACTIONS IMAGES ====================
 
@@ -104,6 +110,67 @@ const GalerieDossierShow = () => {
   const closeImageModal = () => {
     setShowModal(false);
     setSelectedImage(null);
+  };
+
+  // ==================== HANDLERS - DRAG & DROP ====================
+
+  const handleDragStart = (e, imgId) => {
+    setDraggedId(imgId);
+  };
+
+  const handleDragOver = (e, imgId) => {
+    e.preventDefault();
+    setDragOverId(imgId);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverId(null);
+  };
+
+  const handleDrop = async (e, targetId) => {
+    e.preventDefault();
+    setDragOverId(null);
+
+    if (!draggedId || draggedId === targetId) {
+      setDraggedId(null);
+      return;
+    }
+
+    // Utilise les images triées ou les images brutes
+    const sourceList = sortedImages.length > 0 ? sortedImages : images;
+
+    // Trouve les indices
+    const draggedIndex = sourceList.findIndex((img) => img.id === draggedId);
+    const targetIndex = sourceList.findIndex((img) => img.id === targetId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedId(null);
+      return;
+    }
+
+    // Crée une copie et réorganise
+    const reordered = [...sourceList];
+    const [draggedItem] = reordered.splice(draggedIndex, 1);
+    reordered.splice(targetIndex, 0, draggedItem);
+
+    // Met à jour l'état local
+    if (sortedImages.length > 0) {
+      setSortedImages(reordered);
+    } else {
+      // On ne peut pas modifier `images` directement, donc on met à jour sortedImages
+      setSortedImages(reordered);
+    }
+
+    // Prépare le payload avec indices (ordre)
+    const payload = reordered.map((img, index) => ({
+      id: img.id,
+      ordre: index + 1,
+    }));
+
+    // Appelle l'API
+    await reorderImages(payload);
+
+    setDraggedId(null);
   };
 
   // ==================== DATA PROCESSING - FILTRAGE ====================
@@ -210,12 +277,13 @@ const GalerieDossierShow = () => {
               style={{
                 rowGap: "1.5rem",
                 overflowY: "auto",
-                maxHeight: "400px",
+                maxHeight: "500px",
               }}
             >
               {filteredImages.length ? (
                 filteredImages.map((img) => (
                   <CardWrapper
+                    type="media"
                     key={img.id}
                     item={img}
                     selectedIds={selectedIds}
@@ -224,6 +292,17 @@ const GalerieDossierShow = () => {
                     openDropdownId={openDropdownId}
                     setOpenDropdownId={setOpenDropdownId}
                     onDoubleClick={openImageModal}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, img.id)}
+                    onDragOver={(e) => handleDragOver(e, img.id)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, img.id)}
+                    style={{
+                      opacity: draggedId === img.id ? 0.5 : 1,
+                      backgroundColor:
+                        dragOverId === img.id ? "rgba(0, 123, 255, 0.1)" : "",
+                      cursor: "move",
+                    }}
                     actions={[
                       {
                         label: "Voir",

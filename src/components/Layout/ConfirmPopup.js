@@ -9,6 +9,7 @@ const ConfirmPopup = ({
   btnClass = "info",
   confirmText = "Confirmer",
   cancelText = "Annuler",
+  modalSize = "md", // "sm", "md", "lg", "xl"
 }) => {
   const [loading, setLoading] = useState(false); // État de chargement
 
@@ -32,7 +33,10 @@ const ConfirmPopup = ({
       aria-hidden={!show}
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
-      <div className="modal-dialog modal-dialog-centered" role="document">
+      <div
+        className={`modal-dialog modal-${modalSize} modal-dialog-centered`}
+        role="document"
+      >
         <div className="modal-content">
           <div className="modal-header justify-content-between">
             <h5 className="modal-title" id="exampleModalLongTitle">

@@ -3,13 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup";
-import ToastMessage from "../../components/Layout/ToastMessage";
-// import SectionForm from "./SectionForm";
 import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import { usePage } from "../../hooks/usePage";
 import PageForm from "../../components/PageForm";
+import { useToast } from "../../context/ToastContext";
 
 export default function EditPage() {
+  const { showToast } = useToast();
+
   const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   const { id } = useParams();
   const navigate = useNavigate();
@@ -18,8 +19,6 @@ export default function EditPage() {
     setPage,
     previewMainImage,
     setPreviewMainImage,
-    error,
-    setError,
     loading,
     setLoading,
     showModal,
@@ -69,8 +68,8 @@ export default function EditPage() {
             : "",
         );
       })
-      .catch(() => setError("Erreur lors du chargement de la page"));
-  }, [id, setError, setPage, setPreviewMainImage, fetchWithToken]);
+      .catch(() => showToast("Erreur lors du chargement de la page", "danger"));
+  }, [id, showToast, setPage, setPreviewMainImage, fetchWithToken]);
 
   const removeSubsectionWithId = (sectionIndex, subIndex) => {
     removeSubsection(sectionIndex, subIndex, {
@@ -190,10 +189,13 @@ export default function EditPage() {
         alert("Page modifiée avec succès !");
         navigate("/admin-tdi/pages");
       } else {
-        setError(data.error || "Une erreur inattendue est survenue.");
+        showToast(
+          data.error || "Une erreur inattendue est survenue.",
+          "danger",
+        );
       }
     } catch {
-      setError("Erreur réseau. Veuillez réessayer.");
+      showToast("Erreur réseau. Veuillez réessayer.", "danger");
     } finally {
       setLoading(false);
     }
@@ -256,7 +258,6 @@ export default function EditPage() {
         title="Confirmer la modification"
         body={<p>Enregistrer les changements ?</p>}
       />
-      {error && <ToastMessage message={error} onClose={() => setError("")} />}
     </Layout>
   );
 }

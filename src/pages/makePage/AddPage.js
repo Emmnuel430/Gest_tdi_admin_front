@@ -3,17 +3,17 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import Back from "../../components/Layout/Back";
 import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Importation du modal de confirmation
-import ToastMessage from "../../components/Layout/ToastMessage";
 import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import { usePage } from "../../hooks/usePage";
 import PageForm from "../../components/PageForm";
+import { useToast } from "../../context/ToastContext";
 
 const AddPage = () => {
+  const { showToast } = useToast();
+
   const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
   const {
     page,
-    error,
-    setError,
     loading,
     setLoading,
     showModal,
@@ -119,10 +119,10 @@ const AddPage = () => {
         alert("Page créée avec succès !");
         navigate("/admin-tdi/pages");
       } else {
-        setError("Erreur : " + data.error);
+        showToast("Erreur : " + data.error, "danger");
       }
     } catch (error) {
-      setError("Erreur serveur", error);
+      showToast("Erreur serveur", error, "danger");
     } finally {
       setLoading(false);
     }
@@ -179,7 +179,6 @@ const AddPage = () => {
         title="Confirmer la création de la page"
         body={<p>Voulez-vous vraiment enregistrer cette page ?</p>}
       />
-      {error && <ToastMessage message={error} onClose={() => setError(null)} />}
     </Layout>
   );
 };
