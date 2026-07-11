@@ -1,8 +1,10 @@
 import { useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 export function useFetchWithToken() {
   const { admin, logoutAdmin, logoutAdherent } = useAuth();
+  const { showToast } = useToast();
 
   const fetchWithToken = useCallback(
     async (url, options = {}) => {
@@ -30,6 +32,20 @@ export function useFetchWithToken() {
         throw new Error("Non autorisé");
       }
 
+      if (response.status === 403) {
+        const data = await response.json().catch(() => null);
+        const message =
+          data?.message === "Compte adhérent désactivé"
+            ? "Votre compte est désactivé. Vous avez été déconnecté."
+            : "Accès refusé. Vous avez été déconnecté.";
+
+        showToast(message, "danger");
+        admin ? logoutAdmin() : logoutAdherent();
+        window.location.href = admin ? "/" : process.env.REACT_APP_VITRINE_URL;
+
+        throw new Error("Accès refusé");
+      }
+
       if (response.status === 422) {
         const errorData = await response.json();
         throw new ValidationError(errorData.errors);
@@ -37,10 +53,9 @@ export function useFetchWithToken() {
 
       return response;
     },
-    [admin, logoutAdmin, logoutAdherent],
-  ); // 🔥 important
-
-  return { fetchWithToken };
+    [admin, logoutAdmin, logoutAdherent, showToast],
+  );
+  return { fetchWithToken, showToast };
 }
 
 export class ValidationError extends Error {

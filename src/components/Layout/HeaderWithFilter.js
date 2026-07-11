@@ -106,77 +106,81 @@ const HeaderWithFilter = ({
       </div>
 
       {/* Section Inférieure : Compteur, Filtres & Tris regroupés */}
-      <div className="card border bg-body p-3 shadow-sm rounded-3">
-        <div className="row g-3 align-items-center">
-          {/* Compteur Total */}
-          <div className="col-12 col-md-auto me-md-auto text-center text-md-start">
-            {main !== 0 && (
-              <div className="d-inline-flex align-items-center gap-2 bg-body px-3 py-2 rounded-2 border shadow-xs">
-                <span className="text-muted small fw-medium">
-                  Total {title || ""}
-                </span>
-                <span className="badge bg-primary rounded-pill px-2.5 py-1.5 fs-6 fw-bold">
-                  {main}
-                </span>
-              </div>
-            )}
-          </div>
+      {main > 0 && (
+        <div className="card border bg-body p-3 shadow-sm rounded-3">
+          <div className="row g-3 align-items-center">
+            {/* Compteur Total */}
+            <div className="col-12 col-md-auto me-md-auto text-center text-md-start">
+              {main !== 0 && (
+                <div className="d-inline-flex align-items-center gap-2 bg-body px-3 py-2 rounded-2 border shadow-xs">
+                  <span className="text-muted small fw-medium">
+                    Total {title || ""}
+                  </span>
+                  <span className="badge bg-primary rounded-pill px-2.5 py-1.5 fs-6 fw-bold">
+                    {main}
+                  </span>
+                </div>
+              )}
+            </div>
 
-          {/* Filtres et Tris combinés sur la droite */}
-          {hasFiltersOrSort && (
-            <div className="col-12 col-md-auto">
-              <div className="row g-2 justify-content-center justify-content-md-end">
-                {/* Sélecteur de Filtre */}
-                {filterOptions.length > 0 && (
-                  <div className="col-6 col-sm-auto">
-                    <select
-                      className="form-select bg-body border"
-                      onChange={(e) => setFilter(e.target.value)}
-                      value={filter}
-                      aria-label="Filtrer les résultats"
-                    >
-                      {filterOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Sélecteur de Tri */}
-                {setSortOption &&
-                  Array.isArray(dataList) &&
-                  dataList.length > 0 && (
+            {/* Filtres et Tris combinés sur la droite */}
+            {hasFiltersOrSort && (
+              <div className="col-12 col-md-auto">
+                <div className="row g-2 justify-content-center justify-content-md-end">
+                  {/* Sélecteur de Filtre */}
+                  {filterOptions.length > 0 && (
                     <div className="col-6 col-sm-auto">
                       <select
-                        id="sort"
-                        value={sortOption}
-                        onChange={(e) => setSortOption(e.target.value)}
                         className="form-select bg-body border"
-                        aria-label="Trier les résultats"
+                        onChange={(e) => setFilter(e.target.value)}
+                        value={filter}
+                        aria-label="Filtrer les résultats"
                       >
-                        <option value="">Aucun tri</option>
-                        {alphaField && (
-                          <option value="alpha">Ordre alphabétique</option>
-                        )}
-                        <option value="date_auj">Créé aujourd'hui</option>
-                        <option value="date_semaine">Créé cette semaine</option>
-                        <option value="date_mois">Créé ce mois-ci</option>
-                        <option value="date_annee">Créé cette année</option>
-                        {dateField && (
-                          <option value="updated_desc">
-                            Dernière mise à jour
+                        {filterOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
                           </option>
-                        )}
+                        ))}
                       </select>
                     </div>
                   )}
+
+                  {/* Sélecteur de Tri */}
+                  {setSortOption &&
+                    Array.isArray(dataList) &&
+                    dataList.length > 0 && (
+                      <div className="col-6 col-sm-auto">
+                        <select
+                          id="sort"
+                          value={sortOption}
+                          onChange={(e) => setSortOption(e.target.value)}
+                          className="form-select bg-body border"
+                          aria-label="Trier les résultats"
+                        >
+                          <option value="">Aucun tri</option>
+                          {alphaField && (
+                            <option value="alpha">Ordre alphabétique</option>
+                          )}
+                          <option value="date_auj">Créé aujourd'hui</option>
+                          <option value="date_semaine">
+                            Créé cette semaine
+                          </option>
+                          <option value="date_mois">Créé ce mois-ci</option>
+                          <option value="date_annee">Créé cette année</option>
+                          {dateField && (
+                            <option value="updated_desc">
+                              Dernière mise à jour
+                            </option>
+                          )}
+                        </select>
+                      </div>
+                    )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

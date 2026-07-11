@@ -168,9 +168,10 @@ const ProfilAdherent = () => {
                   <div className="d-flex justify-content-between py-1">
                     <span className="text-muted">Contact</span>
                     <span className="fw-medium">
-                      {adherent.contact || (
-                        <span className="text-danger small">Non fourni</span>
-                      )}
+                      {adherent.contact ||
+                        adherent?.profile?.telephone_whatsapp || (
+                          <span className="text-danger small">Non fourni</span>
+                        )}
                     </span>
                   </div>
                 </div>
@@ -195,7 +196,9 @@ const ProfilAdherent = () => {
               {!isProfileCompleted && (
                 <div className="card-footer bg-body border border-warning text-center">
                   <small className="text-muted">
-                    ⚠️ Complétez votre profil pour une meilleure expérience
+                    ⚠️ Complétez votre profil pour avoir accès à toutes les
+                    fonctionnalités et pour faciliter la gestion de votre
+                    abonnement.
                   </small>
                 </div>
               )}

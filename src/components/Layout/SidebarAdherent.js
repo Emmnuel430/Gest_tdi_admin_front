@@ -51,15 +51,15 @@ const Sidebar = ({ user }) => {
               </span>
 
               {/* Plan */}
-              <span className="text-muted small">
-                {user?.subscription?.plan?.name || "Abonné"}
-              </span>
+              {/* <span className="text-muted small">
+                {user?.subscription?.plan?.billing_type?.replace("_", " ") ||
+                  "N/A"}
+              </span> */}
 
               {/* Type abonnement */}
               <div className="mt-1">
                 <span className="badge bg-outline-info text-body border text-uppercase small">
-                  {user?.subscription?.plan?.billing_type?.replace("_", " ") ||
-                    "N/A"}
+                  {user?.subscription?.plan?.name || "Abonné"}
                 </span>
               </div>
             </div>

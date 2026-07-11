@@ -62,6 +62,13 @@ export const STEPS = [
     icon: <i className="fas fa-phone"></i>,
     fields: [
       {
+        name: "contact",
+        label: "Téléphone principal",
+        type: "tel",
+        placeholder: "+225 07 12 30 45 67",
+        required: true,
+      },
+      {
         name: "telephone_whatsapp",
         label: "Téléphone WhatsApp",
         type: "tel",
@@ -113,7 +120,7 @@ export const STEPS = [
     fields: [
       {
         name: "niveau_etudes",
-        label: "Niveau d'études",
+        label: "Niveau d'étude actuelle",
         type: "select",
         required: true,
         options: [
@@ -125,13 +132,14 @@ export const STEPS = [
           { value: "licence", label: "Licence" },
           { value: "master", label: "Master" },
           { value: "doctorat", label: "Doctorat" },
+          { value: "jamais_scolarise", label: "Jamais scolarisé" },
         ],
       },
       {
         name: "dernier_diplome",
         label: "Dernier diplôme obtenu",
         type: "text",
-        placeholder: "Ex: Licence en Informatique",
+        placeholder: "Ex: Licence en Informatique, BTS en Gestion...",
       },
       {
         name: "etude_religieuse",
@@ -188,7 +196,7 @@ export const STEPS = [
   {
     id: 4,
     title: "Objectifs",
-    icon: "🎯",
+    icon: <i className="fas fa-bullseye"></i>,
     fields: [
       {
         name: "motivation",
@@ -205,6 +213,33 @@ export const STEPS = [
         placeholder: "Décrivez vos objectifs...",
         rows: 4,
         required: true,
+      },
+    ],
+  },
+  {
+    id: 5,
+    title: "Sécurité",
+    icon: <i className="fas fa-lock"></i>,
+    description:
+      "Vous pouvez changer votre mot de passe ici. Ne remplissez les champs que si vous souhaitez le modifier.",
+    fields: [
+      {
+        name: "old_password",
+        label: "Mot de passe actuel",
+        type: "password",
+        placeholder: "Votre mot de passe actuel",
+      },
+      {
+        name: "new_password",
+        label: "Nouveau mot de passe",
+        type: "password",
+        placeholder: "Nouveau mot de passe (8 caractères minimum)",
+      },
+      {
+        name: "confirm_password",
+        label: "Confirmer le nouveau mot de passe",
+        type: "password",
+        placeholder: "Confirmez le nouveau mot de passe",
       },
     ],
   },

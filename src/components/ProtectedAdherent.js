@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "../context/ToastContext";
 
-const ProtectedAdherent = ({ Cmp }) => {
+export default function ProtectedAdherent({ Cmp }) {
+  const navigate = useNavigate();
   const { updateAdherent } = useAuth();
+  const { showToast } = useToast();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
@@ -37,6 +40,13 @@ const ProtectedAdherent = ({ Cmp }) => {
 
         const data = await response.json();
         if (data.adherent.id !== adherent.id) throw new Error("Invalid");
+        if (data.adherent.is_active !== "true") {
+          showToast(
+            "Votre compte a été désactivé. Vous êtes déconnecté.",
+            "danger",
+          );
+          throw new Error("Inactive");
+        }
 
         // 3. MISE À JOUR DU CONTEXTE :
         // Si ton useAuth a une fonction updateAdherent, appelle-la ici
@@ -47,14 +57,16 @@ const ProtectedAdherent = ({ Cmp }) => {
         sessionStorage.removeItem("adherent-token");
         sessionStorage.removeItem("adherent-info");
 
-        window.location.href = process.env.REACT_APP_VITRINE_URL;
+        navigate("/adherent/login", {
+          state: {
+            reason: error.message === "Inactive" ? "inactive" : "unauthorized",
+          },
+        });
       }
     };
 
     checkAdherent();
-  }, [updateAdherent]);
+  }, [updateAdherent, navigate, showToast]);
 
   return <>{isAuthorized ? <Cmp /> : null}</>;
-};
-
-export default ProtectedAdherent;
+}

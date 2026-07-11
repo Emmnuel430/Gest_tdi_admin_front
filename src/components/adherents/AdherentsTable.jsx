@@ -32,7 +32,7 @@ const AdherentsTable = ({ adherents, onShowDetails, onToggleValidate }) => {
                   a.is_active ? "bg-body" : "bg-secondary text-muted"
                 }`}
                 style={{
-                  filter: a.is_active ? "none" : "blur(2px)",
+                  filter: a.is_active ? "none" : "blur(1px)",
                 }}
               >
                 {/* INDEX */}

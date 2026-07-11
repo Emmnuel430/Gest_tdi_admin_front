@@ -24,6 +24,17 @@ const AdherentValidate = () => {
 
   // ================= ÉTAPES DU FORMULAIRE =================
   const step = STEPS[currentStep];
+  const hasSavedProfileForm = (() => {
+    const saved = localStorage.getItem("adherent_profile_form");
+    if (!saved) return false;
+
+    try {
+      const parsed = JSON.parse(saved);
+      return parsed && Object.keys(parsed).length > 0;
+    } catch {
+      return false;
+    }
+  })();
 
   // ================= SCROLL AUTOMATIQUE VERS ERREUR =================
   useEffect(() => {
@@ -66,8 +77,36 @@ const AdherentValidate = () => {
   };
 
   // ================= RENDER FIELD =================
+  const passwordsMatch =
+    !formData.new_password ||
+    formData.new_password === formData.confirm_password;
+
+  const isFieldRequired = (field) => {
+    if (field.name === "institution_religieuse") {
+      return (
+        formData.etude_religieuse === true ||
+        formData.etude_religieuse === "true"
+      );
+    }
+
+    if (field.name === "confirm_password") {
+      return Boolean(formData.new_password);
+    }
+
+    return field.required;
+  };
+
+  const getFieldErrorMessage = (field) => {
+    if (field.name === "confirm_password" && !passwordsMatch) {
+      return "Les nouveaux mots de passe ne correspondent pas.";
+    }
+    return getError(field.name);
+  };
+
   const renderField = (field) => {
-    const hasError = !!getError(field.name);
+    const fieldRequired = isFieldRequired(field);
+    const fieldErrorMessage = getFieldErrorMessage(field);
+    const hasError = Boolean(fieldErrorMessage);
     const value = formData[field.name] || "";
 
     switch (field.type) {
@@ -76,7 +115,7 @@ const AdherentValidate = () => {
           <div key={field.name} className="mb-3">
             <label htmlFor={field.name} className="form-label fw-semibold">
               {field.label}{" "}
-              {field.required && <span className="text-danger">*</span>}
+              {fieldRequired && <span className="text-danger">*</span>}
             </label>
             <textarea
               id={field.name}
@@ -85,12 +124,12 @@ const AdherentValidate = () => {
               placeholder={field.placeholder}
               rows={field.rows || 3}
               value={value}
-              required={field.required}
+              required={fieldRequired}
               onChange={(e) => updateField(field.name, e.target.value)}
             />
             {hasError && (
               <div className="invalid-feedback d-block">
-                {getError(field.name)}
+                {fieldErrorMessage}
               </div>
             )}
           </div>
@@ -101,14 +140,14 @@ const AdherentValidate = () => {
           <div key={field.name} className="mb-3">
             <label htmlFor={field.name} className="form-label fw-semibold">
               {field.label}{" "}
-              {field.required && <span className="text-danger">*</span>}
+              {fieldRequired && <span className="text-danger">*</span>}
             </label>
             <select
               id={field.name}
               name={field.name}
               className={`form-select ${hasError ? "is-invalid" : ""}`}
               value={value}
-              required={field.required}
+              required={fieldRequired}
               onChange={(e) => updateField(field.name, e.target.value)}
             >
               {field.options.map((opt) => (
@@ -119,7 +158,7 @@ const AdherentValidate = () => {
             </select>
             {hasError && (
               <div className="invalid-feedback d-block">
-                {getError(field.name)}
+                {fieldErrorMessage}
               </div>
             )}
           </div>
@@ -141,7 +180,7 @@ const AdherentValidate = () => {
             </label>
             {hasError && (
               <div className="invalid-feedback d-block">
-                {getError(field.name)}
+                {fieldErrorMessage}
               </div>
             )}
           </div>
@@ -152,7 +191,7 @@ const AdherentValidate = () => {
           <div key={field.name} className="mb-3">
             <label htmlFor={field.name} className="form-label fw-semibold">
               {field.label}{" "}
-              {field.required && <span className="text-danger">*</span>}
+              {fieldRequired && <span className="text-danger">*</span>}
             </label>
             <input
               type="number"
@@ -161,7 +200,7 @@ const AdherentValidate = () => {
               className={`form-control ${hasError ? "is-invalid" : ""}`}
               placeholder={field.placeholder}
               value={value}
-              required={field.required}
+              required={fieldRequired}
               onChange={(e) =>
                 updateField(
                   field.name,
@@ -172,7 +211,7 @@ const AdherentValidate = () => {
             />
             {hasError && (
               <div className="invalid-feedback d-block">
-                {getError(field.name)}
+                {fieldErrorMessage}
               </div>
             )}
           </div>
@@ -183,7 +222,7 @@ const AdherentValidate = () => {
           <div key={field.name} className="mb-3">
             <label htmlFor={field.name} className="form-label fw-semibold">
               {field.label}{" "}
-              {field.required && <span className="text-danger">*</span>}
+              {fieldRequired && <span className="text-danger">*</span>}
             </label>
             <input
               type={field.type}
@@ -191,13 +230,13 @@ const AdherentValidate = () => {
               name={field.name}
               className={`form-control ${hasError ? "is-invalid" : ""}`}
               placeholder={field.placeholder}
-              required={field.required}
+              required={fieldRequired}
               value={value}
               onChange={(e) => updateField(field.name, e.target.value)}
             />
             {hasError && (
               <div className="invalid-feedback d-block">
-                {getError(field.name)}
+                {fieldErrorMessage}
               </div>
             )}
           </div>
@@ -207,8 +246,22 @@ const AdherentValidate = () => {
 
   const isStepInvalid = () => {
     const currentStepFields = STEPS[currentStep].fields;
+    const hasPasswordInput =
+      formData.old_password ||
+      formData.new_password ||
+      formData.confirm_password;
+
+    if (currentStep === STEPS.length - 1 && hasPasswordInput) {
+      return (
+        !formData.old_password ||
+        !formData.new_password ||
+        !formData.confirm_password ||
+        !passwordsMatch
+      );
+    }
+
     return currentStepFields.some((field) => {
-      if (!field.required) return false;
+      if (!isFieldRequired(field)) return false;
       const val = formData[field.name];
       return val === undefined || val === null || val === "" || val === false;
     });
@@ -260,11 +313,11 @@ const AdherentValidate = () => {
                               : "btn-outline-secondary"
                         }`}
                         onClick={() => {
-                          if (idx <= currentStep) {
+                          if (idx <= currentStep || hasSavedProfileForm) {
                             setCurrentStep(idx);
                           }
                         }}
-                        disabled={idx > currentStep}
+                        disabled={idx > currentStep && !hasSavedProfileForm}
                         title={`Étape ${idx + 1}: ${s.title}`}
                       >
                         <span className="d-block">{s.icon}</span>
@@ -278,6 +331,22 @@ const AdherentValidate = () => {
                     </div>
                   ))}
                 </div>
+
+                {/* <div className="text-center text-muted small">
+                  {hasSavedProfileForm
+                    ? "Vous pouvez naviguer entre les étapes."
+                    : "Veuillez compléter les étapes dans l'ordre."}
+                </div> */}
+                {step.description && (
+                  <>
+                    {/* <hr /> */}
+                    <div>
+                      <p className="text-muted text-center small mb-0">
+                        {step.description}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* FORM FIELDS */}

@@ -274,25 +274,30 @@ export default function TransactionsStats() {
                 <h6 className="fw-semibold mb-1">
                   Répartition des transactions
                 </h6>
-                <small className="text-muted">Volume par type</small>
+                {(stats.count_by_type || []).length > 0 && (
+                  <small className="text-muted">Volume par type</small>
+                )}
               </div>
-
-              <div style={{ minHeight: "320px" }}>
-                <Pie
-                  data={pieData}
-                  options={{
-                    responsive: true,
-                    plugins: {
-                      legend: {
-                        position: "bottom",
-                        labels: {
-                          color: isDarkMode ? "#fff" : "#212529",
+              {(stats.count_by_type || []).length > 0 ? (
+                <div style={{ minHeight: "320px" }}>
+                  <Pie
+                    data={pieData}
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: {
+                          position: "bottom",
+                          labels: {
+                            color: isDarkMode ? "#fff" : "#212529",
+                          },
                         },
                       },
-                    },
-                  }}
-                />
-              </div>
+                    }}
+                  />
+                </div>
+              ) : (
+                <span className="text-muted">Aucun revenu enregistré.</span>
+              )}
             </div>
           </div>
         </div>
@@ -303,12 +308,20 @@ export default function TransactionsStats() {
             <div className="card-body">
               <div className="mb-3">
                 <h6 className="fw-semibold mb-1">Évolution des revenus</h6>
-                <small className="text-muted">Analyse mensuelle par type</small>
+                {(stats.revenue_over_time || []).length > 0 && (
+                  <small className="text-muted">
+                    Analyse mensuelle par type
+                  </small>
+                )}
               </div>
 
-              <div style={{ minHeight: "320px" }}>
-                <Line data={lineData} options={chartOptions} />
-              </div>
+              {(stats.revenue_over_time || []).length > 0 ? (
+                <div style={{ minHeight: "320px" }}>
+                  <Line data={lineData} options={chartOptions} />
+                </div>
+              ) : (
+                <span className="text-muted">Aucun revenu enregistré.</span>
+              )}
             </div>
           </div>
         </div>

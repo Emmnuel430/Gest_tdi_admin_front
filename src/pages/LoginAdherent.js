@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../assets/css/Login.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
 import AuthLayout from "../components/Layout/AuthLayout";
@@ -13,12 +13,20 @@ const LoginAdherent = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
+    if (location.state?.reason === "inactive") {
+      showToast(
+        "Votre compte a été désactivé. Contactez l'administration si nécessaire.",
+        "danger",
+      );
+    }
+
     if (sessionStorage.getItem("adherent-info")) {
       navigate("/adherent/home");
     }
-  }, [navigate]);
+  }, [location.state, navigate, showToast]);
 
   async function login(e) {
     e.preventDefault();

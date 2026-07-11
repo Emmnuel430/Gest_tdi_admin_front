@@ -1,4 +1,3 @@
-// services/authService.js
 export const loginRequest = async (url, payload) => {
   const res = await fetch(url, {
     method: "POST",

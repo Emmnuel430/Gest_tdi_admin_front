@@ -27,7 +27,7 @@ export function useProfileForm(initialData = {}) {
           `${process.env.REACT_APP_API_BASE_URL}/adherent/me`,
         );
         const data = await res.json();
-        const profile = data.profile || {};
+        const profile = data.adherent.profile || {};
 
         // ✅ Nettoyage des données pour les inputs HTML
         const cleanProfile = { ...profile };
@@ -50,7 +50,12 @@ export function useProfileForm(initialData = {}) {
   // ================= PERSISTENCE =================
   useEffect(() => {
     if (!loadingInit) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+      const persistedData = { ...formData };
+      delete persistedData.old_password;
+      delete persistedData.new_password;
+      delete persistedData.confirm_password;
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(persistedData));
     }
   }, [formData, loadingInit]);
 

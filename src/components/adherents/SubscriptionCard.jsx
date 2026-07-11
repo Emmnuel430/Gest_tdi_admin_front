@@ -67,7 +67,9 @@ const SubscriptionCard = ({
       {/* NEXT PAYMENT */}
       {isStudent && subscription?.next_payment_at && (
         <div className="row mb-3">
-          <div className="col-5 text-muted">Prochain paiement</div>
+          <div className="col-5 text-muted">
+            Prochain paiement à faire avant le
+          </div>
           <div className="col-7">
             {new Date(subscription.next_payment_at).toLocaleDateString()}
           </div>

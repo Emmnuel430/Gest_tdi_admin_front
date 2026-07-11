@@ -301,7 +301,7 @@ const AdhModalComponent = ({ selectedAdherent, loading }) => {
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <h5 className="mb-0 fw-bold">{plan?.name}</h5>
                     <span
-                      className={`text-uppercase badge ${sub.status === "active" ? "bg-success" : "bg-warning"}`}
+                      className={`text-uppercase badge ${sub.status === "active" ? "bg-success" : "bg-warning-subtle border text-body border-warning-subtle"}`}
                     >
                       {sub.status}
                     </span>
@@ -375,9 +375,11 @@ const AdhModalComponent = ({ selectedAdherent, loading }) => {
                           }}
                         ></div>
                       </div>
-                      <small className="mt-2 text-muted">
-                        {sub.remaining_months} mensualité(s) restante(s)
-                      </small>
+                      {sub.remaining_months > 0 && (
+                        <small className="mt-2 text-muted">
+                          {sub.remaining_months} mensualité(s) restante(s)
+                        </small>
+                      )}
                     </div>
                   )}
 
@@ -389,11 +391,11 @@ const AdhModalComponent = ({ selectedAdherent, loading }) => {
                     {isStudent ? (
                       <div className="row g-0">
                         <div className="col-4 border-end text-center">
-                          <div className="small text-muted">Inscrip.</div>
+                          <div className="small text-muted">Inscription</div>
                           <div className="fw-bold">{plan.registration_fee}</div>
                         </div>
                         <div className="col-4 border-end text-center">
-                          <div className="small text-muted">Mois</div>
+                          <div className="small text-muted">Mensualité</div>
                           <div className="fw-bold">{plan.monthly_price}</div>
                         </div>
                         <div className="col-4 text-center">
