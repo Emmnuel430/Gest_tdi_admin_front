@@ -27,7 +27,10 @@ const PaymentSuccess = () => {
             <Link to="/adherent/profil" className="btn btn-success btn-lg">
               Retour à mon profil
             </Link>
-            <Link to="/" className="btn btn-link text-decoration-none">
+            <Link
+              to="/adherent/home"
+              className="btn btn-link text-decoration-none"
+            >
               Accueil
             </Link>
           </div>
