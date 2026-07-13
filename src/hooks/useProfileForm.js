@@ -27,10 +27,12 @@ export function useProfileForm(initialData = {}) {
           `${process.env.REACT_APP_API_BASE_URL}/adherent/me`,
         );
         const data = await res.json();
+        const adherentContact = data.adherent.contact || "";
+
         const profile = data.adherent.profile || {};
 
         // ✅ Nettoyage des données pour les inputs HTML
-        const cleanProfile = { ...profile };
+        const cleanProfile = { ...profile, contact: adherentContact };
         if (profile.date_naissance) {
           cleanProfile.date_naissance = profile.date_naissance.split("T")[0]; // Garde YYYY-MM-DD
         }
