@@ -1,6 +1,6 @@
 // Importation des dépendances React et des composants nécessaires de React Router
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Protected from "./components/Protected"; // Composant pour protéger les routes
 // Importation des pages et composants utilisés dans les routes
 import AccessDenied from "./components/AccessDenied";
@@ -52,7 +52,7 @@ import PaymentSuccess from "./pages/payments/PaymentSuccess";
 
 const AppRoutes = () => {
   return (
-    <BrowserRouter>
+    <>
       <ScrollToTop />
       <Routes>
         {/* Auth */}
@@ -235,7 +235,7 @@ const AppRoutes = () => {
         <Route path="*" element={<Login />} />
         <Route path="/access-denied" element={<AccessDenied />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 };
 
