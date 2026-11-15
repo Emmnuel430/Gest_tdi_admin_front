@@ -1,84 +1,77 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import Layout from "../../components/Layout/Layout"; // Composant Layout qui contient la structure générale de la page
-import HeaderWithFilter from "../../components/Layout/HeaderWithFilter"; // Composant pour l'en-tête avec filtre
-import Loader from "../../components/Layout/Loader"; // Composant pour le loader
-import ConfirmPopup from "../../components/Layout/ConfirmPopup"; // Composant de modal de confirmation pour la suppression d'utilisateur
-import SearchBar from "../../components/Layout/SearchBar"; // Composant pour la barre de recherche
+import Layout from "../../components/Layout/Layout";
+import HeaderWithFilter from "../../components/Layout/HeaderWithFilter";
+import Loader from "../../components/Layout/Loader";
+import ConfirmPopup from "../../components/Layout/ConfirmPopup";
+import SearchBar from "../../components/Layout/SearchBar";
 import { useFetchWithToken } from "../../hooks/useFetchWithToken";
 import { useCrudUI } from "../../hooks/useCrudUI";
 import { useAuth } from "../../context/AuthContext";
 
 const UserList = () => {
-  const { fetchWithToken } = useFetchWithToken(); // Importation d'une fonction utilitaire pour les requêtes avec token
-  // États locaux pour gérer les utilisateurs, l'état de chargement, les erreurs et les modals
-  const [users, setUsers] = useState([]); // Liste des utilisateurs
-  const [loading, setLoading] = useState(false); // État de chargement
-  const [error, setError] = useState(""); // État pour les erreurs
+  const { fetchWithToken } = useFetchWithToken();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { ui, close, openDelete } = useCrudUI();
-  const [filter, setFilter] = useState(""); // État pour le filtre
-  const [sortOption, setSortOption] = useState(""); // État pour l'option de tri
-  const [sortedUsers, setSortedUsers] = useState([]); // Liste des utilisateurs triés
-  const [searchQuery, setSearchQuery] = useState(""); // Requête de recherche pour filtrer les users
+  const [filter, setFilter] = useState("");
+  const [sortOption, setSortOption] = useState("");
+  const [sortedUsers, setSortedUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Récupérer l'ID de l'utilisateur connecté à partir du sessionStorage
   const { admin } = useAuth();
   const userInfo = admin;
-  const userId = userInfo ? userInfo.id : null; // ID de l'utilisateur connecté
 
-  // Récupérer la liste des utilisateurs lors du premier rendu
   useEffect(() => {
     const fetchUsers = async () => {
-      setLoading(true); // On commence par définir l'état de chargement à true
-      setError(""); // Réinitialiser l'erreur
+      setLoading(true);
+      setError("");
 
       try {
-        // Requête pour récupérer la liste des utilisateurs
         const response = await fetchWithToken(
           `${process.env.REACT_APP_API_BASE_URL}/liste_user`,
         );
         if (!response.ok) {
           throw new Error("Erreur lors de la récupération des utilisateurs.");
         }
-        const data = await response.json(); // Convertir la réponse en JSON
-        setUsers(data.users); // Mettre à jour l'état users avec les données récupérées
+        const data = await response.json();
+        setUsers(data.users);
       } catch (err) {
-        setError("Impossible de charger les données : " + err.message); // Si erreur, la définir dans l'état
+        setError("Impossible de charger les données : " + err.message);
       } finally {
-        setLoading(false); // Fin du chargement
+        setLoading(false);
       }
     };
 
-    fetchUsers(); // Appel de la fonction pour récupérer les utilisateurs
-  }, [fetchWithToken]); // Dépendances vides, donc ce code est exécuté au premier rendu seulement
+    fetchUsers();
+  }, [fetchWithToken]);
 
-  // Fonction pour supprimer l'utilisateur sélectionné
+  // Dette #03 : Suppression sécurisée authentifiée par Sanctum (sans paramètre user_id dans l'URL)
   const handleDelete = async () => {
-    if (!ui.data) return; // Si aucun utilisateur sélectionné, on ne fait rien
+    if (!ui.data) return;
 
     try {
-      // Requête DELETE pour supprimer l'utilisateur
       const response = await fetchWithToken(
-        `${process.env.REACT_APP_API_BASE_URL}/delete_user/${ui.data.id}?user_id=${userId}`,
+        `${process.env.REACT_APP_API_BASE_URL}/delete_user/${ui.data.id}`,
         {
-          method: "DELETE", // Méthode de suppression
+          method: "DELETE",
         },
       );
 
-      const result = await response.json(); // Convertir la réponse en JSON
+      const result = await response.json();
 
-      // Si l'utilisateur a été supprimé
       if (result.status === "deleted") {
-        alert("Utilisateur supprimé !"); // Afficher un message de succès
-        setUsers(users.filter((user) => user.id !== ui.data.id)); // Mettre à jour la liste des utilisateurs
+        alert("Utilisateur supprimé !");
+        setUsers(users.filter((user) => user.id !== ui.data.id));
       } else {
-        alert("Échec de la suppression."); // Si l'échec
+        alert(result.error || "Échec de la suppression.");
       }
     } catch (err) {
-      setError("Une erreur est survenue lors de la suppression."); // En cas d'erreur
+      setError("Une erreur est survenue lors de la suppression.");
     } finally {
-      close(); // Fermer le modal après la suppression
+      close();
     }
   };
 
@@ -89,9 +82,9 @@ const UserList = () => {
   function formatRole(role) {
     if (!role) return "";
     return role
-      .split("_") // coupe par "_"
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // met en majuscule la première lettre
-      .join(" "); // re-colle avec des espaces
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   }
 
   const roleColors = {
@@ -102,26 +95,22 @@ const UserList = () => {
   return (
     <Layout>
       <div className="container mt-2">
-        {/* Affichage des erreurs s'il y en a */}
         {error && <div className="alert alert-danger">{error}</div>}
 
-        {/* Affichage du loader si on est en train de charger les données */}
         {loading ? (
           <div
             className="d-flex justify-content-center align-items-center"
-            style={{ height: "80vh" }} // Centrer Loader au milieu de l'écran
+            style={{ height: "80vh" }}
           >
             <Loader />
           </div>
         ) : (
           <>
-            {/* Barre de recherche */}
             <SearchBar
               placeholder="Rechercher un utilisateur..."
               onSearch={(query) => setSearchQuery(query)}
               delay={300}
             />
-            {/* Affichage de l'en-tête avec filtre et le bouton pour ajouter un utilisateur */}
             <HeaderWithFilter
               title="Utilisateurs"
               link="/admin-tdi/register"
@@ -144,7 +133,6 @@ const UserList = () => {
               alphaField="last_name"
               dateField="created_at"
             />
-            {/* Affichage de la liste des utilisateurs dans un tableau */}
             <Table hover responsive className="centered-table">
               <thead>
                 <tr>
@@ -157,7 +145,6 @@ const UserList = () => {
               </thead>
               <tbody>
                 {filteredUsers.length > 0 ? (
-                  // Si des utilisateurs existent, on les affiche dans des lignes de tableau
                   filteredUsers
                     .filter((user) => !filter || user.role === filter)
                     .map((user, index) => (
@@ -165,7 +152,6 @@ const UserList = () => {
                         <td>{index + 1}</td>
                         <td>{user.name}</td>
                         <td>{user.pseudo}</td>
-                        {/* Affichage du rôle avec une couleur différente pour admin et staff */}
                         <td className="text-center text-uppercase">
                           <span
                             className={`badge ${
@@ -176,19 +162,17 @@ const UserList = () => {
                           </span>
                         </td>
                         <td className="table-operations d-flex justify-content-center">
-                          {/* Lien pour modifier l'utilisateur */}
                           <Link
                             to={`/admin-tdi/update/user/${user.id}`}
                             className="btn btn-warning btn-sm me-2"
                           >
                             Modifier
                           </Link>
-                          {/* Bouton pour supprimer l'utilisateur (si ce n'est pas l'utilisateur connecté) */}
-                          {user.id !== userInfo.id && (
+                          {user.id !== userInfo?.id && (
                             <Button
                               variant="danger"
                               size="sm"
-                              onClick={() => openDelete(user)} // Ouvre le modal pour la suppression
+                              onClick={() => openDelete(user)}
                             >
                               <i className="fas fa-trash"></i>
                             </Button>
@@ -197,7 +181,6 @@ const UserList = () => {
                       </tr>
                     ))
                 ) : (
-                  // Si aucun utilisateur n'est trouvé
                   <tr>
                     <td colSpan="6" className="text-center">
                       Aucun utilisateur trouvé.
@@ -210,7 +193,6 @@ const UserList = () => {
         )}
       </div>
 
-      {/* Modal de confirmation pour la suppression d'un utilisateur */}
       <ConfirmPopup
         show={ui.mode === "delete"}
         onClose={close}

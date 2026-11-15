@@ -1,60 +1,67 @@
-// Importation des dépendances React et des composants nécessaires de React Router
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
-import Protected from "./components/Protected"; // Composant pour protéger les routes
-// Importation des pages et composants utilisés dans les routes
-import AccessDenied from "./components/AccessDenied";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-// ----
-import Register from "./pages/users/Register";
-import UserList from "./pages/users/UserList";
-import UserUpdate from "./pages/users/UserUpdate";
-
-// ----
-import Pages from "./pages/makePage/Pages";
-import AddPage from "./pages/makePage/AddPage";
-import EditPage from "./pages/makePage/EditPage";
-
-// ----
-import Ads from "./pages/ads/Ads";
-import AddAds from "./pages/ads/AddAds";
-import EditAds from "./pages/ads/EditAds";
-import PlanList from "./pages/abonnement/PlanList";
-import AddPlan from "./pages/abonnement/AddPlan";
-import EditPlan from "./pages/abonnement/EditPlan";
-// ----
-import PrayerList from "./pages/prayerRequest/PrayerList";
-// ----
-import LoginAdherent from "./pages/LoginAdherent";
-import Adherents from "./pages/adherents/Adherents";
+import Protected from "./components/Protected";
 import ProtectedAdherent from "./components/ProtectedAdherent";
-import HomeAdherent from "./pages/adherents/HomeAdherent";
-import UpdateAdherents from "./pages/adherents/UpdateAdherents";
-import AdherentValidate from "./pages/adherents/AdherentValidate";
-import ProfilAdherent from "./pages/adherents/ProfilAdherent";
-// ----
-import ContenuList from "./pages/contenu/ContenuList";
-import AddContent from "./pages/contenu/AddContent";
-import UpdateContent from "./pages/contenu/UpdateContent";
-// ----
-import GalerieDossiersList from "./pages/galeries/GalerieDossiersList";
-import AddDossier from "./pages/galeries/AddDossier";
-import EditDossier from "./pages/galeries/EditDossier";
+import AccessDenied from "./components/AccessDenied";
 import ScrollToTop from "./components/ScrollToTop";
-import GalerieDossierShow from "./pages/galeries/GalerieDossierShow";
-import TransactionList from "./pages/transactions/TransactionList";
-import OrderList from "./pages/orders/OrderList";
-import TsedakaList from "./pages/tsdakas/TsedakaList";
-import ContentManagerAdherent from "./pages/adherents/ContentManagerAdherent";
-import PaymentCallback from "./pages/payments/PaymentCallback";
-import PaymentSuccess from "./pages/payments/PaymentSuccess";
+
+// Indicateur de chargement léger pour le lazy loading
+const RouteFallback = () => (
+  <div className="d-flex justify-content-center align-items-center min-vh-50 py-5">
+    <div className="spinner-border text-primary" role="status">
+      <span className="visually-hidden">Chargement de la page...</span>
+    </div>
+  </div>
+);
+
+// ⚡ Code Splitting via React.lazy()
+const Login = lazy(() => import("./pages/Login"));
+const LoginAdherent = lazy(() => import("./pages/LoginAdherent"));
+const Home = lazy(() => import("./pages/Home"));
+const Register = lazy(() => import("./pages/users/Register"));
+const UserList = lazy(() => import("./pages/users/UserList"));
+const UserUpdate = lazy(() => import("./pages/users/UserUpdate"));
+
+const Pages = lazy(() => import("./pages/makePage/Pages"));
+const AddPage = lazy(() => import("./pages/makePage/AddPage"));
+const EditPage = lazy(() => import("./pages/makePage/EditPage"));
+
+const Ads = lazy(() => import("./pages/ads/Ads"));
+const AddAds = lazy(() => import("./pages/ads/AddAds"));
+const EditAds = lazy(() => import("./pages/ads/EditAds"));
+const PlanList = lazy(() => import("./pages/abonnement/PlanList"));
+const AddPlan = lazy(() => import("./pages/abonnement/AddPlan"));
+const EditPlan = lazy(() => import("./pages/abonnement/EditPlan"));
+
+const PrayerList = lazy(() => import("./pages/prayerRequest/PrayerList"));
+
+const Adherents = lazy(() => import("./pages/adherents/Adherents"));
+const HomeAdherent = lazy(() => import("./pages/adherents/HomeAdherent"));
+const UpdateAdherents = lazy(() => import("./pages/adherents/UpdateAdherents"));
+const AdherentValidate = lazy(() => import("./pages/adherents/AdherentValidate"));
+const ProfilAdherent = lazy(() => import("./pages/adherents/ProfilAdherent"));
+
+const ContenuList = lazy(() => import("./pages/contenu/ContenuList"));
+const AddContent = lazy(() => import("./pages/contenu/AddContent"));
+const UpdateContent = lazy(() => import("./pages/contenu/UpdateContent"));
+
+const GalerieDossiersList = lazy(() => import("./pages/galeries/GalerieDossiersList"));
+const AddDossier = lazy(() => import("./pages/galeries/AddDossier"));
+const EditDossier = lazy(() => import("./pages/galeries/EditDossier"));
+const GalerieDossierShow = lazy(() => import("./pages/galeries/GalerieDossierShow"));
+const TransactionList = lazy(() => import("./pages/transactions/TransactionList"));
+const OrderList = lazy(() => import("./pages/orders/OrderList"));
+const TsedakaList = lazy(() => import("./pages/tsdakas/TsedakaList"));
+const ContentManagerAdherent = lazy(() => import("./pages/adherents/ContentManagerAdherent"));
+const PaymentCallback = lazy(() => import("./pages/payments/PaymentCallback"));
+const PaymentSuccess = lazy(() => import("./pages/payments/PaymentSuccess"));
 
 const AppRoutes = () => {
   return (
     <>
       <ScrollToTop />
-      <Routes>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
         {/* Auth */}
         <Route path="/admin-tdi" element={<Login />} />
         <Route path="/adherent/login" element={<LoginAdherent />} />
@@ -235,6 +242,7 @@ const AppRoutes = () => {
         <Route path="*" element={<Login />} />
         <Route path="/access-denied" element={<AccessDenied />} />
       </Routes>
+      </Suspense>
     </>
   );
 };

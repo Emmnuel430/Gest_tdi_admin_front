@@ -40,6 +40,12 @@ const OrderDetailsModal = ({ order }) => {
     order.metadata?.delivery_details || [],
   );
 
+  // Suivi de la commande et réexpédition des ressources bibliothèque
+  const [currentOrder, setCurrentOrder] = useState(order);
+  const [showResendModal, setShowResendModal] = useState(false);
+  const [resendEmail, setResendEmail] = useState(order?.email || "");
+  const [isResending, setIsResending] = useState(false);
+
   /**************************************************************************
    * SYNCHRONISATION
    **************************************************************************/
@@ -47,8 +53,36 @@ const OrderDetailsModal = ({ order }) => {
   // Lorsque la commande change,
   // on recharge les delivery_details depuis les metadata
   useEffect(() => {
+    setCurrentOrder(order);
     setCurrentDeliveryDetails(order.metadata?.delivery_details || []);
-  }, [order.metadata]);
+    setResendEmail(order?.resource_recipient_email || order?.email || "");
+  }, [order]);
+
+  const handleResendResources = async () => {
+    setIsResending(true);
+    try {
+      const res = await fetchWithToken(
+        `${process.env.REACT_APP_API_BASE_URL}/orders/${currentOrder.id}/resend-resources`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: resendEmail }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Erreur lors de la réexpédition");
+
+      showToast(data.message, "success");
+      setShowResendModal(false);
+      if (data.data) {
+        setCurrentOrder(data.data);
+      }
+    } catch (err) {
+      showToast(err.message, "error");
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   /**************************************************************************
    * FORMATAGE
@@ -421,6 +455,67 @@ const OrderDetailsModal = ({ order }) => {
         </Row>
       )}
 
+      {/* 📚 SUIVI ET RÉEXPÉDITION DES RESSOURCES NUMÉRIQUES (BIBLIOTHÈQUE) */}
+      <Row className="mb-3">
+        <Col md={12}>
+          <div className="p-3 border rounded bg-body shadow-sm">
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+              <div>
+                <label className="text-muted small text-uppercase fw-bold d-block mb-1">
+                  Livraison des Ressources Numériques (Bibliothèque)
+                </label>
+                <div className="d-flex align-items-center flex-wrap gap-2">
+                  <Badge
+                    bg={
+                      currentOrder.resource_delivery_status === "sent"
+                        ? "success"
+                        : currentOrder.resource_delivery_status === "failed"
+                        ? "danger"
+                        : currentOrder.resource_delivery_status === "pending"
+                        ? "warning"
+                        : "secondary"
+                    }
+                    className="fs-6"
+                  >
+                    {currentOrder.resource_delivery_status === "sent" && "✓ Envoyé par email"}
+                    {currentOrder.resource_delivery_status === "failed" && "⚠ Échec d'envoi"}
+                    {currentOrder.resource_delivery_status === "pending" && "⏳ En attente d'envoi"}
+                    {(!currentOrder.resource_delivery_status || currentOrder.resource_delivery_status === "not_applicable") && "Non applicable"}
+                  </Badge>
+                  {currentOrder.resource_recipient_email && (
+                    <span className="small text-body">
+                      Destinataire : <strong>{currentOrder.resource_recipient_email}</strong>
+                    </span>
+                  )}
+                  {currentOrder.resource_sent_at && (
+                    <span className="small text-muted">
+                      (le {formatDate(currentOrder.resource_sent_at)})
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 shadow-sm"
+                onClick={() => {
+                  setResendEmail(currentOrder.resource_recipient_email || currentOrder.email || "");
+                  setShowResendModal(true);
+                }}
+              >
+                <i className="fas fa-paper-plane me-1"></i> Renvoyer les ressources
+              </button>
+            </div>
+
+            {currentOrder.delivery_error && (
+              <div className="alert alert-danger py-2 px-3 small mb-0 mt-2">
+                <strong>Dernière erreur SMTP :</strong> {currentOrder.delivery_error}
+              </div>
+            )}
+          </div>
+        </Col>
+      </Row>
+
       {cartDetails.length > 0 && (
         <Row className="mb-3">
           <Col md={12}>
@@ -642,6 +737,38 @@ const OrderDetailsModal = ({ order }) => {
                 ))}
               </tbody>
             </table>
+          </div>
+        }
+      />
+
+      {/* Modal de réexpédition des ressources numériques */}
+      <ConfirmPopup
+        show={showResendModal}
+        onClose={() => setShowResendModal(false)}
+        onConfirm={handleResendResources}
+        title="Réexpédition des ressources numériques"
+        btnClass="primary"
+        confirmText={isResending ? "Envoi en cours..." : "Confirmer l'envoi"}
+        cancelText="Annuler"
+        body={
+          <div>
+            <p className="mb-2">
+              Confirmez ou modifiez l'adresse email de destination pour réexpédier les liens de téléchargement de la bibliothèque :
+            </p>
+            <div className="form-group mb-2">
+              <label className="small fw-semibold mb-1">Adresse email du destinataire</label>
+              <input
+                type="email"
+                className="form-control"
+                value={resendEmail}
+                onChange={(e) => setResendEmail(e.target.value)}
+                placeholder="adresse@client.com"
+                required
+              />
+            </div>
+            <small className="text-muted d-block">
+              En cas d'erreur de saisie du client lors du paiement, vous pouvez spécifier ici son adresse email rectifiée.
+            </small>
           </div>
         }
       />

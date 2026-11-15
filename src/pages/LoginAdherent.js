@@ -38,10 +38,11 @@ const LoginAdherent = () => {
 
     try {
       let item = { email, password };
-      let result = await fetch(
+      let response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/adherent/login`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -50,7 +51,13 @@ const LoginAdherent = () => {
         },
       );
 
-      result = await result.json();
+      if (response.status === 429) {
+        showToast("Trop de tentatives. Veuillez patienter une minute.", "danger");
+        setLoading(false);
+        return;
+      }
+
+      let result = await response.json();
 
       if (result.error) {
         showToast(result.error, "danger");
@@ -63,7 +70,7 @@ const LoginAdherent = () => {
         return;
       }
 
-      logoutAdmin(); // Pour éviter les conflits
+      logoutAdmin();
       loginAdherent(result.adherent, result.token);
 
       setLoading(false);

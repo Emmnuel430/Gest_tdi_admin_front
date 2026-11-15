@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAuthToken, setAuthToken } from "../context/AuthContext";
 
 const Protected = ({ Cmp, adminOnly = false }) => {
   const navigate = useNavigate();
@@ -9,13 +10,13 @@ const Protected = ({ Cmp, adminOnly = false }) => {
     const excludedPaths = ["/", "/logout"];
     if (excludedPaths.includes(window.location.pathname)) return;
 
-    const token = sessionStorage.getItem("token");
+    const token = getAuthToken("admin");
     const userInfo = sessionStorage.getItem("user-info");
     const user = userInfo ? JSON.parse(userInfo) : null;
 
-    if (!token || !user) {
+    if (!user) {
       sessionStorage.removeItem("user-info");
-      sessionStorage.removeItem("token");
+      setAuthToken("admin", null);
       navigate("/");
       return;
     }
@@ -26,17 +27,17 @@ const Protected = ({ Cmp, adminOnly = false }) => {
           `${process.env.REACT_APP_API_BASE_URL}/user`,
           {
             method: "GET",
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
               Accept: "application/json",
-              Authorization: `Bearer ${token}`,
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
           },
         );
 
         if (!response.ok) {
           throw new Error("Unauthorized");
-          // Interdit
         }
 
         const data = await response.json();
@@ -58,9 +59,8 @@ const Protected = ({ Cmp, adminOnly = false }) => {
 
         setIsAuthorized(true);
       } catch (error) {
-        // Token invalide, utilisateur supprimé, etc.
         sessionStorage.removeItem("user-info");
-        sessionStorage.removeItem("token");
+        setAuthToken("admin", null);
         navigate("/");
       }
     };
