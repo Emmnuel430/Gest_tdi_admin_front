@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, getAuthToken } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 
 export function useFetchWithToken() {
@@ -8,14 +8,15 @@ export function useFetchWithToken() {
 
   const fetchWithToken = useCallback(
     async (url, options = {}) => {
-      const token = sessionStorage.getItem(admin ? "token" : "adherent-token");
+      const token = getAuthToken(admin ? "admin" : "adherent");
 
       const headers = {
         Accept: "application/json",
         ...(options.body instanceof FormData
           ? {}
           : { "Content-Type": "application/json" }),
-        Authorization: `Bearer ${token}`,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers || {}),
       };
 
       const response = await fetch(url, {

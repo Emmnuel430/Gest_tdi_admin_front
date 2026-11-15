@@ -1,15 +1,20 @@
+import { getAuthToken, setAuthToken } from "../context/AuthContext";
+
 export function uploadWithToken(
   url,
   formData,
   { onProgress, onSuccess, onError },
 ) {
-  const token = sessionStorage.getItem("token");
+  const token = getAuthToken("admin");
 
   const xhr = new XMLHttpRequest();
 
   xhr.open("POST", url);
+  xhr.withCredentials = true;
 
-  xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+  if (token) {
+    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+  }
   xhr.setRequestHeader("Accept", "application/json");
 
   xhr.upload.onprogress = (e) => {
@@ -23,7 +28,7 @@ export function uploadWithToken(
     if (xhr.status === 200 || xhr.status === 201) {
       onSuccess && onSuccess(JSON.parse(xhr.response));
     } else if (xhr.status === 401) {
-      sessionStorage.removeItem("token");
+      setAuthToken("admin", null);
       sessionStorage.removeItem("user-info");
       window.location.href = "/";
     } else if (xhr.status === 422) {

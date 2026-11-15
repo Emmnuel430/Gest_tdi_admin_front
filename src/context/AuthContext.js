@@ -4,10 +4,25 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  useCallback,
 } from "react";
-import { useCallback } from "react";
 
 const AuthContext = createContext();
+
+/**
+ * Dette #23 : Stockage des jetons exclusivement en mémoire vive (closure JS)
+ * couplé au cookie HttpOnly (SameSite=Lax) géré par le backend Laravel Sanctum.
+ * Aucun jeton d'authentification n'est exposé dans sessionStorage ou localStorage.
+ */
+const inMemoryTokenStore = {
+  admin: null,
+  adherent: null,
+};
+
+export const getAuthToken = (type = "admin") => inMemoryTokenStore[type] || null;
+export const setAuthToken = (type, token) => {
+  inMemoryTokenStore[type] = token || null;
+};
 
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
@@ -15,6 +30,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Nettoyage défensif d'anciens tokens éventuellement présents en sessionStorage
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("adherent-token");
+
     const storedAdmin = sessionStorage.getItem("user-info");
     const storedAdherent = sessionStorage.getItem("adherent-info");
 
@@ -27,14 +46,16 @@ export const AuthProvider = ({ children }) => {
   // LOGIN ADMIN
   const loginAdmin = useCallback((userData, token) => {
     sessionStorage.setItem("user-info", JSON.stringify(userData));
-    sessionStorage.setItem("token", token);
+    sessionStorage.removeItem("token");
+    setAuthToken("admin", token);
     setAdmin(userData);
   }, []);
 
   // LOGIN ADHERENT
   const loginAdherent = useCallback((data, token) => {
     sessionStorage.setItem("adherent-info", JSON.stringify(data));
-    sessionStorage.setItem("adherent-token", token);
+    sessionStorage.removeItem("adherent-token");
+    setAuthToken("adherent", token);
     setAdherent(data);
   }, []);
 
@@ -42,6 +63,7 @@ export const AuthProvider = ({ children }) => {
   const logoutAdmin = useCallback(() => {
     sessionStorage.removeItem("user-info");
     sessionStorage.removeItem("token");
+    setAuthToken("admin", null);
     setAdmin(null);
   }, []);
 
@@ -49,10 +71,11 @@ export const AuthProvider = ({ children }) => {
   const logoutAdherent = useCallback(() => {
     sessionStorage.removeItem("adherent-info");
     sessionStorage.removeItem("adherent-token");
+    setAuthToken("adherent", null);
     setAdherent(null);
   }, []);
 
-  // UPDATE ADHERENT (le plus important pour toi)
+  // UPDATE ADHERENT
   const updateAdherent = useCallback((newData) => {
     setAdherent((prev) => {
       if (!prev) return prev;

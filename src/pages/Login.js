@@ -11,30 +11,29 @@ const Login = () => {
   const { showToast } = useToast();
   const [pseudo, setPseudo] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); // État pour indiquer le chargement
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (sessionStorage.getItem("user-info")) {
-      navigate("/admin-tdi/home"); // Redirige si l'utilisateur est déjà connecté
+      navigate("/admin-tdi/home");
     }
   }, [navigate]);
 
   async function login(e) {
-    e.preventDefault(); // Empêche le rafraîchissement de la page
-    // Validation des entrées utilisateur
+    e.preventDefault();
     if (!pseudo || !password) {
       showToast("Le pseudo et le mot de passe sont réquis", "info");
       return;
     }
 
-    setLoading(true); // Active l'état de chargement
+    setLoading(true);
 
-    // Appel à l'API pour tenter la connexion
     try {
       let item = { pseudo, password };
-      let result = await fetch(`${process.env.REACT_APP_API_BASE_URL}/login`, {
+      let response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/login`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -42,22 +41,27 @@ const Login = () => {
         body: JSON.stringify(item),
       });
 
-      result = await result.json();
-
-      // Gère une réponse d'erreur de l'API
-      if (result.error) {
-        showToast(result.error, "danger"); // Affiche un message d'erreur provenant de l'API
-        setLoading(false); // Désactive l'état de chargement
+      if (response.status === 429) {
+        showToast("Trop de tentatives. Veuillez patienter une minute.", "danger");
+        setLoading(false);
         return;
       }
-      logoutAdherent(); // Pour éviter les conflits
+
+      let result = await response.json();
+
+      if (result.error) {
+        showToast(result.error, "danger");
+        setLoading(false);
+        return;
+      }
+      logoutAdherent();
       loginAdmin(result.user, result.token);
 
-      setLoading(false); // Désactive l'état de chargement
+      setLoading(false);
       navigate("/admin-tdi/home");
     } catch (e) {
       showToast("Une erreur inatendue s'est produite. Réessayez", "danger");
-      setLoading(false); // Désactive l'état de chargement
+      setLoading(false);
     }
   }
   return (

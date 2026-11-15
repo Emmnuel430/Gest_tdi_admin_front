@@ -24,7 +24,7 @@ const ContenuList = () => {
   const [sortOption, setSortOption] = useState("");
   const [sortedContenus, setSortedContenus] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [, setTimeState] = useState(Date.now()); // État pour forcer le re-rendu basé sur le temps
+  const [, setTimeState] = useState(Date.now());
 
   const { ui, close, openDetails, openDelete } = useCrudUI();
   useEffect(() => {
@@ -37,8 +37,10 @@ const ContenuList = () => {
         if (!response.ok)
           throw new Error("Erreur lors de la récupération des contenus.");
         const data = await response.json();
-        setContenus(data);
-        setSortedContenus(data);
+        // Dette #10 : Support de la réponse paginée { data: [...], current_page, ... }
+        const items = Array.isArray(data) ? data : data?.data || [];
+        setContenus(items);
+        setSortedContenus(items);
       } catch (err) {
         showToast(
           "Impossible de charger les données : " + err.message,
@@ -50,10 +52,10 @@ const ContenuList = () => {
     };
     fetchContenus();
     const interval = setInterval(() => {
-      setTimeState(Date.now()); // Met à jour l'état pour forcer un re-rendu
-    }, 59000); // Intervalle de 59 secondes
+      setTimeState(Date.now());
+    }, 59000);
 
-    return () => clearInterval(interval); // Nettoie l'intervalle lors du démontage
+    return () => clearInterval(interval);
   }, [showToast, fetchWithToken]);
 
   const handleDelete = async () => {
@@ -131,7 +133,6 @@ const ContenuList = () => {
               <tbody>
                 {filteredContenus.length > 0 ? (
                   filteredContenus.map((contenu, index) => {
-                    // 🎯 LOGIQUE ACCÈS PROPRE
                     let accessLabel = "Public";
                     let accessClass = isDarkMode
                       ? "bg-success-subtle text-success border border-success"
@@ -155,7 +156,6 @@ const ContenuList = () => {
                       <tr key={contenu.id || index}>
                         <td className="fw-bold text-center">{index + 1}</td>
 
-                        {/* CONTENU */}
                         <td className="text-start">
                           <div className="fw-semibold">{contenu.title}</div>
 
@@ -167,7 +167,6 @@ const ContenuList = () => {
                           </div>
                         </td>
 
-                        {/* TYPE */}
                         <td className="text-center">
                           <span
                             className={`badge ${isDarkMode ? "bg-info-subtle border border-info" : "bg-info"} text-body text-capitalize px-3 py-2`}
@@ -178,7 +177,6 @@ const ContenuList = () => {
                           </span>
                         </td>
 
-                        {/* ACCÈS */}
                         <td className="text-center">
                           {!contenu.plans?.length && (
                             <span
@@ -188,26 +186,23 @@ const ContenuList = () => {
                             </span>
                           )}
 
-                          {/* Plans preview */}
                           {contenu.plans?.length > 0 && (
                             <div className="small text-muted mt-1">
-                              {contenu.plans.slice(0, 2).map((p, index) => (
-                                <>
+                              {contenu.plans.slice(0, 2).map((p, idx) => (
+                                <React.Fragment key={idx}>
                                   <span
-                                    key={index}
                                     className={`badge ${accessClass} px-3 py-2 mb-1`}
                                   >
                                     {p.name}
                                   </span>
                                   <br />
-                                </>
+                                </React.Fragment>
                               ))}
                               {contenu.plans.length > 2 && " ..."}
                             </div>
                           )}
                         </td>
 
-                        {/* PUBLICATION */}
                         <td className="text-center">
                           {contenu.publish_at &&
                           new Date(contenu.publish_at) > new Date() ? (
@@ -221,7 +216,6 @@ const ContenuList = () => {
                           )}
                         </td>
 
-                        {/* ACTIONS */}
                         <td>
                           <div className="d-flex flex-wrap justify-content-center gap-2">
                             {[

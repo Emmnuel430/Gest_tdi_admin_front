@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, getAuthToken, setAuthToken } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 
@@ -13,15 +13,14 @@ export default function ProtectedAdherent({ Cmp }) {
     const excludedPaths = ["/adherent/login", "/logout"];
     if (excludedPaths.includes(window.location.pathname)) return;
 
-    const token = sessionStorage.getItem("adherent-token");
+    const token = getAuthToken("adherent");
     const adherentInfo = sessionStorage.getItem("adherent-info");
     const adherent = adherentInfo ? JSON.parse(adherentInfo) : null;
 
-    if (!token || !adherent) {
-      sessionStorage.removeItem("adherent-token");
+    if (!adherent) {
+      setAuthToken("adherent", null);
       sessionStorage.removeItem("adherent-info");
       window.location.href = process.env.REACT_APP_VITRINE_URL;
-
       return;
     }
 
@@ -30,9 +29,10 @@ export default function ProtectedAdherent({ Cmp }) {
         const response = await fetch(
           `${process.env.REACT_APP_API_BASE_URL}/adherent/me`,
           {
+            credentials: "include",
             headers: {
-              Authorization: `Bearer ${token}`,
               Accept: "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
           },
         );
@@ -48,13 +48,10 @@ export default function ProtectedAdherent({ Cmp }) {
           throw new Error("Inactive");
         }
 
-        // 3. MISE À JOUR DU CONTEXTE :
-        // Si ton useAuth a une fonction updateAdherent, appelle-la ici
         updateAdherent(data.adherent);
-
         setIsAuthorized(true);
       } catch (error) {
-        sessionStorage.removeItem("adherent-token");
+        setAuthToken("adherent", null);
         sessionStorage.removeItem("adherent-info");
 
         navigate("/adherent/login", {
