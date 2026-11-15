@@ -127,7 +127,9 @@ const TsedakaList = () => {
                       </td>
                       <td>
                         <span className="fw-semibold">
-                          {formatPrice(donation?.transaction?.amount)}{" "}
+                          {formatPrice(
+                            donation?.montant ?? donation?.transaction?.amount,
+                          )}{" "}
                           {donation?.transaction?.currency || "XOF"}
                         </span>
                       </td>
@@ -266,36 +268,41 @@ const TsedakaList = () => {
                   </div>
                 </div>
 
-                {ui.data.transactions ? (
-                  <div className="card shadow-sm">
-                    <div className="card-body">
-                      <h6 className="text-muted mb-3">Transaction</h6>
-                      <div className="border rounded p-3 bg-body">
-                        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                          <div>
-                            <div className="text-muted small">Statut</div>
-                            <span className="fw-semibold">
-                              {getStatusLabel(ui.data.transactions.status)}
-                            </span>
-                          </div>
-                          <div>
-                            <div className="text-muted small">Montant</div>
-                            <div className="fw-semibold">
-                              {formatPrice(ui.data.transactions.amount)}{" "}
-                              {ui.data.transactions.currency}
+                {(() => {
+                  const tx =
+                    ui.data.transaction ||
+                    (Array.isArray(ui.data.transactions)
+                      ? ui.data.transactions[0]
+                      : ui.data.transactions);
+                  if (!tx) return null;
+                  return (
+                    <div className="card shadow-sm">
+                      <div className="card-body">
+                        <h6 className="text-muted mb-3">Transaction</h6>
+                        <div className="border rounded p-3 bg-body">
+                          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                              <div className="text-muted small">Statut</div>
+                              <span className="fw-semibold">
+                                {getStatusLabel(tx.status)}
+                              </span>
                             </div>
-                          </div>
-                          <div>
-                            <div className="text-muted small">Référence</div>
-                            <CopyableField
-                              value={ui.data.transactions.reference || "-"}
-                            />
+                            <div>
+                              <div className="text-muted small">Montant</div>
+                              <div className="fw-semibold">
+                                {formatPrice(tx.amount)} {tx.currency || "XOF"}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-muted small">Référence</div>
+                              <CopyableField value={tx.reference || "-"} />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ) : null}
+                  );
+                })()}
               </div>
             )}
           </Modal.Body>

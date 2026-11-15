@@ -67,7 +67,7 @@ export default function VisitsChart() {
     labels: data.labels || [],
     datasets: [
       {
-        label: `Visites (${period})`,
+        label: `Visiteurs (${period})`,
         data: data.counts || [], // Utilise data.counts renvoyé par le nouveau backend
         fill: true,
         backgroundColor: isDarkMode
@@ -104,10 +104,10 @@ export default function VisitsChart() {
 
   return (
     <div className="row g-3">
-      {/* Cards visites aujourd'hui et total */}
+      {/* Cards visiteurs aujourd'hui et total */}
       <div className="col-md-4 d-flex flex-column gap-3 justify-content-evenly">
         <div className="card text-center p-3 bg-body rounded shadow-sm h-100 d-flex align-items-center justify-content-center">
-          <h6>Visites aujourd'hui</h6>
+          <h6>Visiteurs aujourd'hui</h6>
           <span className="fs-2 fw-bold">
             <CountUp
               end={data.today}
@@ -119,7 +119,7 @@ export default function VisitsChart() {
           </span>
         </div>
         <div className="card text-center p-3 bg-body rounded shadow-sm h-100 d-flex align-items-center justify-content-center">
-          <h6>Total visites</h6>
+          <h6>Total visiteurs</h6>
           <span className="fs-2 fw-bold">
             <CountUp
               end={data.total}

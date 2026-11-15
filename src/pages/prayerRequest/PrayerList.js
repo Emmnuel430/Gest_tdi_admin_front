@@ -52,7 +52,9 @@ const PrayerList = () => {
 
   // Recherche
   const filteredPrayers = sortedPrayers.filter((prayer) =>
-    prayer.objet.toLowerCase().includes(searchQuery.toLowerCase()),
+    `${prayer.objet || ""} ${prayer.nom || ""} ${prayer.prenom || ""} ${prayer.email || ""}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase()),
   );
 
   // Détails
@@ -120,6 +122,7 @@ const PrayerList = () => {
                   <th>#</th>
                   <th>Demandeur</th>
                   <th>Objet</th>
+                  <th>Montant</th>
                   <th>Statut</th>
                   <th>Actions</th>
                 </tr>
@@ -135,11 +138,18 @@ const PrayerList = () => {
                             {" "}
                             {formatPrenom(prayer.prenom)}
                           </span>{" "}
-                          {prayer.nom.toUpperCase()}
+                          {(prayer.nom || "").toUpperCase()}
                         </div>
                         <div className="text-muted small">{prayer.email}</div>
                       </td>
                       <td>{prayer.objet}</td>
+                      <td>
+                        <span className="fw-semibold">
+                          {prayer.transactions?.[0]?.amount
+                            ? `${parseFloat(prayer.transactions[0].amount).toLocaleString("fr-FR")} ${prayer.transactions[0].currency || "XOF"}`
+                            : "-"}
+                        </span>
+                      </td>
                       <td>
                         {prayer.is_validated ? (
                           <span className="badge bg-success ms-2">Validée</span>
